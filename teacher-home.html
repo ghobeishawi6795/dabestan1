@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>دبستان — داشبورد معلم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .phone{padding-bottom:96px;}
+  
+  .quick-actions{
+    margin:0 20px 20px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+  .action{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    transition:all .2s var(--ease);
+    box-shadow:var(--shadow-sm);
+    border:1.5px solid transparent;
+    text-decoration:none;
+    color:inherit;
+  }
+  .action:hover{
+    border-color:var(--primary);
+    transform:translateY(-2px);
+    box-shadow:var(--shadow);
+  }
+  .action:active{transform:scale(.98);}
+  .action-icon{
+    width:48px;
+    height:48px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+  }
+  .action.primary .action-icon{background:var(--primary-soft);}
+  .action.success .action-icon{background:var(--success-soft);}
+  .action.warning .action-icon{background:var(--warning-soft);}
+  .action.info .action-icon{background:var(--info-soft);}
+  .action-title{
+    font-size:13px;
+    font-weight:700;
+    color:var(--text);
+  }
+  .action-desc{
+    font-size:11px;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  .section{margin:0 20px 20px;}
+  .section-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .section-head h3{
+    margin:0;
+    font-size:15px;
+    font-weight:700;
+  }
+  .section-head a{
+    font-size:12px;
+    color:var(--primary);
+    font-weight:600;
+    text-decoration:none;
+  }
+
+  .tasks{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .reviews{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .review{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:14px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    box-shadow:var(--shadow-sm);
+    cursor:pointer;
+    transition:all .2s var(--ease);
+    border-right:4px solid var(--warning);
+    text-decoration:none;
+    color:inherit;
+  }
+  .review:hover{
+    box-shadow:var(--shadow);
+    transform:translateX(-2px);
+  }
+  .review:active{transform:scale(.98);}
+  .review-avatar{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#FFB86B,#FF7A90);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    color:#fff;
+    font-size:16px;
+    flex-shrink:0;
+  }
+  .review-body{flex:1; min-width:0;}
+  .review-name{
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:2px;
+  }
+  .review-task{
+    font-size:11px;
+    color:var(--text-2);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .review-time{
+    font-size:10px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .review-arrow{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:var(--warning-soft);
+    color:#B45309;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+
+  .welcome, .quick-actions, .section{
+    animation:rise .5s var(--ease) both;
+  }
+  .quick-actions{animation-delay:.05s;}
+  .section:nth-of-type(1){animation-delay:.1s;}
+  .section:nth-of-type(2){animation-delay:.15s;}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <header class="header">
+    <div class="greeting">
+      <span class="hi">سلام 👋</span>
+      <span class="name">خانم احمدی</span>
+    </div>
+    <div class="avatar-wrap">
+      <div class="avatar">خ</div>
+      <div class="bell">۵</div>
+    </div>
+  </header>
+
+  <section class="welcome">
+    <h2>امروز ۳ تکلیف منتظر بررسی شماست</h2>
+    <p>۲۴ دانش‌آموز در ۲ کلاس فعال دارید</p>
+    <div class="stats">
+      <div class="stat">
+        <div class="ico">🏫</div>
+        <div>
+          <div class="num">۲</div>
+          <div class="lbl">کلاس فعال</div>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="ico">👥</div>
+        <div>
+          <div class="num">۲۴</div>
+          <div class="lbl">دانش‌آموز</div>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="ico">📝</div>
+        <div>
+          <div class="num">۸</div>
+          <div class="lbl">تکلیف فعال</div>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="ico">⏳</div>
+        <div>
+          <div class="num">۳</div>
+          <div class="lbl">منتظر بررسی</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="quick-actions">
+    <a href="teacher-create.html" class="action primary">
+      <div class="action-icon">➕</div>
+      <div class="action-title">تکلیف جدید</div>
+      <div class="action-desc">ساخت و ارسال تکلیف</div>
+    </a>
+    <div class="action success">
+      <div class="action-icon">📚</div>
+      <div class="action-title">کلاس‌های من</div>
+      <div class="action-desc">مدیریت کلاس‌ها</div>
+    </div>
+    <a href="teacher-review.html" class="action warning">
+      <div class="action-icon">⏳</div>
+      <div class="action-title">بررسی پاسخ‌ها</div>
+      <div class="action-desc">۳ تکلیف جدید</div>
+    </a>
+    <div class="action info">
+      <div class="action-icon">📊</div>
+      <div class="action-title">گزارش عملکرد</div>
+      <div class="action-desc">آمار کلاس‌ها</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h3>تکالیف اخیر</h3>
+      <a href="#">مشاهده همه</a>
+    </div>
+    <div class="tasks">
+      
+      <div class="task math">
+        <div class="task-icon">🧮</div>
+        <div class="task-body">
+          <div class="task-top">
+            <div>
+              <h4 class="task-title">تمرین صفحه ۴۲</h4>
+              <div class="task-subject">سوم الف • ریاضی</div>
+            </div>
+            <span class="badge ok">فعال</span>
+          </div>
+          <div class="task-meta">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              مهلت: امروز ۲۰:۰۰
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              ۲۴ دانش‌آموز
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="task farsi">
+        <div class="task-icon">📖</div>
+        <div class="task-body">
+          <div class="task-top">
+            <div>
+              <h4 class="task-title">روخوانی درس ۵</h4>
+              <div class="task-subject">سوم الف • فارسی</div>
+            </div>
+            <span class="badge warn">در حال بررسی</span>
+          </div>
+          <div class="task-meta">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              مهلت: دیروز
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              ۱۸ از ۲۴ تحویل
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="task science">
+        <div class="task-icon">🔬</div>
+        <div class="task-body">
+          <div class="task-top">
+            <div>
+              <h4 class="task-title">گزارش آزمایش گیاه</h4>
+              <div class="task-subject">چهارم ب • علوم</div>
+            </div>
+            <span class="badge new">پایان‌یافته</span>
+          </div>
+          <div class="task-meta">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              پایان: ۳ روز پیش
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              ۲۶ از ۲۶ تحویل
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h3>منتظر بررسی شما</h3>
+      <a href="teacher-review.html">همه</a>
+    </div>
+    <div class="reviews">
+      
+      <a href="teacher-review.html" class="review">
+        <div class="review-avatar">آ</div>
+        <div class="review-body">
+          <div class="review-name">آریا محمدی</div>
+          <div class="review-task">تمرین صفحه ۴۲ • ریاضی</div>
+          <div class="review-time">۱۰ دقیقه پیش</div>
+        </div>
+        <div class="review-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1)"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </a>
+
+      <a href="teacher-review.html" class="review">
+        <div class="review-avatar">س</div>
+        <div class="review-body">
+          <div class="review-name">سارا رضایی</div>
+          <div class="review-task">روخوانی درس ۵ • فارسی</div>
+          <div class="review-time">۳۰ دقیقه پیش</div>
+        </div>
+        <div class="review-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1)"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </a>
+
+      <a href="teacher-review.html" class="review">
+        <div class="review-avatar">م</div>
+        <div class="review-body">
+          <div class="review-name">محمد حسینی</div>
+          <div class="review-task">تمرین صفحه ۴۲ • ریاضی</div>
+          <div class="review-time">۱ ساعت پیش</div>
+        </div>
+        <div class="review-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1)"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <nav class="nav">
+    <a href="teacher-home.html" class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      <span>خانه</span>
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M16 4v4h4"/></svg>
+      <span>تکالیف</span>
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>کلاس‌ها</span>
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 5 3 6 3 6H3s3-1 3-6z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+      <span>اعلان</span>
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      <span>من</span>
+    </a>
+  </nav>
+
+</div>
+
+</body>
+</html>
