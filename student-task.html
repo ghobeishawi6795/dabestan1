@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>دبستان — انجام تکلیف</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .phone{padding-bottom:100px;}
+  
+  .header{
+    padding:18px 20px 14px;
+    background:var(--card);
+    border-bottom:1px solid var(--border);
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  .header-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .back-btn{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    background:var(--bg);
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:all .2s var(--ease);
+    text-decoration:none;
+    color:var(--text);
+  }
+  .back-btn:hover{background:var(--primary-soft);}
+  .back-btn svg{
+    width:20px;
+    height:20px;
+    transform:scaleX(-1);
+  }
+  .header-info{flex:1;}
+  .header-title{
+    font-size:16px;
+    font-weight:700;
+    margin:0;
+  }
+  .header-sub{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:1px;
+  }
+  .deadline-badge{
+    background:var(--warning-soft);
+    color:#B45309;
+    font-size:11px;
+    font-weight:700;
+    padding:5px 12px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+
+  .task-card{
+    margin:16px 20px;
+    background:var(--card);
+    border-radius:var(--radius-lg);
+    padding:18px;
+    box-shadow:var(--shadow-sm);
+    animation:fadeUp .4s var(--ease) both;
+  }
+  .task-icon{
+    width:56px;
+    height:56px;
+    border-radius:18px;
+    background:var(--info-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:32px;
+    margin-bottom:14px;
+  }
+  .task-title{
+    font-size:17px;
+    font-weight:800;
+    margin:0 0 6px;
+  }
+  .task-desc{
+    font-size:13px;
+    color:var(--text-2);
+    margin:0 0 14px;
+    line-height:1.8;
+  }
+  .task-meta{
+    display:flex;
+    gap:12px;
+    font-size:11px;
+    color:var(--muted);
+  }
+  .task-meta span{
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .task-meta svg{
+    width:14px;
+    height:14px;
+  }
+
+  .attachment{
+    margin-top:14px;
+    background:var(--primary-soft);
+    border-radius:var(--radius);
+    padding:12px 14px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+    transition:all .2s var(--ease);
+  }
+  .attachment:hover{
+    background:var(--primary);
+    color:#fff;
+  }
+  .attachment:hover .att-name{color:#fff;}
+  .attachment:hover .att-size{color:rgba(255,255,255,.8);}
+  .att-icon{
+    width:40px;
+    height:40px;
+    border-radius:12px;
+    background:var(--primary);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+  }
+  .att-info{flex:1;}
+  .att-name{
+    font-size:13px;
+    font-weight:700;
+    color:var(--primary);
+    transition:color .2s var(--ease);
+  }
+  .att-size{
+    font-size:11px;
+    color:var(--muted);
+    transition:color .2s var(--ease);
+  }
+
+  .response-form{
+    margin:20px;
+    animation:fadeUp .4s var(--ease) .1s both;
+  }
+  .response-label{
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  .response-tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .response-tabs::-webkit-scrollbar{display:none;}
+  .response-tab{
+    flex-shrink:0;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    background:var(--card);
+    color:var(--text-2);
+    border:1.5px solid var(--border);
+    cursor:pointer;
+    transition:all .2s var(--ease);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .response-tab.active{
+    background:var(--primary);
+    color:#fff;
+    border-color:var(--primary);
+  }
+  .response-tab .emoji{font-size:16px;}
+
+  .response-field{
+    display:none;
+  }
+  .response-field.active{
+    display:block;
+    animation:fadeUp .3s var(--ease) both;
+  }
+
+  .textarea{
+    width:100%;
+    min-height:140px;
+    padding:14px;
+    border:1.5px solid var(--border);
+    border-radius:var(--radius);
+    background:var(--card);
+    font-family:inherit;
+    font-size:14px;
+    color:var(--text);
+    resize:vertical;
+    transition:all .2s var(--ease);
+  }
+  .textarea:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px var(--primary-soft);
+  }
+  .textarea::placeholder{color:var(--muted);}
+
+  .upload-area{
+    background:var(--card);
+    border:2px dashed var(--border);
+    border-radius:var(--radius);
+    padding:32px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:all .2s var(--ease);
+  }
+  .upload-area:hover{
+    border-color:var(--primary);
+    background:var(--primary-soft);
+  }
+  .upload-icon{
+    width:64px;
+    height:64px;
+    margin:0 auto 12px;
+    border-radius:50%;
+    background:var(--primary-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:32px;
+  }
+  .upload-title{
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .upload-desc{
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  .audio-recorder{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:20px;
+    text-align:center;
+    box-shadow:var(--shadow-sm);
+  }
+  .record-btn{
+    width:72px;
+    height:72px;
+    margin:0 auto 14px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),#8B7CF6);
+    color:#fff;
+    border:none;
+    font-size:32px;
+    cursor:pointer;
+    box-shadow:0 8px 24px rgba(108,92,231,.3);
+    transition:all .2s var(--ease);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .record-btn:hover{
+    transform:scale(1.05);
+    box-shadow:0 12px 32px rgba(108,92,231,.4);
+  }
+  .record-btn:active{
+    transform:scale(.95);
+  }
+  .record-btn.recording{
+    background:var(--danger);
+    animation:pulse 1.5s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5);}
+    50%{box-shadow:0 0 0 16px rgba(239,68,68,0);}
+  }
+  .record-status{
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-2);
+    margin-bottom:8px;
+  }
+  .record-timer{
+    font-size:24px;
+    font-weight:800;
+    color:var(--primary);
+    font-variant-numeric:tabular-nums;
+  }
+
+  .file-upload{
+    background:var(--card);
+    border:2px dashed var(--border);
+    border-radius:var(--radius);
+    padding:28px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:all .2s var(--ease);
+  }
+  .file-upload:hover{
+    border-color:var(--primary);
+    background:var(--primary-soft);
+  }
+  .file-icon{
+    width:56px;
+    height:56px;
+    margin:0 auto 12px;
+    border-radius:50%;
+    background:var(--primary-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+  }
+
+  .submit-wrap{
+    position:fixed;
+    bottom:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:100%;
+    max-width:430px;
+    padding:16px 20px;
+    background:var(--card);
+    border-top:1px solid var(--border);
+    box-shadow:0 -4px 16px rgba(30,30,60,.06);
+  }
+
+  .success-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,.95);
+    z-index:100;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .3s var(--ease);
+  }
+  .success-overlay.show{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .success-icon{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    background:var(--success-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:64px;
+    margin-bottom:24px;
+    animation:popIn .5s var(--ease) both;
+  }
+  .success-title{
+    font-size:22px;
+    font-weight:800;
+    margin-bottom:8px;
+    animation:fadeUp .4s var(--ease) .2s both;
+  }
+  .success-desc{
+    font-size:14px;
+    color:var(--text-2);
+    text-align:center;
+    max-width:280px;
+    animation:fadeUp .4s var(--ease) .3s both;
+  }
+
+  @keyframes popIn{
+    from{opacity:0; transform:scale(.5);}
+    to{opacity:1; transform:scale(1);}
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <header class="header">
+    <div class="header-row">
+      <a href="student-home.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="header-info">
+        <h1 class="header-title">تمرین صفحه ۴۲</h1>
+        <div class="header-sub">ریاضی • سوم الف</div>
+      </div>
+      <div class="deadline-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        تا ۲۰:۰۰
+      </div>
+    </div>
+  </header>
+
+  <div class="task-card">
+    <div class="task-icon">🧮</div>
+    <h2 class="task-title">تمرین صفحه ۴۲</h2>
+    <p class="task-desc">
+      سلام آریا جان! 👋<br>
+      سؤال‌های ۱ تا ۶ صفحه ۴۲ کتاب ریاضی را در دفتر حل کن. سعی کن مرتب و تمیز بنویسی.
+    </p>
+    <div class="task-meta">
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        ۱۵ دقیقه
+      </span>
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        پاسخ متنی یا عکس
+      </span>
+    </div>
+    <div class="attachment">
+      <div class="att-icon">📄</div>
+      <div class="att-info">
+        <div class="att-name">تمرین_صفحه_۴۲.pdf</div>
+        <div class="att-size">۲.۴ MB</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="response-form">
+    <div class="response-label">
+      ✍️ پاسخ خود را وارد کن
+    </div>
+
+    <div class="response-tabs">
+      <div class="response-tab active" data-type="text">
+        <span class="emoji">📝</span>
+        پاسخ متنی
+      </div>
+      <div class="response-tab" data-type="image">
+        <span class="emoji">📷</span>
+        عکس از مشق
+      </div>
+      <div class="response-tab" data-type="audio">
+        <span class="emoji">🎙️</span>
+        ضبط صدا
+      </div>
+      <div class="response-tab" data-type="file">
+        <span class="emoji">📁</span>
+        آپلود فایل
+      </div>
+    </div>
+
+    <div class="response-field active" data-field="text">
+      <textarea class="textarea" placeholder="جواب‌ها را اینجا بنویس...&#10;&#10;مثلاً:&#10;۱) ۱۲ × ۳ = ۳۶&#10;۲) ۱۵ × ۴ = ۶۰"></textarea>
+    </div>
+
+    <div class="response-field" data-field="image">
+      <div class="upload-area">
+        <div class="upload-icon">📷</div>
+        <div class="upload-title">عکس بگیر یا از گالری انتخاب کن</div>
+        <div class="upload-desc">عکس مشق‌هایت را اینجا بفرست</div>
+      </div>
+    </div>
+
+    <div class="response-field" data-field="audio">
+      <div class="audio-recorder">
+        <button class="record-btn" id="recordBtn">🎙️</button>
+        <div class="record-status" id="recordStatus">برای ضبط کلیک کن</div>
+        <div class="record-timer" id="recordTimer">۰:۰۰</div>
+      </div>
+    </div>
+
+    <div class="response-field" data-field="file">
+      <div class="file-upload">
+        <div class="file-icon">📎</div>
+        <div class="upload-title">فایل خود را انتخاب کن</div>
+        <div class="upload-desc">PDF، Word یا هر فایل دیگری</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="submit-wrap">
+    <button class="btn btn-primary" id="submitBtn">
+      📤 ارسال تکلیف
+    </button>
+  </div>
+
+</div>
+
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">🎉</div>
+  <div class="success-title">آفرین آریا!</div>
+  <div class="success-desc">تکلیفت با موفقیت ارسال شد. حالا منتظر بازخورد معلم باش!</div>
+</div>
+
+<script>
+  document.querySelectorAll('.response-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      const type = tab.dataset.type;
+      
+      document.querySelectorAll('.response-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      document.querySelectorAll('.response-field').forEach(f=>{
+        f.classList.toggle('active',f.dataset.field === type);
+      });
+    });
+  });
+
+  const recordBtn = document.getElementById('recordBtn');
+  const recordStatus = document.getElementById('recordStatus');
+  const recordTimer = document.getElementById('recordTimer');
+  let isRecording = false;
+  let timerInterval;
+  let seconds = 0;
+
+  recordBtn.addEventListener('click',()=>{
+    if(!isRecording){
+      isRecording = true;
+      recordBtn.classList.add('recording');
+      recordBtn.textContent = '⏸️';
+      recordStatus.textContent = 'در حال ضبط...';
+      seconds = 0;
+      timerInterval = setInterval(()=>{
+        seconds++;
+        const min = Math.floor(seconds / 60);
+        const sec = seconds % 60;
+        recordTimer.textContent = `${min}:${sec.toString().padStart(2,'0')}`;
+      },1000);
+    } else {
+      isRecording = false;
+      recordBtn.classList.remove('recording');
+      recordBtn.textContent = '▶️';
+      recordStatus.textContent = 'ضبط تمام شد! برای پخش کلیک کن';
+      clearInterval(timerInterval);
+    }
+  });
+
+  document.getElementById('submitBtn').addEventListener('click',()=>{
+    const success = document.getElementById('successOverlay');
+    success.classList.add('show');
+    
+    setTimeout(()=>{
+      success.classList.remove('show');
+      window.location.href = 'student-home.html';
+    },3000);
+  });
+
+  document.querySelector('.upload-area').addEventListener('click',()=>{
+    alert('📷 دوربین باز شد (شبیه‌سازی)');
+  });
+
+  document.querySelector('.file-upload').addEventListener('click',()=>{
+    alert('📎 فایل انتخاب شد (شبیه‌سازی)');
+  });
+</script>
+
+</body>
+</html>
