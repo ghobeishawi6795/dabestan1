@@ -36,8 +36,6 @@
   .result.success { background: var(--success-soft); color: #15803D; }
   .result.error { background: var(--danger-soft); color: var(--danger); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  
-  /* استایل پیش‌نمایش سوالات */
   .preview-container { max-height: 500px; overflow-y: auto; border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 16px; background: var(--bg); }
   .question-preview { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; transition: all .2s; }
   .question-preview:hover { border-color: var(--primary); }
@@ -49,8 +47,6 @@
   .select-all-btn { padding: 10px 20px; border: 2px solid var(--primary); border-radius: 10px; background: white; color: var(--primary); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
   .select-all-btn:hover { background: var(--primary); color: white; }
   .selected-count { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
-  
-  /* استایل لیست سوالات */
   .question-item { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
   .question-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
   .question-title { font-size: 15px; font-weight: 700; margin: 0; }
@@ -60,6 +56,15 @@
   .btn-delete { background: var(--danger-soft); color: var(--danger); }
   .empty-state { text-align: center; padding: 40px 16px; color: var(--muted); }
   .empty-state .emoji { font-size: 48px; margin-bottom: 8px; }
+  
+  /* استایل مودال پیش‌نمایش */
+  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal.active { display: flex; }
+  .modal-content { background: var(--card); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .modal-header h3 { margin: 0; font-size: 18px; }
+  .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
+  .preview-box { background: var(--bg); border: 2px solid var(--border); border-radius: 12px; padding: 16px; }
 </style>
 </head>
 <body>
@@ -140,7 +145,6 @@
             <input type="file" id="htmlFile" accept=".html,.htm" style="display:none" onchange="handleFileSelect(this)">
           </div>
           
-          <!-- پیش‌نمایش سوالات -->
           <div id="questionsPreview" style="display:none">
             <h3 style="margin:20px 0 12px;font-size:16px;">پیش‌نمایش سوالات</h3>
             <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">سوالاتی که می‌خواهید به بانک اضافه شوند را تیک بزنید:</p>
@@ -189,6 +193,17 @@
   </div>
 </div>
 
+<!-- مودال پیش‌نمایش -->
+<div id="previewModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>پیش‌نمایش سوال</h3>
+      <button class="close-btn" onclick="closePreviewModal()">&times;</button>
+    </div>
+    <div id="previewContent" class="preview-box"></div>
+  </div>
+</div>
+
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const teacherId = user.id || 1;
@@ -229,11 +244,8 @@ function handleFileSelect(input) {
 }
 
 function parseQuestions(htmlContent) {
-  // ایجاد یک DOM موقت برای پارس HTML
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, 'text/html');
-  
-  // پیدا کردن تمام divهای با کلاس question
   const questionElements = doc.querySelectorAll('.question');
   
   parsedQuestions = [];
@@ -257,7 +269,6 @@ function parseQuestions(htmlContent) {
     
     displayQuestionsPreview();
   } else {
-    // اگه ساختار استاندارد نبود، کل محتوا رو یه سوال در نظر بگیر
     parsedQuestions = [{
       id: 1,
       title: 'سوال',
@@ -339,7 +350,7 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
   } else {
     if (parsedQuestions.length === 0) {
       resDiv.className = 'result error';
-      resDiv.textContent = ' لطفاً ابتدا فایل HTML را انتخاب کنید';
+      resDiv.textContent = '❌ لطفاً ابتدا فایل HTML را انتخاب کنید';
       btn.disabled = false;
       btn.textContent = 'آپلود در بانک';
       return;
@@ -399,7 +410,7 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
     }
   } catch (err) {
     resDiv.className = 'result error';
-    resDiv.textContent = '❌ خطا در اتصال به سرور';
+    resDiv.textContent = ' خطا در اتصال به سرور';
   }
   
   btn.disabled = false;
@@ -420,13 +431,13 @@ async function loadQuestions() {
     const data = await res.json();
     
     if (data.success && data.questions.length > 0) {
-      list.innerHTML = data.questions.map(q => `
+      list.innerHTML = data.questions.map((q, index) => `
         <div class="question-item">
           <div class="question-header">
             <h4 class="question-title">${q.title}</h4>
           </div>
           <div class="question-meta">${q.subject || '-'} | پایه ${q.grade || '-'}</div>
-          <button class="btn-small btn-preview" onclick="alert('${q.question_html.replace(/'/g, "\\'").substring(0, 100)}...')">پیش‌نمایش</button>
+          <button class="btn-small btn-preview" onclick="showQuestionPreview('${q.title}', ${JSON.stringify(q.question_html).replace(/"/g, '&quot;')})">پیش‌نمایش</button>
         </div>
       `).join('');
     } else {
@@ -435,6 +446,18 @@ async function loadQuestions() {
   } catch (err) {
     list.innerHTML = '<div class="empty-state"><p>خطا در دریافت سوالات</p></div>';
   }
+}
+
+function showQuestionPreview(title, htmlContent) {
+  const modal = document.getElementById('previewModal');
+  const content = document.getElementById('previewContent');
+  
+  content.innerHTML = `<h4 style="margin:0 0 12px;color:var(--primary)">${title}</h4><div>${htmlContent}</div>`;
+  modal.classList.add('active');
+}
+
+function closePreviewModal() {
+  document.getElementById('previewModal').classList.remove('active');
 }
 </script>
 </body>
