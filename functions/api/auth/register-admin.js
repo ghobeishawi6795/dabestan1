@@ -1,46 +1,58 @@
+// functions/api/auth/register-admin.js
 import { hashPassword, generateCode } from '../../_lib/crypto.js';
 
 export async function onRequest(context) {
-  const { env } = context;
+  const { env, request } = context;
 
-  if (context.request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  if (request.method !== 'POST') {
+    return new Response(JSON.stringify({ success: false, message: 'متد درخواست نامعتبر است' }), { 
+      status: 405, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
   }
 
   try {
-    const body = await context.request.json();
+    const body = await request.json();
     const { schoolName, adminName, phone, password } = body;
 
     if (!schoolName || !adminName || !phone || !password) {
-      return new Response(JSON.stringify({
-        success: false,
-        message: 'همه فیلدها الزامی هستند'
-      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ success: false, message: 'تمامی فیلدها الزامی هستند' }), { 
+        status: 400, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
     }
 
-    // بررسی اینکه آیا مدیری وجود داره یا نه
+    // بررسی اینکه آیا قبلاً مدیری ثبت‌نام کرده است یا خیر
     const existingAdmin = await env.DB.prepare("SELECT id FROM users WHERE role = 'admin'").first();
-
     if (existingAdmin) {
-      return new Response(JSON.stringify({
-        success: false,
-        message: 'مدیر قبلاً ثبت‌نام کرده است'
-      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ success: false, message: 'مدیر قبلاً در این سامانه ثبت‌نام کرده است' }), { 
+        status: 400, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
     }
 
-    // ساخت کد مدرسه (همون کد ورود خود مدیر هم هست)
-    const schoolCode = generateCode();
+    // تولید کد یکتا برای مدرسه (با پیشوند SCH برای خوانایی بهتر)
+    let schoolCode;
+    let isUnique = false;
+    while (!isUnique) {
+      schoolCode = generateCode('SCH-');
+      const existingSchool = await env.DB.prepare("SELECT id FROM schools WHERE code = ?").bind(schoolCode).first();
+      if (!existingSchool) {
+        isUnique = true; // کد یکتا است و می‌توان از آن استفاده کرد
+      }
+    }
+
     const passwordHash = await hashPassword(password);
 
-    // ثبت مدرسه
+    // ۱. ثبت اطلاعات مدرسه
     await env.DB.prepare(`
       INSERT INTO schools (name, code) VALUES (?, ?)
     `).bind(schoolName, schoolCode).run();
 
+    // ۲. دریافت ID مدرسه‌ی刚刚 ثبت‌شده
     const school = await env.DB.prepare("SELECT id FROM schools WHERE code = ?").bind(schoolCode).first();
 
-    // ثبت مدیر - نکته مهم: invite_code مدیر رو هم برابر با schoolCode می‌ذاریم
-    // چون فرم ورود (login.js) فقط با invite_code کار می‌کنه، نه با schools.code
+    // ۳. ثبت کاربر مدیر (کد دعوت مدیر همان کد مدرسه است)
     await env.DB.prepare(`
       INSERT INTO users (school_id, name, phone, password_hash, role, invite_code, is_active)
       VALUES (?, ?, ?, ?, 'admin', ?, 1)
@@ -48,15 +60,21 @@ export async function onRequest(context) {
 
     return new Response(JSON.stringify({
       success: true,
-      message: 'مدیر با موفقیت ثبت‌نام شد',
+      message: 'مدرسه و مدیر با موفقیت ثبت‌نام شدند',
       schoolCode: schoolCode
-    }), { headers: { 'Content-Type': 'application/json' } });
+    }), { 
+      headers: { 'Content-Type': 'application/json' } 
+    });
 
   } catch (error) {
+    console.error('Register admin error:', error);
     return new Response(JSON.stringify({
       success: false,
-      message: 'خطا در ثبت‌نام',
+      message: 'خطا در ثبت‌نام. لطفاً دوباره تلاش کنید.',
       error: error.message
-    }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    }), { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
   }
-}
+      }
