@@ -2,535 +2,168 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-<title>دبستان — ساخت تکلیف جدید</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ساخت تکلیف جدید - دبستان</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-  .phone{padding-bottom:100px;}
-  
-  .header{
-    padding:20px 20px 16px;
-    background:var(--card);
-    border-bottom:1px solid var(--border);
-    position:sticky;
-    top:0;
-    z-index:10;
-  }
-  .header-top{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:14px;
-  }
-  .back-btn{
-    width:38px;
-    height:38px;
-    border-radius:12px;
-    background:var(--bg);
-    border:none;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    transition:all .2s var(--ease);
-    text-decoration:none;
-    color:var(--text);
-  }
-  .back-btn:hover{
-    background:var(--primary-soft);
-    color:var(--primary);
-  }
-  .back-btn svg{
-    width:20px;
-    height:20px;
-    transform:scaleX(-1);
-  }
-  .header-title{
-    flex:1;
-    font-size:17px;
-    font-weight:700;
-  }
-  .save-draft{
-    font-size:12px;
-    color:var(--primary);
-    font-weight:600;
-    background:none;
-    border:none;
-    cursor:pointer;
-    padding:6px 12px;
-    border-radius:8px;
-    transition:background .2s var(--ease);
-  }
-  .save-draft:hover{
-    background:var(--primary-soft);
-  }
-
-  .progress{
-    height:4px;
-    background:var(--border);
-    border-radius:999px;
-    overflow:hidden;
-  }
-  .progress-bar{
-    height:100%;
-    background:linear-gradient(90deg,var(--primary),#8B7CF6);
-    width:25%;
-    transition:width .4s var(--ease);
-  }
-
-  .form{padding:20px;}
-
-  .section{
-    margin-bottom:24px;
-    animation:fadeUp .5s var(--ease) both;
-  }
-  .section:nth-child(1){animation-delay:.05s;}
-  .section:nth-child(2){animation-delay:.1s;}
-  .section:nth-child(3){animation-delay:.15s;}
-  .section:nth-child(4){animation-delay:.2s;}
-  .section:nth-child(5){animation-delay:.25s;}
-  .section:nth-child(6){animation-delay:.3s;}
-
-  .section-label{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-size:13px;
-    font-weight:700;
-    color:var(--text);
-    margin-bottom:10px;
-  }
-  .section-label .num{
-    width:22px;
-    height:22px;
-    border-radius:50%;
-    background:var(--primary);
-    color:#fff;
-    font-size:11px;
-    font-weight:800;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-
-  .subjects{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-  }
-  .subject{
-    background:var(--card);
-    border:2px solid var(--border);
-    border-radius:var(--radius);
-    padding:14px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    cursor:pointer;
-    transition:all .2s var(--ease);
-  }
-  .subject:hover{
-    border-color:var(--primary);
-    transform:translateY(-2px);
-    box-shadow:var(--shadow-sm);
-  }
-  .subject.selected{
-    border-color:var(--primary);
-    background:var(--primary-soft);
-  }
-  .subject-icon{
-    width:40px;
-    height:40px;
-    border-radius:12px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:20px;
-    flex-shrink:0;
-  }
-  .subject.math .subject-icon{background:var(--info-soft);}
-  .subject.farsi .subject-icon{background:var(--pink-soft);}
-  .subject.science .subject-icon{background:var(--success-soft);}
-  .subject.quran .subject-icon{background:var(--primary-soft);}
-  .subject-name{
-    font-size:13px;
-    font-weight:700;
-  }
-
-  .textarea{
-    width:100%;
-    min-height:100px;
-    padding:13px 14px;
-    border:1.5px solid var(--border);
-    border-radius:14px;
-    background:var(--card);
-    font-family:inherit;
-    font-size:14px;
-    color:var(--text);
-    resize:vertical;
-    transition:all .2s var(--ease);
-  }
-  .textarea:focus{
-    outline:none;
-    border-color:var(--primary);
-    box-shadow:0 0 0 4px var(--primary-soft);
-  }
-  .textarea::placeholder{
-    color:var(--muted);
-    font-size:13px;
-  }
-
-  .upload{
-    background:var(--card);
-    border:2px dashed var(--border);
-    border-radius:var(--radius);
-    padding:24px;
-    text-align:center;
-    cursor:pointer;
-    transition:all .2s var(--ease);
-  }
-  .upload:hover{
-    border-color:var(--primary);
-    background:var(--primary-soft-2);
-  }
-  .upload-icon{
-    width:56px;
-    height:56px;
-    margin:0 auto 12px;
-    border-radius:50%;
-    background:var(--primary-soft);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:28px;
-  }
-  .upload-title{
-    font-size:14px;
-    font-weight:700;
-    margin-bottom:4px;
-  }
-  .upload-desc{
-    font-size:12px;
-    color:var(--muted);
-  }
-
-  .response-types{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-  }
-  .response-type{
-    background:var(--card);
-    border:2px solid var(--border);
-    border-radius:var(--radius);
-    padding:14px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    cursor:pointer;
-    transition:all .2s var(--ease);
-  }
-  .response-type:hover{
-    border-color:var(--primary);
-  }
-  .response-type.selected{
-    border-color:var(--primary);
-    background:var(--primary-soft);
-  }
-  .response-type-icon{
-    width:36px;
-    height:36px;
-    border-radius:10px;
-    background:var(--primary-soft);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:18px;
-    flex-shrink:0;
-  }
-  .response-type-name{
-    font-size:12px;
-    font-weight:700;
-  }
-
-  .deadline{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-  }
-
-  .recipients{
-    background:var(--card);
-    border-radius:var(--radius);
-    padding:14px;
-    box-shadow:var(--shadow-sm);
-  }
-  .recipient-option{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:10px;
-    border-radius:12px;
-    cursor:pointer;
-    transition:background .2s var(--ease);
-  }
-  .recipient-option:hover{
-    background:var(--bg);
-  }
-  .recipient-option.selected{
-    background:var(--primary-soft);
-  }
-  .radio{
-    width:20px;
-    height:20px;
-    border-radius:50%;
-    border:2px solid var(--border);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
-    transition:all .2s var(--ease);
-  }
-  .recipient-option.selected .radio{
-    border-color:var(--primary);
-    background:var(--primary);
-  }
-  .recipient-option.selected .radio::after{
-    content:"";
-    width:8px;
-    height:8px;
-    border-radius:50%;
-    background:#fff;
-  }
-  .recipient-label{
-    flex:1;
-    font-size:13px;
-    font-weight:600;
-  }
-  .recipient-count{
-    font-size:11px;
-    color:var(--muted);
-  }
-
-  .submit-wrap{
-    position:fixed;
-    bottom:0;
-    left:50%;
-    transform:translateX(-50%);
-    width:100%;
-    max-width:430px;
-    padding:16px 20px;
-    background:var(--card);
-    border-top:1px solid var(--border);
-    box-shadow:0 -4px 16px rgba(30,30,60,.06);
-  }
+  .screen { padding: 24px; min-height: 100%; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .back-btn:hover { border-color: var(--primary); transform: translateX(4px); }
+  .back-btn svg { width: 20px; height: 20px; color: var(--text-2); }
+  .page-title { flex: 1; }
+  .page-title h1 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
+  .page-title p { margin: 0; font-size: 12px; color: var(--muted); }
+  .card { background: var(--card); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 14px; background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); box-sizing: border-box; }
+  .field textarea { min-height: 100px; resize: vertical; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); }
+  .submit-btn { width: 100%; padding: 15px; border: none; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+  .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+  .result { margin-top: 16px; padding: 16px; border-radius: 12px; font-size: 14px; }
+  .result.error { background: var(--danger-soft); color: var(--danger); }
+  .result.success { background: var(--success-soft); color: #15803D; }
+  .optional { font-size: 11px; color: var(--muted); margin-right: 6px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 </style>
 </head>
 <body>
-
 <div class="phone">
-
-  <header class="header">
-    <div class="header-top">
-      <a href="teacher-home.html" class="back-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </a>
-      <div class="header-title">تکلیف جدید</div>
-      <button class="save-draft">ذخیره پیش‌نویس</button>
-    </div>
-    <div class="progress">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-  </header>
-
-  <form class="form" id="taskForm">
-
-    <div class="section">
-      <div class="section-label">
-        <span class="num">۱</span>
-        درس را انتخاب کنید
+  <div class="screen">
+    <div class="header">
+      <div class="back-btn" onclick="window.location.href='teacher-home.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
       </div>
-      <div class="subjects">
-        <div class="subject math" data-subject="math">
-          <div class="subject-icon">🧮</div>
-          <div class="subject-name">ریاضی</div>
-        </div>
-        <div class="subject farsi" data-subject="farsi">
-          <div class="subject-icon">📖</div>
-          <div class="subject-name">فارسی</div>
-        </div>
-        <div class="subject science" data-subject="science">
-          <div class="subject-icon">🔬</div>
-          <div class="subject-name">علوم</div>
-        </div>
-        <div class="subject quran" data-subject="quran">
-          <div class="subject-icon">📗</div>
-          <div class="subject-name">قرآن</div>
-        </div>
+      <div class="page-title">
+        <h1>ساخت تکلیف جدید</h1>
+        <p>تکلیف جدید برای دانش‌آموزان بسازید</p>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-label">
-        <span class="num">۲</span>
-        عنوان و توضیحات
-      </div>
-      <div class="field">
-        <label for="title">عنوان تکلیف</label>
-        <input type="text" id="title" class="input" placeholder="مثلاً: تمرین صفحه ۴۲" />
-      </div>
-      <div class="field">
-        <label for="desc">توضیحات (اختیاری)</label>
-        <textarea id="desc" class="textarea" placeholder="توضیحات بیشتر برای دانش‌آموزان..."></textarea>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-label">
-        <span class="num">۳</span>
-        فایل تکلیف (اختیاری)
-      </div>
-      <div class="upload" id="uploadArea">
-        <div class="upload-icon">📎</div>
-        <div class="upload-title">فایل یا عکس را اینجا بکشید</div>
-        <div class="upload-desc">یا کلیک کنید برای انتخاب • PDF، عکس، Word</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-label">
-        <span class="num">۴</span>
-        دانش‌آموز چگونه پاسخ دهد؟
-      </div>
-      <div class="response-types">
-        <div class="response-type" data-type="text">
-          <div class="response-type-icon">📝</div>
-          <div class="response-type-name">پاسخ متنی</div>
-        </div>
-        <div class="response-type" data-type="image">
-          <div class="response-type-icon">📷</div>
-          <div class="response-type-name">عکس از مشق</div>
-        </div>
-        <div class="response-type" data-type="audio">
-          <div class="response-type-icon">🎙️</div>
-          <div class="response-type-name">ضبط صدا</div>
-        </div>
-        <div class="response-type" data-type="file">
-          <div class="response-type-icon">📁</div>
-          <div class="response-type-name">آپلود فایل</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-label">
-        <span class="num">۵</span>
-        مهلت ارسال
-      </div>
-      <div class="deadline">
+    <div class="card">
+      <form id="createTaskForm">
         <div class="field">
-          <label for="date">تاریخ</label>
-          <input type="text" id="date" class="input" placeholder="۱۴۰۳/۰۵/۲۸" />
+          <label>عنوان تکلیف</label>
+          <input type="text" id="title" placeholder="مثلاً: تمرین صفحه ۴۲" required />
         </div>
+        
+        <div class="row">
+          <div class="field">
+            <label>درس</label>
+            <select id="subject" required>
+              <option value="">انتخاب کنید</option>
+              <option value="ریاضی">ریاضی</option>
+              <option value="فارسی">فارسی</option>
+              <option value="علوم">علوم</option>
+              <option value="مطالعات اجتماعی">مطالعات اجتماعی</option>
+              <option value="هدیه‌های آسمانی">هدیه‌های آسمانی</option>
+              <option value="قرآن">قرآن</option>
+            </select>
+          </div>
+          
+          <div class="field">
+            <label>پایه تحصیلی</label>
+            <select id="grade" required>
+              <option value="">انتخاب کنید</option>
+              <option value="1">اول ابتدایی</option>
+              <option value="2">دوم ابتدایی</option>
+              <option value="3">سوم ابتدایی</option>
+              <option value="4">چهارم ابتدایی</option>
+              <option value="5">پنجم ابتدایی</option>
+              <option value="6">ششم ابتدایی</option>
+            </select>
+          </div>
+        </div>
+        
         <div class="field">
-          <label for="time">ساعت</label>
-          <input type="text" id="time" class="input" placeholder="۲۰:۰۰" />
+          <label>نام کلاس</label>
+          <input type="text" id="className" placeholder="مثلاً: الف" required />
         </div>
-      </div>
+        
+        <div class="field">
+          <label>توضیحات تکلیف</label>
+          <textarea id="description" placeholder="توضیحات کامل تکلیف را اینجا بنویسید..."></textarea>
+        </div>
+        
+        <div class="row">
+          <div class="field">
+            <label>مهلت ارسال <span class="optional">(اختیاری)</span></label>
+            <input type="datetime-local" id="deadline" />
+          </div>
+          
+          <div class="field">
+            <label>نوع پاسخ</label>
+            <select id="answerType">
+              <option value="text">متنی</option>
+              <option value="voice">صوتی</option>
+              <option value="image">تصویری</option>
+              <option value="file">فایل</option>
+            </select>
+          </div>
+        </div>
+        
+        <button type="submit" class="submit-btn" id="submitBtn">ایجاد تکلیف</button>
+      </form>
+      
+      <div id="result"></div>
     </div>
-
-    <div class="section">
-      <div class="section-label">
-        <span class="num">۶</span>
-        ارسال برای
-      </div>
-      <div class="recipients">
-        <div class="recipient-option selected" data-recipient="all">
-          <div class="radio"></div>
-          <div class="recipient-label">همه دانش‌آموزان کلاس</div>
-          <div class="recipient-count">۲۴ نفر</div>
-        </div>
-        <div class="recipient-option" data-recipient="select">
-          <div class="radio"></div>
-          <div class="recipient-label">انتخاب دانش‌آموزان خاص</div>
-          <div class="recipient-count">انتخاب دستی</div>
-        </div>
-      </div>
-    </div>
-
-  </form>
-
-  <div class="submit-wrap">
-    <button type="submit" class="btn btn-primary" form="taskForm">
-      📤 ارسال تکلیف
-    </button>
   </div>
-
 </div>
 
 <script>
-  document.querySelectorAll('.subject').forEach(subject=>{
-    subject.addEventListener('click',()=>{
-      document.querySelectorAll('.subject').forEach(s=>s.classList.remove('selected'));
-      subject.classList.add('selected');
-      updateProgress();
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+const teacherId = user.id || 1;
+
+document.getElementById('createTaskForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const btn = document.getElementById('submitBtn');
+  const result = document.getElementById('result');
+  
+  btn.disabled = true;
+  btn.textContent = 'در حال ایجاد...';
+  result.innerHTML = '';
+  
+  try {
+    const res = await fetch('/api/teacher/create-task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        teacherId: teacherId,
+        title: document.getElementById('title').value,
+        subject: document.getElementById('subject').value,
+        grade: document.getElementById('grade').value,
+        className: document.getElementById('className').value,
+        description: document.getElementById('description').value || null,
+        deadline: document.getElementById('deadline').value || null,
+        answerType: document.getElementById('answerType').value,
+        maxScore: 20
+      })
     });
-  });
-
-  document.querySelectorAll('.response-type').forEach(type=>{
-    type.addEventListener('click',()=>{
-      document.querySelectorAll('.response-type').forEach(t=>t.classList.remove('selected'));
-      type.classList.add('selected');
-      updateProgress();
-    });
-  });
-
-  document.querySelectorAll('.recipient-option').forEach(option=>{
-    option.addEventListener('click',()=>{
-      document.querySelectorAll('.recipient-option').forEach(o=>o.classList.remove('selected'));
-      option.classList.add('selected');
-      updateProgress();
-    });
-  });
-
-  const uploadArea = document.getElementById('uploadArea');
-  uploadArea.addEventListener('click',()=>{
-    alert('📎 فایل انتخاب شد (شبیه‌سازی)');
-    uploadArea.innerHTML = `
-      <div class="upload-icon">✅</div>
-      <div class="upload-title">فایل انتخاب شد</div>
-      <div class="upload-desc">تمرین_صفحه_۴۲.pdf • ۲.۴ MB</div>
-    `;
-    updateProgress();
-  });
-
-  function updateProgress(){
-    const subject = document.querySelector('.subject.selected');
-    const title = document.getElementById('title').value;
-    const responseType = document.querySelector('.response-type.selected');
-    const date = document.getElementById('date').value;
     
-    let progress = 0;
-    if(subject) progress += 25;
-    if(title) progress += 25;
-    if(responseType) progress += 25;
-    if(date) progress += 25;
+    const data = await res.json();
     
-    document.getElementById('progressBar').style.width = progress + '%';
+    if (data.success) {
+      result.className = 'result success';
+      result.innerHTML = '✅ ' + data.message;
+      document.getElementById('createTaskForm').reset();
+    } else {
+      result.className = 'result error';
+      result.textContent = '❌ ' + data.message;
+    }
+  } catch (err) {
+    result.className = 'result error';
+    result.textContent = '❌ خطا در اتصال به سرور';
   }
-
-  document.getElementById('title').addEventListener('input',updateProgress);
-  document.getElementById('date').addEventListener('input',updateProgress);
-
-  document.getElementById('taskForm').addEventListener('submit',(e)=>{
-    e.preventDefault();
-    alert('✅ تکلیف با موفقیت ارسال شد!');
-    window.location.href = 'teacher-home.html';
-  });
+  
+  btn.disabled = false;
+  btn.textContent = 'ایجاد تکلیف';
+});
 </script>
-
 </body>
 </html>
