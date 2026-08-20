@@ -22,7 +22,6 @@
   .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
   .field input, .field select, .field textarea { width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 14px; background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); box-sizing: border-box; }
   .field textarea { min-height: 100px; resize: vertical; }
-  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); }
   .submit-btn { width: 100%; padding: 15px; border: none; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; }
   .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
   .result { margin-top: 16px; padding: 16px; border-radius: 12px; font-size: 14px; }
@@ -30,6 +29,20 @@
   .result.success { background: var(--success-soft); color: #15803D; }
   .optional { font-size: 11px; color: var(--muted); margin-right: 6px; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .bank-btn { width: 100%; padding: 12px; border: 2px dashed var(--primary); border-radius: 12px; background: var(--primary-soft); color: var(--primary); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 16px; }
+  .bank-btn:hover { background: var(--primary); color: white; }
+  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal.active { display: flex; }
+  .modal-content { background: var(--card); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .modal-header h3 { margin: 0; font-size: 18px; }
+  .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
+  .question-item { background: var(--bg); border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all .2s; }
+  .question-item:hover { border-color: var(--primary); background: var(--primary-soft); }
+  .question-item.selected { border-color: var(--primary); background: var(--primary-soft); }
+  .question-title { font-size: 15px; font-weight: 700; margin: 0 0 8px; }
+  .question-meta { font-size: 11px; color: var(--muted); }
+  .filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
 </style>
 </head>
 <body>
@@ -85,6 +98,8 @@
           <input type="text" id="className" placeholder="مثلاً: الف" required />
         </div>
         
+        <button type="button" class="bank-btn" onclick="openBankModal()">📚 انتخاب از بانک سوالات</button>
+        
         <div class="field">
           <label>توضیحات تکلیف</label>
           <textarea id="description" placeholder="توضیحات کامل تکلیف را اینجا بنویسید..."></textarea>
@@ -115,9 +130,49 @@
   </div>
 </div>
 
+<!-- مودال بانک سوالات -->
+<div id="bankModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3> انتخاب از بانک سوالات</h3>
+      <button class="close-btn" onclick="closeBankModal()">&times;</button>
+    </div>
+    
+    <div class="filter-row">
+      <div class="field">
+        <label>فیلتر درس</label>
+        <select id="filterSubject" onchange="loadBankQuestions()">
+          <option value="all">همه دروس</option>
+          <option value="ریاضی">ریاضی</option>
+          <option value="فارسی">فارسی</option>
+          <option value="علوم">علوم</option>
+          <option value="مطالعات اجتماعی">مطالعات اجتماعی</option>
+          <option value="هدیه‌های آسمانی">هدیه‌های آسمانی</option>
+          <option value="قرآن">قرآن</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>فیلتر پایه</label>
+        <select id="filterGrade" onchange="loadBankQuestions()">
+          <option value="all">همه پایه‌ها</option>
+          <option value="1">اول ابتدایی</option>
+          <option value="2">دوم ابتدایی</option>
+          <option value="3">سوم ابتدایی</option>
+          <option value="4">چهارم ابتدایی</option>
+          <option value="5">پنجم ابتدایی</option>
+          <option value="6">ششم ابتدایی</option>
+        </select>
+      </div>
+    </div>
+    
+    <div id="bankQuestionsList"></div>
+  </div>
+</div>
+
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const teacherId = user.id || 1;
+let selectedQuestionHtml = null;
 
 document.getElementById('createTaskForm').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -152,6 +207,7 @@ document.getElementById('createTaskForm').addEventListener('submit', async funct
       result.className = 'result success';
       result.innerHTML = '✅ ' + data.message;
       document.getElementById('createTaskForm').reset();
+      selectedQuestionHtml = null;
     } else {
       result.className = 'result error';
       result.textContent = '❌ ' + data.message;
@@ -164,6 +220,50 @@ document.getElementById('createTaskForm').addEventListener('submit', async funct
   btn.disabled = false;
   btn.textContent = 'ایجاد تکلیف';
 });
+
+function openBankModal() {
+  document.getElementById('bankModal').classList.add('active');
+  loadBankQuestions();
+}
+
+function closeBankModal() {
+  document.getElementById('bankModal').classList.remove('active');
+}
+
+async function loadBankQuestions() {
+  const list = document.getElementById('bankQuestionsList');
+  const subject = document.getElementById('filterSubject').value;
+  const grade = document.getElementById('filterGrade').value;
+  
+  try {
+    const url = `/api/teacher/get-questions?teacherId=${teacherId}&subject=${subject}&grade=${grade}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (data.success && data.questions.length > 0) {
+      list.innerHTML = data.questions.map(q => `
+        <div class="question-item" onclick="selectQuestion(this, '${q.id}')">
+          <h4 class="question-title">${q.title}</h4>
+          <div class="question-meta">${q.subject || 'بدون درس'} | پایه ${q.grade || '-'}</div>
+        </div>
+      `).join('');
+    } else {
+      list.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px">سوالی یافت نشد</p>';
+    }
+  } catch (err) {
+    list.innerHTML = '<p style="text-align:center;color:var(--danger);padding:20px">خطا در دریافت سوالات</p>';
+  }
+}
+
+function selectQuestion(element, questionId) {
+  document.querySelectorAll('.question-item').forEach(q => q.classList.remove('selected'));
+  element.classList.add('selected');
+  
+  // اینجا باید سوال رو از API بگیریم و توی textarea بذاریم
+  // فعلاً یه پیام نشون می‌دیم
+  alert('سوال انتخاب شد! (در نسخه بعدی محتوا به توضیحات اضافه می‌شود)');
+  closeBankModal();
+}
 </script>
 </body>
-</html>
+  </html>
