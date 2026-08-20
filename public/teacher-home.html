@@ -49,11 +49,15 @@
   .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .section-header h3 { margin: 0; font-size: 16px; font-weight: 700; }
   .section-header a { font-size: 12px; color: var(--primary); text-decoration: none; }
-  .task-item { padding: 14px; border: 2px solid var(--border); border-radius: 12px; margin-bottom: 12px; }
+  .task-item { padding: 14px; border: 2px solid var(--border); border-radius: 12px; margin-bottom: 12px; transition: all .2s; }
+  .task-item:hover { border-color: var(--primary); background: var(--primary-soft); }
   .task-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
   .task-title { font-size: 14px; font-weight: 700; margin: 0; }
   .task-status { background: #DCFCE7; color: #15803D; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
   .task-meta { display: flex; gap: 16px; font-size: 11px; color: var(--muted); }
+  .empty-state { text-align: center; padding: 24px 16px; color: var(--muted); }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 8px; }
+  .empty-state p { margin: 0; font-size: 13px; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
@@ -77,10 +81,10 @@
       <h3>امروز ۳ تکلیف منتظر بررسی شماست</h3>
       <p class="subtitle">۴ دانش‌آموز در ۲ کلاس فعال دارید</p>
       <div class="stats-grid">
-        <div class="stat-item"><div class="stat-icon">👥</div><div><p class="stat-value">۴</p><p class="stat-label">دانش‌آموز</p></div></div>
-        <div class="stat-item"><div class="stat-icon">🏫</div><div><p class="stat-value">۲</p><p class="stat-label">کلاس فعال</p></div></div>
-        <div class="stat-item"><div class="stat-icon">⏳</div><div><p class="stat-value">۳</p><p class="stat-label">منتظر بررسی</p></div></div>
-        <div class="stat-item"><div class="stat-icon">📝</div><div><p class="stat-value"></p><p class="stat-label">تکلیف فعال</p></div></div>
+        <div class="stat-item"><div class="stat-icon">👥</div><div><p class="stat-value" id="studentCount"></p><p class="stat-label">دانش‌آموز</p></div></div>
+        <div class="stat-item"><div class="stat-icon">🏫</div><div><p class="stat-value" id="classCount"></p><p class="stat-label">کلاس فعال</p></div></div>
+        <div class="stat-item"><div class="stat-icon">⏳</div><div><p class="stat-value" id="pendingCount">۳</p><p class="stat-label">منتظر بررسی</p></div></div>
+        <div class="stat-item"><div class="stat-icon"></div><div><p class="stat-value" id="activeTaskCount">۰</p><p class="stat-label">تکلیف فعال</p></div></div>
       </div>
     </div>
 
@@ -90,10 +94,10 @@
         <p class="menu-title">تکلیف جدید</p>
         <p class="menu-desc">ساخت و ارسال تکلیف</p>
       </a>
-      <a href="#" class="menu-item">
-        <div class="menu-icon">🏫</div>
-        <p class="menu-title">کلاس‌های من</p>
-        <p class="menu-desc">مدیریت کلاس‌ها</p>
+      <a href="teacher-manage-tasks.html" class="menu-item">
+        <div class="menu-icon">📋</div>
+        <p class="menu-title">مدیریت تکالیف</p>
+        <p class="menu-desc">مشاهده و ویرایش</p>
       </a>
       <a href="teacher-add-student.html" class="menu-item">
         <div class="menu-icon">🎒</div>
@@ -120,17 +124,12 @@
     <div class="recent-section">
       <div class="section-header">
         <h3>تکالیف اخیر</h3>
-        <a href="#">مشاهده همه</a>
+        <a href="teacher-manage-tasks.html">مشاهده همه</a>
       </div>
-      <div class="task-item">
-        <div class="task-header">
-          <h4 class="task-title">تمرین صفحه ۴۲</h4>
-          <span class="task-status">فعال</span>
-        </div>
-        <div class="task-meta">
-          <span>سوم الف • ریاضی</span>
-          <span>۲۴ دانش‌آموز</span>
-          <span>امروز ۲۰:۰۰</span>
+      <div id="recentTasksList">
+        <div class="empty-state">
+          <div class="emoji">📭</div>
+          <p>در حال بارگذاری...</p>
         </div>
       </div>
     </div>
@@ -143,12 +142,55 @@ if (user.name) {
   document.getElementById('userName').textContent = user.name;
   document.getElementById('userAvatar').textContent = user.name.charAt(0);
 }
+
+// گرفتن لیست تکالیف اخیر
+async function loadRecentTasks() {
+  const list = document.getElementById('recentTasksList');
+  try {
+    const res = await fetch(`/api/teacher/get-tasks?teacherId=${user.id || 1}&limit=3`);
+    const data = await res.json();
+    
+    if (data.success && data.tasks.length > 0) {
+      list.innerHTML = data.tasks.map(task => {
+        const deadline = task.deadline ? new Date(task.deadline).toLocaleString('fa-IR') : 'ندارد';
+        return `
+          <div class="task-item">
+            <div class="task-header">
+              <h4 class="task-title">${task.title}</h4>
+              <span class="task-status">فعال</span>
+            </div>
+            <div class="task-meta">
+              <span>${task.class_name || 'بدون کلاس'} ${task.class_grade ? '(' + task.class_grade + ')' : ''}</span>
+              <span>${task.subject || '-'}</span>
+              <span>مهلت: ${deadline}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('activeTaskCount').textContent = data.tasks.length;
+    } else {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="emoji">📭</div>
+          <p>هنوز تکلیفی ثبت نشده</p>
+        </div>
+      `;
+    }
+  } catch (err) {
+    list.innerHTML = '<div class="empty-state"><p>خطا در بارگذاری</p></div>';
+  }
+}
+
 function logout() {
   if (confirm('آیا می‌خواهید خارج شوید؟')) {
     localStorage.removeItem('user');
     window.location.href = 'index.html';
   }
 }
+
+// بارگذاری تکالیف هنگام لود صفحه
+loadRecentTasks();
 </script>
 </body>
 </html>
