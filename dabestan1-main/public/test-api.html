@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>تست API</title>
+<style>
+  body {
+    font-family: Vazirmatn, sans-serif;
+    padding: 20px;
+    background: #f5f5f5;
+  }
+  .result {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    white-space: pre-wrap;
+    font-size: 14px;
+    direction: ltr;
+    text-align: left;
+  }
+  .error { background: #fee; color: #c00; }
+  .success { background: #efe; color: #060; }
+  button {
+    background: #6C5CE7;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    margin: 5px;
+  }
+</style>
+</head>
+<body>
+
+<h1> تست API Login</h1>
+
+<button onclick="testLogin()">تست ورود</button>
+
+<div id="result"></div>
+
+<script>
+async function testLogin() {
+  const resultDiv = document.getElementById('result');
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        inviteCode: 'ADMIN001',
+        password: 'admin123'
+      })
+    });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      data = text;
+    }
+    const className = res.ok ? 'success' : 'error';
+    resultDiv.innerHTML = '<div class="result ' + className + '">Status: ' + res.status + '\n' + JSON.stringify(data, null, 2) + '</div>';
+  } catch (err) {
+    resultDiv.innerHTML = '<div class="result error">Error: ' + err.message + '</div>';
+  }
+}
+</script>
+
+</body>
+</html>
