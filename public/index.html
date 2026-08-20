@@ -9,16 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-  /* استایل‌های مخصوص صفحه ورود */
   .screen{
     padding:32px 24px 40px;
     display:flex;
     flex-direction:column;
     min-height:100%;
   }
-  .screen.hidden{display:none;}
-
-  /* لوگو و عنوان */
   .brand{
     text-align:center;
     margin-bottom:32px;
@@ -60,8 +56,6 @@
     font-size:14px;
     color:var(--text-2);
   }
-
-  /* عنوان بخش */
   .section-title{
     text-align:center;
     margin-bottom:20px;
@@ -77,8 +71,6 @@
     font-size:13px;
     color:var(--muted);
   }
-
-  /* کارت‌های نقش */
   .roles{
     display:flex;
     flex-direction:column;
@@ -102,7 +94,6 @@
   .role:nth-child(1){animation-delay:.15s;}
   .role:nth-child(2){animation-delay:.22s;}
   .role:nth-child(3){animation-delay:.29s;}
-
   .role:hover{
     border-color:var(--primary);
     transform:translateY(-2px);
@@ -124,7 +115,6 @@
   .role.teacher .role-icon{background:var(--primary-soft);}
   .role.student .role-icon{background:var(--pink-soft);}
   .role.admin .role-icon{background:var(--info-soft);}
-
   .role-body{flex:1;}
   .role-title{
     font-size:15px;
@@ -152,8 +142,6 @@
     color:#fff;
     transform:translateX(-4px);
   }
-
-  /* فوتر */
   .footer{
     margin-top:auto;
     text-align:center;
@@ -161,115 +149,13 @@
     color:var(--muted);
     animation:fadeUp .5s var(--ease) .4s both;
   }
-  .footer a{
-    color:var(--primary);
-    text-decoration:none;
-    font-weight:600;
-  }
-
-  /* فرم ورود */
-  .back-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    background:none;
-    border:none;
-    color:var(--text-2);
-    font-family:inherit;
-    font-size:13px;
-    font-weight:600;
-    cursor:pointer;
-    padding:8px 0;
-    margin-bottom:16px;
-    transition:color .2s var(--ease);
-  }
-  .back-btn:hover{color:var(--primary);}
-  .back-btn svg{
-    width:18px;
-    height:18px;
-    transform:scaleX(-1);
-  }
-
-  .role-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    background:var(--primary-soft);
-    color:var(--primary);
-    padding:6px 14px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
-    margin-bottom:14px;
-  }
-  .role-badge .emoji{font-size:16px;}
-
-  .form-title{
-    margin:0 0 4px;
-    font-size:22px;
-    font-weight:800;
-  }
-  .form-subtitle{
-    margin:0 0 24px;
-    font-size:13px;
-    color:var(--text-2);
-  }
-
-  .input-wrap{
-    position:relative;
-  }
-  .input-wrap .icon{
-    position:absolute;
-    right:14px;
-    top:50%;
-    transform:translateY(-50%);
-    width:20px;
-    height:20px;
-    color:var(--muted);
-    pointer-events:none;
-  }
-  .input-wrap .input{
-    padding:14px 14px 14px 44px;
-    direction:ltr;
-    text-align:right;
-  }
-
-  .forgot{
-    display:block;
-    text-align:left;
-    font-size:12px;
-    color:var(--primary);
-    text-decoration:none;
-    font-weight:600;
-    margin:4px 0 20px;
-  }
-
-  .signup{
-    text-align:center;
-    margin-top:20px;
-    font-size:13px;
-    color:var(--text-2);
-  }
-  .signup a{
-    color:var(--primary);
-    text-decoration:none;
-    font-weight:700;
-  }
-
-  .screen.fade-out{
-    animation:fadeOut .3s var(--ease) both;
-  }
-  @keyframes fadeOut{
-    to{opacity:0; transform:translateY(-12px);}
-  }
 </style>
 </head>
 <body>
 
 <div class="phone">
 
-  <!-- مرحله ۱: انتخاب نقش -->
-  <div class="screen" id="roleScreen">
+  <div class="screen">
     <div class="brand">
       <div class="logo">📚</div>
       <h1>دبستان</h1>
@@ -277,12 +163,23 @@
     </div>
     
     <div class="section-title">
-      <h2>خوش آمدی! 👋</h2>
-      <p>اول بگو جزو کدوم یکی هستی</p>
+      <h2>خوش آمدید! 👋</h2>
+      <p>لطفاً نقش خود را انتخاب کنید</p>
     </div>
     
     <div class="roles">
-      <a href="teacher-home.html" class="role teacher">
+      <a href="login.html?role=admin" class="role admin">
+        <div class="role-icon">🏫</div>
+        <div class="role-body">
+          <h3 class="role-title">مدیر مدرسه هستم</h3>
+          <p class="role-desc">نظارت بر مدرسه و گزارش‌ها</p>
+        </div>
+        <div class="role-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </a>
+      
+      <a href="login.html?role=teacher" class="role teacher">
         <div class="role-icon">👩‍🏫</div>
         <div class="role-body">
           <h3 class="role-title">معلم هستم</h3>
@@ -293,8 +190,8 @@
         </div>
       </a>
       
-      <a href="student-home.html" class="role student">
-        <div class="role-icon">🎒</div>
+      <a href="login.html?role=student" class="role student">
+        <div class="role-icon"></div>
         <div class="role-body">
           <h3 class="role-title">دانش‌آموز هستم</h3>
           <p class="role-desc">انجام تکالیف و دیدن بازخوردها</p>
@@ -303,25 +200,14 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </div>
       </a>
-      
-      <a href="admin-home.html" class="role admin">
-        <div class="role-icon">🏫</div>
-        <div class="role-body">
-          <h3 class="role-title">مدیر مدرسه هستم</h3>
-          <p class="role-desc">نظارت بر مدرسه و گزارش‌ها</p>
-        </div>
-        <div class="role-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </a>
     </div>
     
     <div class="footer">
-      حساب کاربری نداری؟ <a href="#">ثبت‌نام کن</a>
+      حساب کاربری ندارید؟ با کد ورود وارد شوید
     </div>
   </div>
 
 </div>
 
 </body>
-</html>
+  </html>
