@@ -36,35 +36,58 @@
   .result.success { background: var(--success-soft); color: #15803D; }
   .result.error { background: var(--danger-soft); color: var(--danger); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  
+  /* پیش‌نمایش سوالات (تب آپلود) */
   .preview-container { max-height: 500px; overflow-y: auto; border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 16px; background: var(--bg); }
-  .question-preview { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; transition: all .2s; }
+  .question-preview { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; transition: all .2s; position: relative; }
   .question-preview:hover { border-color: var(--primary); }
   .question-preview.selected { border-color: var(--primary); background: var(--primary-soft); }
-  .question-checkbox { width: 24px; height: 24px; cursor: pointer; flex-shrink: 0; margin-top: 4px; }
-  .question-content { flex: 1; }
-  .question-number { font-size: 12px; color: var(--primary); font-weight: 700; margin-bottom: 6px; }
-  .question-text { font-size: 14px; line-height: 1.6; }
+  .question-checkbox-wrap { position: absolute; top: 14px; right: 14px; z-index: 10; }
+  .question-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary); }
+  .question-content { flex: 1; margin-right: 36px; }
+  .question-number { font-size: 13px; color: var(--primary); font-weight: 700; margin-bottom: 8px; }
+  .question-text { font-size: 14px; line-height: 1.6; max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: white; }
+  .question-text * { max-width: 100% !important; box-sizing: border-box !important; }
+  .question-text img { max-width: 100% !important; height: auto !important; }
   .select-all-btn { padding: 10px 20px; border: 2px solid var(--primary); border-radius: 10px; background: white; color: var(--primary); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
   .select-all-btn:hover { background: var(--primary); color: white; }
   .selected-count { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
-  .question-item { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-  .question-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  
+  /* لیست سوالات (تب لیست) */
+  .list-toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar-btn { padding: 10px 16px; border: 2px solid var(--border); border-radius: 10px; background: var(--card); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .toolbar-btn:hover { border-color: var(--primary); }
+  .toolbar-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .toolbar-btn.danger { border-color: var(--danger); color: var(--danger); }
+  .toolbar-btn.danger:hover { background: var(--danger); color: white; }
+  .toolbar-btn.success { background: var(--success-soft); color: #15803D; border-color: #15803D; }
+  .toolbar-btn.success:hover { background: #15803D; color: white; }
+  .question-item { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; transition: all .2s; }
+  .question-item.selectable { padding-right: 50px; }
+  .question-item.selectable:hover { border-color: var(--primary); background: var(--primary-soft); }
+  .question-item.selected { border-color: var(--primary); background: var(--primary-soft); }
+  .question-item-checkbox { position: absolute; top: 16px; right: 16px; width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary); }
+  .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .question-title { font-size: 15px; font-weight: 700; margin: 0; }
-  .question-meta { font-size: 11px; color: var(--muted); }
-  .btn-small { padding: 8px 16px; border: none; border-radius: 8px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; margin-right: 8px; }
+  .question-meta { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+  .btn-small { padding: 8px 16px; border: none; border-radius: 8px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; margin-left: 8px; }
   .btn-preview { background: var(--primary-soft); color: var(--primary); }
   .btn-delete { background: var(--danger-soft); color: var(--danger); }
   .empty-state { text-align: center; padding: 40px 16px; color: var(--muted); }
   .empty-state .emoji { font-size: 48px; margin-bottom: 8px; }
+  .selection-summary { background: var(--primary-soft); border: 2px solid var(--primary); border-radius: 12px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+  .selection-summary .count { font-size: 14px; font-weight: 700; color: var(--primary); }
   
-  /* استایل مودال پیش‌نمایش */
+  /* مودال پیش‌نمایش */
   .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
   .modal.active { display: flex; }
   .modal-content { background: var(--card); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
   .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .modal-header h3 { margin: 0; font-size: 18px; }
   .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
-  .preview-box { background: var(--bg); border: 2px solid var(--border); border-radius: 12px; padding: 16px; }
+  .preview-box { background: white; border: 2px solid var(--border); border-radius: 12px; padding: 16px; }
+  .preview-box * { max-width: 100% !important; box-sizing: border-box !important; }
+  .preview-box img { max-width: 100% !important; height: auto !important; }
 </style>
 </head>
 <body>
@@ -75,7 +98,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
       </div>
       <div class="page-title">
-        <h1>📚 بانک سوالات</h1>
+        <h1> بانک سوالات</h1>
         <p>مدیریت و آپلود سوالات</p>
       </div>
     </div>
@@ -149,7 +172,7 @@
             <h3 style="margin:20px 0 12px;font-size:16px;">پیش‌نمایش سوالات</h3>
             <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">سوالاتی که می‌خواهید به بانک اضافه شوند را تیک بزنید:</p>
             <button type="button" class="select-all-btn" onclick="toggleSelectAll()">انتخاب همه</button>
-            <div class="selected-count" id="selectedCount">۰ سوال انتخاب شده</div>
+            <div class="selected-count" id="selectedCount"> سوال انتخاب شده</div>
             <div class="preview-container" id="previewContainer"></div>
           </div>
         </div>
@@ -162,6 +185,21 @@
 
     <!-- تب لیست -->
     <div id="listTab" class="card" style="display:none">
+      <!-- نوار ابزار -->
+      <div class="list-toolbar">
+        <button class="toolbar-btn" id="selectModeBtn" onclick="toggleSelectMode()">✏️ حالت انتخاب</button>
+        <button class="toolbar-btn" id="selectAllBtn" onclick="toggleSelectAllList()" style="display:none">انتخاب همه</button>
+        <button class="toolbar-btn success" id="createTaskBtn" onclick="createTaskFromSelected()" style="display:none">📝 ایجاد تکلیف از سوالات انتخاب‌شده</button>
+        <button class="toolbar-btn danger" id="deleteSelectedBtn" onclick="deleteSelected()" style="display:none">🗑️ حذف انتخاب‌شده‌ها</button>
+      </div>
+      
+      <!-- خلاصه انتخاب -->
+      <div id="selectionSummary" class="selection-summary" style="display:none">
+        <span class="count" id="selectionCount"> سوال انتخاب شده</span>
+        <button class="toolbar-btn" onclick="clearSelection()">پاک کردن انتخاب</button>
+      </div>
+      
+      <!-- فیلترها -->
       <div class="row" style="margin-bottom:16px">
         <div class="field">
           <label>فیلتر درس</label>
@@ -197,7 +235,7 @@
 <div id="previewModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>پیش‌نمایش سوال</h3>
+      <h3 id="previewTitle">پیش‌نمایش سوال</h3>
       <button class="close-btn" onclick="closePreviewModal()">&times;</button>
     </div>
     <div id="previewContent" class="preview-box"></div>
@@ -211,12 +249,21 @@ let currentMode = 'manual';
 let parsedQuestions = [];
 let selectedQuestions = new Set();
 
+// متغیرهای تب لیست
+let selectMode = false;
+let selectedListQuestions = new Set();
+let allQuestions = [];
+
 function showTab(tab, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('uploadTab').style.display = tab === 'upload' ? 'block' : 'none';
   document.getElementById('listTab').style.display = tab === 'list' ? 'block' : 'none';
-  if (tab === 'list') loadQuestions();
+  if (tab === 'list') {
+    selectMode = false;
+    selectedListQuestions.clear();
+    loadQuestions();
+  }
 }
 
 function setMode(mode) {
@@ -230,14 +277,14 @@ function setMode(mode) {
   }
 }
 
+// ========== تب آپلود ==========
 function handleFileSelect(input) {
   const file = input.files[0];
   if (file) {
     document.getElementById('fileName').textContent = '✅ فایل انتخاب شد: ' + file.name;
     const reader = new FileReader();
     reader.onload = function(e) {
-      const htmlContent = e.target.result;
-      parseQuestions(htmlContent);
+      parseQuestions(e.target.result);
     };
     reader.readAsText(file, 'UTF-8');
   }
@@ -263,18 +310,11 @@ function parseQuestions(htmlContent) {
         content: questionContent,
         html: elem.outerHTML
       });
-      
       selectedQuestions.add(index);
     });
-    
     displayQuestionsPreview();
   } else {
-    parsedQuestions = [{
-      id: 1,
-      title: 'سوال',
-      content: htmlContent,
-      html: htmlContent
-    }];
+    parsedQuestions = [{ id: 1, title: 'سوال', content: htmlContent, html: htmlContent }];
     selectedQuestions.add(0);
     displayQuestionsPreview();
   }
@@ -285,8 +325,10 @@ function displayQuestionsPreview() {
   const preview = document.getElementById('questionsPreview');
   
   container.innerHTML = parsedQuestions.map((q, index) => `
-    <div class="question-preview ${selectedQuestions.has(index) ? 'selected' : ''}" onclick="toggleQuestion(${index})">
-      <input type="checkbox" class="question-checkbox" ${selectedQuestions.has(index) ? 'checked' : ''} onclick="event.stopPropagation(); toggleQuestion(${index})">
+    <div class="question-preview ${selectedQuestions.has(index) ? 'selected' : ''}">
+      <div class="question-checkbox-wrap">
+        <input type="checkbox" class="question-checkbox" ${selectedQuestions.has(index) ? 'checked' : ''} onchange="toggleQuestion(${index})">
+      </div>
       <div class="question-content">
         <div class="question-number">${q.title}</div>
         <div class="question-text">${q.content}</div>
@@ -299,26 +341,19 @@ function displayQuestionsPreview() {
 }
 
 function toggleQuestion(index) {
-  if (selectedQuestions.has(index)) {
-    selectedQuestions.delete(index);
-  } else {
-    selectedQuestions.add(index);
-  }
+  if (selectedQuestions.has(index)) selectedQuestions.delete(index);
+  else selectedQuestions.add(index);
   displayQuestionsPreview();
 }
 
 function toggleSelectAll() {
-  if (selectedQuestions.size === parsedQuestions.length) {
-    selectedQuestions.clear();
-  } else {
-    parsedQuestions.forEach((_, index) => selectedQuestions.add(index));
-  }
+  if (selectedQuestions.size === parsedQuestions.length) selectedQuestions.clear();
+  else parsedQuestions.forEach((_, index) => selectedQuestions.add(index));
   displayQuestionsPreview();
 }
 
 function updateSelectedCount() {
-  const count = selectedQuestions.size;
-  document.getElementById('selectedCount').textContent = `${count} سوال انتخاب شده از ${parsedQuestions.length}`;
+  document.getElementById('selectedCount').textContent = `${selectedQuestions.size} سوال انتخاب شده از ${parsedQuestions.length}`;
 }
 
 document.getElementById('uploadForm').onsubmit = async function(e) {
@@ -355,11 +390,9 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
       btn.textContent = 'آپلود در بانک';
       return;
     }
-    
     const baseTitle = document.getElementById('title').value;
     const subject = document.getElementById('subject').value || null;
     const grade = document.getElementById('grade').value || null;
-    
     selectedQuestions.forEach(index => {
       const q = parsedQuestions[index];
       questionsToUpload.push({
@@ -372,9 +405,7 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
   }
   
   try {
-    let successCount = 0;
-    let errorCount = 0;
-    
+    let successCount = 0, errorCount = 0;
     for (const q of questionsToUpload) {
       const res = await fetch('/api/teacher/upload-question', {
         method: 'POST',
@@ -396,9 +427,7 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
     if (successCount > 0) {
       resDiv.className = 'result success';
       resDiv.textContent = `✅ ${successCount} سوال با موفقیت به بانک اضافه شد`;
-      if (errorCount > 0) {
-        resDiv.textContent += ` (${errorCount} خطا)`;
-      }
+      if (errorCount > 0) resDiv.textContent += ` (${errorCount} خطا)`;
       this.reset();
       parsedQuestions = [];
       selectedQuestions.clear();
@@ -410,12 +439,76 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
     }
   } catch (err) {
     resDiv.className = 'result error';
-    resDiv.textContent = ' خطا در اتصال به سرور';
+    resDiv.textContent = '❌ خطا در اتصال به سرور';
   }
   
   btn.disabled = false;
   btn.textContent = 'آپلود در بانک';
 };
+
+// ========== تب لیست ==========
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  const btn = document.getElementById('selectModeBtn');
+  const selectAllBtn = document.getElementById('selectAllBtn');
+  const createTaskBtn = document.getElementById('createTaskBtn');
+  const deleteBtn = document.getElementById('deleteSelectedBtn');
+  const summary = document.getElementById('selectionSummary');
+  
+  if (selectMode) {
+    btn.classList.add('active');
+    btn.textContent = '✅ حالت انتخاب فعال است';
+    selectAllBtn.style.display = 'inline-block';
+    createTaskBtn.style.display = 'inline-block';
+    deleteBtn.style.display = 'inline-block';
+    summary.style.display = 'flex';
+  } else {
+    btn.classList.remove('active');
+    btn.textContent = '️ حالت انتخاب';
+    selectAllBtn.style.display = 'none';
+    createTaskBtn.style.display = 'none';
+    deleteBtn.style.display = 'none';
+    summary.style.display = 'none';
+    selectedListQuestions.clear();
+  }
+  
+  loadQuestions();
+}
+
+function toggleSelectAllList() {
+  if (selectedListQuestions.size === allQuestions.length) {
+    selectedListQuestions.clear();
+  } else {
+    allQuestions.forEach(q => selectedListQuestions.add(q.id));
+  }
+  updateListSelection();
+}
+
+function toggleListQuestion(id) {
+  if (selectedListQuestions.has(id)) selectedListQuestions.delete(id);
+  else selectedListQuestions.add(id);
+  updateListSelection();
+}
+
+function clearSelection() {
+  selectedListQuestions.clear();
+  updateListSelection();
+}
+
+function updateListSelection() {
+  document.querySelectorAll('.question-item').forEach(item => {
+    const id = parseInt(item.dataset.id);
+    const checkbox = item.querySelector('.question-item-checkbox');
+    if (selectedListQuestions.has(id)) {
+      item.classList.add('selected');
+      if (checkbox) checkbox.checked = true;
+    } else {
+      item.classList.remove('selected');
+      if (checkbox) checkbox.checked = false;
+    }
+  });
+  document.getElementById('selectionCount').textContent = `${selectedListQuestions.size} سوال انتخاب شده`;
+}
 
 async function loadQuestions() {
   const list = document.getElementById('questionsList');
@@ -429,36 +522,75 @@ async function loadQuestions() {
     
     const res = await fetch(url);
     const data = await res.json();
+    allQuestions = data.success ? (data.questions || []) : [];
     
-    if (data.success && data.questions.length > 0) {
-      list.innerHTML = data.questions.map((q, index) => `
-        <div class="question-item">
+    if (allQuestions.length > 0) {
+      list.innerHTML = allQuestions.map(q => `
+        <div class="question-item ${selectMode ? 'selectable' : ''} ${selectedListQuestions.has(q.id) ? 'selected' : ''}" data-id="${q.id}">
+          ${selectMode ? `<input type="checkbox" class="question-item-checkbox" ${selectedListQuestions.has(q.id) ? 'checked' : ''} onchange="toggleListQuestion(${q.id})">` : ''}
           <div class="question-header">
             <h4 class="question-title">${q.title}</h4>
           </div>
           <div class="question-meta">${q.subject || '-'} | پایه ${q.grade || '-'}</div>
-          <button class="btn-small btn-preview" onclick="showQuestionPreview('${q.title}', ${JSON.stringify(q.question_html).replace(/"/g, '&quot;')})">پیش‌نمایش</button>
+          <div>
+            <button class="btn-small btn-preview" onclick='showQuestionPreview(${JSON.stringify(q.title)}, ${JSON.stringify(q.question_html)})'>پیش‌نمایش</button>
+            <button class="btn-small btn-delete" onclick="deleteQuestion(${q.id})">حذف</button>
+          </div>
         </div>
       `).join('');
     } else {
       list.innerHTML = '<div class="empty-state"><div class="emoji">📭</div><p>سوالی یافت نشد</p></div>';
     }
+    
+    if (selectMode) updateListSelection();
   } catch (err) {
     list.innerHTML = '<div class="empty-state"><p>خطا در دریافت سوالات</p></div>';
   }
 }
 
 function showQuestionPreview(title, htmlContent) {
-  const modal = document.getElementById('previewModal');
-  const content = document.getElementById('previewContent');
-  
-  content.innerHTML = `<h4 style="margin:0 0 12px;color:var(--primary)">${title}</h4><div>${htmlContent}</div>`;
-  modal.classList.add('active');
+  document.getElementById('previewTitle').textContent = title;
+  document.getElementById('previewContent').innerHTML = htmlContent;
+  document.getElementById('previewModal').classList.add('active');
 }
 
 function closePreviewModal() {
   document.getElementById('previewModal').classList.remove('active');
 }
+
+document.getElementById('previewModal').addEventListener('click', function(e) {
+  if (e.target === this) closePreviewModal();
+});
+
+function deleteQuestion(id) {
+  if (confirm('آیا از حذف این سوال اطمینان دارید؟')) {
+    alert('حذف سوال در نسخه بعدی اضافه می‌شود');
+  }
+}
+
+function deleteSelected() {
+  if (selectedListQuestions.size === 0) {
+    alert('لطفاً حداقل یک سوال انتخاب کنید');
+    return;
+  }
+  if (confirm(`آیا از حذف ${selectedListQuestions.size} سوال انتخاب‌شده اطمینان دارید؟`)) {
+    alert('حذف سوالات در نسخه بعدی اضافه می‌شود');
+  }
+}
+
+function createTaskFromSelected() {
+  if (selectedListQuestions.size === 0) {
+    alert('لطفاً حداقل یک سوال انتخاب کنید');
+    return;
+  }
+  
+  // ذخیره سوالات انتخاب‌شده در localStorage
+  const selectedQuestionsData = allQuestions.filter(q => selectedListQuestions.has(q.id));
+  localStorage.setItem('selectedQuestionsForTask', JSON.stringify(selectedQuestionsData));
+  
+  // رفتن به صفحه ساخت تکلیف
+  window.location.href = 'teacher-create.html?fromBank=true';
+}
 </script>
 </body>
-</html>
+          </html>
