@@ -91,7 +91,10 @@
 
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
-const teacherId = user.id || 1;
+if (!user.id || user.role !== 'teacher') {
+  window.location.href = 'login.html?role=teacher';
+}
+const teacherId = user.id;
 
 async function loadTasks() {
   const list = document.getElementById('tasksList');

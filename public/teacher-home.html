@@ -138,6 +138,9 @@
 
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+if (!user.id || user.role !== 'teacher') {
+  window.location.href = 'login.html?role=teacher';
+}
 if (user.name) {
   document.getElementById('userName').textContent = user.name;
   document.getElementById('userAvatar').textContent = user.name.charAt(0);
@@ -147,7 +150,7 @@ if (user.name) {
 async function loadRecentTasks() {
   const list = document.getElementById('recentTasksList');
   try {
-    const res = await fetch(`/api/teacher/get-tasks?teacherId=${user.id || 1}&limit=3`);
+    const res = await fetch(`/api/teacher/get-tasks?teacherId=${user.id}&limit=3`);
     const data = await res.json();
     
     if (data.success && data.tasks.length > 0) {

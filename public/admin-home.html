@@ -332,6 +332,9 @@
 <script>
 // نمایش اطلاعات کاربر
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+if (!user.id || user.role !== 'admin') {
+  window.location.href = 'login.html?role=admin';
+}
 if (user.name) {
   document.getElementById('userName').textContent = user.name;
   document.getElementById('userAvatar').textContent = user.name.charAt(0);

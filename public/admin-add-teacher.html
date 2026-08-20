@@ -216,7 +216,10 @@
 <script>
 // گرفتن اطلاعات کاربر از localStorage
 const user = JSON.parse(localStorage.getItem('user') || '{}');
-const schoolId = user.schoolId || 1; // پیش‌فرض 1
+if (!user.id || user.role !== 'admin') {
+  window.location.href = 'login.html?role=admin';
+}
+const adminId = user.id;
 
 document.getElementById('addTeacherForm').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -233,7 +236,7 @@ document.getElementById('addTeacherForm').addEventListener('submit', async funct
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        schoolId: schoolId,
+        adminId: adminId,
         teacherName: document.getElementById('teacherName').value,
         phone: document.getElementById('phone').value,
         className: document.getElementById('className').value || null,
