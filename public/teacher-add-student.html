@@ -11,7 +11,7 @@
 <style>
   .screen { padding: 24px; min-height: 100%; }
   .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s var(--ease); }
+  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
   .back-btn:hover { border-color: var(--primary); transform: translateX(4px); }
   .back-btn svg { width: 20px; height: 20px; color: var(--text-2); }
   .page-title { flex: 1; }
@@ -20,12 +20,10 @@
   .card { background: var(--card); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; box-shadow: var(--shadow); }
   .field { margin-bottom: 16px; }
   .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
-  .field input, .field select { width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 14px; background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); transition: all .2s var(--ease); box-sizing: border-box; }
-  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); background: var(--card); }
-  .submit-btn { width: 100%; padding: 15px; border: none; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px rgba(108,92,231,.3); transition: all .2s var(--ease); margin-top: 8px; }
-  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(108,92,231,.4); }
-  .submit-btn:active { transform: scale(.98); }
-  .submit-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+  .field input, .field select { width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 14px; background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); box-sizing: border-box; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); }
+  .submit-btn { width: 100%; padding: 15px; border: none; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+  .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
   .result { margin-top: 16px; padding: 16px; border-radius: 12px; font-size: 14px; }
   .result.error { background: var(--danger-soft); color: var(--danger); }
   .result.success { background: var(--success-soft); color: #15803D; }
@@ -37,36 +35,31 @@
 </style>
 </head>
 <body>
-
 <div class="phone">
   <div class="screen">
     <div class="header">
       <div class="back-btn" onclick="window.location.href='teacher-home.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
       </div>
       <div class="page-title">
         <h1>اضافه کردن دانش‌آموز</h1>
         <p>اطلاعات دانش‌آموز جدید را وارد کنید</p>
       </div>
     </div>
-
     <div class="card">
       <form id="addStudentForm">
         <div class="field">
           <label>نام و نام خانوادگی دانش‌آموز</label>
           <input type="text" id="studentName" placeholder="مثلاً: علی محمدی" required />
         </div>
-        
         <div class="field">
           <label>شماره موبایل والدین</label>
           <input type="tel" id="phone" placeholder="09123456789" required />
         </div>
-        
         <div class="field">
           <label>نام کلاس <span class="optional">(اختیاری)</span></label>
           <input type="text" id="className" placeholder="مثلاً: کلاس اول الف" />
         </div>
-        
         <div class="field">
           <label>پایه تحصیلی <span class="optional">(اختیاری)</span></label>
           <select id="grade">
@@ -79,29 +72,22 @@
             <option value="6">ششم ابتدایی</option>
           </select>
         </div>
-        
         <button type="submit" class="submit-btn" id="submitBtn">اضافه کردن دانش‌آموز</button>
       </form>
-      
       <div id="result"></div>
     </div>
   </div>
 </div>
-
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const teacherId = user.id || 1;
-
 document.getElementById('addStudentForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  
   const btn = document.getElementById('submitBtn');
   const result = document.getElementById('result');
-  
   btn.disabled = true;
   btn.textContent = 'در حال ثبت...';
   result.innerHTML = '';
-  
   try {
     const res = await fetch('/api/teacher/add-student', {
       method: 'POST',
@@ -114,25 +100,10 @@ document.getElementById('addStudentForm').addEventListener('submit', async funct
         grade: document.getElementById('grade').value || null
       })
     });
-    
     const data = await res.json();
-    
     if (data.success) {
       result.className = 'result success';
-      result.innerHTML = `
-        ✅ ${data.message}
-        <div class="code-box">
-          <div class="code-label">کد ورود دانش‌آموز:</div>
-          <div class="code-value">${data.inviteCode}</div>
-        </div>
-        <div class="code-box">
-          <div class="code-label">رمز عبور پیش‌فرض:</div>
-          <div class="password-box">${data.defaultPassword}</div>
-        </div>
-        <div style="font-size:12px;margin-top:12px;color:var(--muted);">
-          این اطلاعات رو به والدین بدید تا دانش‌آموز بتونه وارد بشه.
-        </div>
-      `;
+      result.innerHTML = '<div class="code-box"><div class="code-label">کد ورود دانش‌آموز:</div><div class="code-value">' + data.inviteCode + '</div></div><div class="code-box"><div class="code-label">رمز عبور پیش‌فرض:</div><div class="password-box">' + data.defaultPassword + '</div></div>';
       document.getElementById('addStudentForm').reset();
     } else {
       result.className = 'result error';
@@ -142,11 +113,9 @@ document.getElementById('addStudentForm').addEventListener('submit', async funct
     result.className = 'result error';
     result.textContent = '❌ خطا در اتصال به سرور';
   }
-  
   btn.disabled = false;
   btn.textContent = 'اضافه کردن دانش‌آموز';
 });
 </script>
-
 </body>
-            </html>
+</html>
