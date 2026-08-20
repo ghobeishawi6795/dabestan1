@@ -1,2 +1,2 @@
-# اگه بعداً خواستی URL تمیز داشته باشی
-/*  /index.html  200
+/api/*    /api/:splat    200
+/*    /index.html   200
