@@ -9,357 +9,118 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-  .screen {
-    padding: 24px;
-    min-height: 100%;
-  }
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    animation: fadeUp .5s var(--ease) both;
-  }
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), #8B7CF6);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 800;
-    box-shadow: 0 4px 12px rgba(108,92,231,.3);
-  }
-  .user-text h2 {
-    margin: 0 0 2px;
-    font-size: 16px;
-    font-weight: 700;
-  }
-  .user-text p {
-    margin: 0;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .logout-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: var(--card);
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all .2s var(--ease);
-    color: var(--danger);
-  }
-  .logout-btn:hover {
-    border-color: var(--danger);
-    background: var(--danger-soft);
-  }
-  .logout-btn svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  /* کارت آمار اصلی */
-  .stats-card {
-    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    margin-bottom: 20px;
-    color: white;
-    box-shadow: 0 12px 24px rgba(139,92,246,.3);
-    animation: fadeUp .5s var(--ease) .1s both;
-  }
-  .stats-card h3 {
-    margin: 0 0 4px;
-    font-size: 18px;
-    font-weight: 800;
-    text-align: center;
-  }
-  .stats-card .subtitle {
-    margin: 0 0 20px;
-    font-size: 12px;
-    opacity: .85;
-    text-align: center;
-  }
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .stat-item {
-    background: rgba(255,255,255,.2);
-    backdrop-filter: blur(10px);
-    border-radius: 14px;
-    padding: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .stat-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: rgba(255,255,255,.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-  }
-  .stat-value {
-    font-size: 20px;
-    font-weight: 800;
-    margin: 0 0 2px;
-  }
-  .stat-label {
-    font-size: 11px;
-    opacity: .9;
-    margin: 0;
-  }
-
-  /* گرید منو */
-  .menu-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .menu-item {
-    background: var(--card);
-    border: 2px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 20px 16px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .25s var(--ease);
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    animation: fadeUp .5s var(--ease) both;
-  }
+  .screen { padding: 24px; min-height: 100%; }
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; animation: fadeUp .5s var(--ease) both; }
+  .user-info { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; box-shadow: 0 4px 12px rgba(108,92,231,.3); }
+  .user-text h2 { margin: 0 0 2px; font-size: 16px; font-weight: 700; }
+  .user-text p { margin: 0; font-size: 12px; color: var(--muted); }
+  .logout-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--danger); }
+  .logout-btn:hover { border-color: var(--danger); background: var(--danger-soft); }
+  .logout-btn svg { width: 20px; height: 20px; }
+  .stats-card { background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; color: white; box-shadow: 0 12px 24px rgba(139,92,246,.3); animation: fadeUp .5s var(--ease) .1s both; }
+  .stats-card h3 { margin: 0 0 4px; font-size: 18px; font-weight: 800; text-align: center; }
+  .stats-card .subtitle { margin: 0 0 20px; font-size: 12px; opacity: .85; text-align: center; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-item { background: rgba(255,255,255,.2); backdrop-filter: blur(10px); border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 10px; }
+  .stat-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .stat-value { font-size: 20px; font-weight: 800; margin: 0 0 2px; }
+  .stat-label { font-size: 11px; opacity: .9; margin: 0; }
+  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .menu-item { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 20px 16px; text-align: center; cursor: pointer; transition: all .25s var(--ease); text-decoration: none; color: inherit; display: block; animation: fadeUp .5s var(--ease) both; }
   .menu-item:nth-child(1) { animation-delay: .15s; }
   .menu-item:nth-child(2) { animation-delay: .22s; }
   .menu-item:nth-child(3) { animation-delay: .29s; }
   .menu-item:nth-child(4) { animation-delay: .36s; }
-  .menu-item:hover {
-    border-color: var(--primary);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow);
-  }
-  .menu-item:active {
-    transform: scale(.97);
-  }
-  .menu-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    margin: 0 auto 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-  }
-  .menu-item:nth-child(1) .menu-icon { background: #DCFCE7; }
-  .menu-item:nth-child(2) .menu-icon { background: #FEE2E2; }
-  .menu-item:nth-child(3) .menu-icon { background: #DBEAFE; }
-  .menu-item:nth-child(4) .menu-icon { background: #FEF3C7; }
-  .menu-title {
-    font-size: 14px;
-    font-weight: 700;
-    margin: 0 0 4px;
-  }
-  .menu-desc {
-    font-size: 11px;
-    color: var(--muted);
-    margin: 0;
-  }
-
-  /* بخش تکالیف اخیر */
-  .recent-section {
-    background: var(--card);
-    border-radius: var(--radius-lg);
-    padding: 20px;
-    animation: fadeUp .5s var(--ease) .4s both;
-  }
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .section-header h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 700;
-  }
-  .section-header .badge {
-    background: var(--primary-soft);
-    color: var(--primary);
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-  .task-item {
-    padding: 14px;
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    margin-bottom: 12px;
-    transition: all .2s var(--ease);
-  }
-  .task-item:hover {
-    border-color: var(--primary);
-    background: var(--primary-soft);
-  }
-  .task-item:last-child {
-    margin-bottom: 0;
-  }
-  .task-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .task-title {
-    font-size: 14px;
-    font-weight: 700;
-    margin: 0;
-  }
-  .task-status {
-    background: #DCFCE7;
-    color: #15803D;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-  .task-meta {
-    display: flex;
-    gap: 16px;
-    font-size: 11px;
-    color: var(--muted);
-  }
-  .empty-state {
-    text-align: center;
-    padding: 24px 16px;
-    color: var(--muted);
-  }
-  .empty-state .emoji {
-    font-size: 48px;
-    margin-bottom: 8px;
-  }
-  .empty-state p {
-    margin: 0;
-    font-size: 13px;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .menu-item:nth-child(5) { animation-delay: .43s; }
+  .menu-item:nth-child(6) { animation-delay: .50s; }
+  .menu-item:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: var(--shadow); }
+  .menu-item:active { transform: scale(.97); }
+  .menu-icon { width: 56px; height: 56px; border-radius: 16px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .menu-item:nth-child(1) .menu-icon { background: #FEE2E2; }
+  .menu-item:nth-child(2) .menu-icon { background: #DCFCE7; }
+  .menu-item:nth-child(3) .menu-icon { background: #FEF3C7; }
+  .menu-item:nth-child(4) .menu-icon { background: #DBEAFE; }
+  .menu-item:nth-child(5) .menu-icon { background: #FCE7F3; }
+  .menu-item:nth-child(6) .menu-icon { background: #E0E7FF; }
+  .menu-title { font-size: 14px; font-weight: 700; margin: 0 0 4px; }
+  .menu-desc { font-size: 11px; color: var(--muted); margin: 0; }
+  .recent-section { background: var(--card); border-radius: var(--radius-lg); padding: 20px; animation: fadeUp .5s var(--ease) .4s both; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-header h3 { margin: 0; font-size: 16px; font-weight: 700; }
+  .section-header a { font-size: 12px; color: var(--primary); text-decoration: none; }
+  .task-item { padding: 14px; border: 2px solid var(--border); border-radius: 12px; margin-bottom: 12px; }
+  .task-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .task-title { font-size: 14px; font-weight: 700; margin: 0; }
+  .task-status { background: #DCFCE7; color: #15803D; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .task-meta { display: flex; gap: 16px; font-size: 11px; color: var(--muted); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
-
 <div class="phone">
   <div class="screen">
-    
-    <!-- هدر -->
     <div class="header">
       <div class="user-info">
-        <div class="avatar" id="userAvatar">خ</div>
+        <div class="avatar" id="userAvatar">م</div>
         <div class="user-text">
-          <h2 id="userName">خانم احمدی</h2>
+          <h2 id="userName">معلم</h2>
           <p>معلم</p>
         </div>
       </div>
       <div class="logout-btn" onclick="logout()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </div>
     </div>
 
-    <!-- کارت آمار -->
     <div class="stats-card">
       <h3>امروز ۳ تکلیف منتظر بررسی شماست</h3>
-      <p class="subtitle">۲۴ دانش‌آموز در ۲ کلاس فعال دارید</p>
+      <p class="subtitle">۴ دانش‌آموز در ۲ کلاس فعال دارید</p>
       <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-icon"></div>
-          <div>
-            <p class="stat-value">۴</p>
-            <p class="stat-label">دانش‌آموز</p>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon">🏫</div>
-          <div>
-            <p class="stat-value">۲</p>
-            <p class="stat-label">کلاس فعال</p>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon">⏳</div>
-          <div>
-            <p class="stat-value"></p>
-            <p class="stat-label">منتظر بررسی</p>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon">📝</div>
-          <div>
-            <p class="stat-value"></p>
-            <p class="stat-label">تکلیف فعال</p>
-          </div>
-        </div>
+        <div class="stat-item"><div class="stat-icon">👥</div><div><p class="stat-value">۴</p><p class="stat-label">دانش‌آموز</p></div></div>
+        <div class="stat-item"><div class="stat-icon">🏫</div><div><p class="stat-value">۲</p><p class="stat-label">کلاس فعال</p></div></div>
+        <div class="stat-item"><div class="stat-icon">⏳</div><div><p class="stat-value">۳</p><p class="stat-label">منتظر بررسی</p></div></div>
+        <div class="stat-item"><div class="stat-icon">📝</div><div><p class="stat-value"></p><p class="stat-label">تکلیف فعال</p></div></div>
       </div>
     </div>
 
-    <!-- منوی اصلی -->
     <div class="menu-grid">
-      <a href="#" class="menu-item">
-        <div class="menu-icon"></div>
-        <p class="menu-title">کلاس‌های من</p>
-        <p class="menu-desc">مدیریت کلاس‌ها</p>
-      </a>
-      
       <a href="teacher-create.html" class="menu-item">
-        <div class="menu-icon"></div>
+        <div class="menu-icon">➕</div>
         <p class="menu-title">تکلیف جدید</p>
         <p class="menu-desc">ساخت و ارسال تکلیف</p>
       </a>
-      
+      <a href="#" class="menu-item">
+        <div class="menu-icon">🏫</div>
+        <p class="menu-title">کلاس‌های من</p>
+        <p class="menu-desc">مدیریت کلاس‌ها</p>
+      </a>
       <a href="teacher-add-student.html" class="menu-item">
         <div class="menu-icon">🎒</div>
         <p class="menu-title">دانش‌آموزان</p>
         <p class="menu-desc">اضافه کردن دانش‌آموز</p>
       </a>
-      
       <a href="#" class="menu-item">
         <div class="menu-icon">⏳</div>
         <p class="menu-title">بررسی پاسخ‌ها</p>
         <p class="menu-desc">۳ تکلیف جدید</p>
       </a>
+      <a href="teacher-question-bank.html" class="menu-item">
+        <div class="menu-icon">📚</div>
+        <p class="menu-title">بانک سوالات</p>
+        <p class="menu-desc">مدیریت سوالات</p>
+      </a>
+      <a href="#" class="menu-item">
+        <div class="menu-icon">📊</div>
+        <p class="menu-title">گزارش عملکرد</p>
+        <p class="menu-desc">آمار کلاس‌ها</p>
+      </a>
     </div>
 
-    <!-- تکالیف اخیر -->
     <div class="recent-section">
       <div class="section-header">
         <h3>تکالیف اخیر</h3>
-        <a href="#" style="font-size:12px;color:var(--primary);text-decoration:none;">مشاهده همه</a>
+        <a href="#">مشاهده همه</a>
       </div>
       <div class="task-item">
         <div class="task-header">
@@ -369,23 +130,19 @@
         <div class="task-meta">
           <span>سوم الف • ریاضی</span>
           <span>۲۴ دانش‌آموز</span>
-          <span>امروز ۲۰:۰</span>
+          <span>امروز ۲۰:۰۰</span>
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-// نمایش اطلاعات کاربر
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 if (user.name) {
   document.getElementById('userName').textContent = user.name;
   document.getElementById('userAvatar').textContent = user.name.charAt(0);
 }
-
-// خروج
 function logout() {
   if (confirm('آیا می‌خواهید خارج شوید؟')) {
     localStorage.removeItem('user');
@@ -393,6 +150,5 @@ function logout() {
   }
 }
 </script>
-
 </body>
-                                     </html>
+</html>
