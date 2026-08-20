@@ -1,14 +1,12 @@
-// functions/api/auth/login.js
 import { verifyPassword } from '../../_lib/crypto.js';
 
 export async function onRequest(context) {
   const { env, request } = context;
 
-  // فقط POST مجاز است
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ 
       success: false, 
-      message: 'متد درخواست نامعتبر است' 
+      message: 'Method not allowed' 
     }), { 
       status: 405, 
       headers: { 'Content-Type': 'application/json' } 
@@ -16,23 +14,10 @@ export async function onRequest(context) {
   }
 
   try {
-    // خواندن داده‌ها از درخواست
-    let body;
-    try {
-      body = await request.json();
-    } catch (e) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'فرمت داده‌ها نامعتبر است' 
-      }), { 
-        status: 400, 
-        headers: { 'Content-Type': 'application/json' } 
-      });
-    }
+    const body = await request.json();
+    const inviteCode = body.inviteCode;
+    const password = body.password;
 
-    const { inviteCode, password } = body;
-
-    // بررسی مقادیر
     if (!inviteCode || !password) {
       return new Response(JSON.stringify({ 
         success: false, 
@@ -43,15 +28,13 @@ export async function onRequest(context) {
       });
     }
 
-    // جستجوی کاربر در دیتابیس
-    const userQuery = await env.DB.prepare(`
+    const user = await env.DB.prepare(`
       SELECT id, school_id, name, phone, role, invite_code, is_active, password_hash 
       FROM users 
-      WHERE invite_code = ? AND is_active = 1
+      WHERE invite_code = ?
     `).bind(inviteCode).first();
 
-    // اگر کاربری پیدا نشد
-    if (!userQuery) {
+    if (!user) {
       return new Response(JSON.stringify({ 
         success: false, 
         message: 'کد ورود یا رمز عبور اشتباه است' 
@@ -61,10 +44,18 @@ export async function onRequest(context) {
       });
     }
 
-    // بررسی رمز عبور
-    const isPasswordValid = await verifyPassword(password, userQuery.password_hash);
-    
-    if (!isPasswordValid) {
+    if (user.is_active !== 1) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        message: 'حساب کاربری فعال نیست' 
+      }), { 
+        status: 403, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
+
+    const isValid = await verifyPassword(password, user.password_hash);
+    if (!isValid) {
       return new Response(JSON.stringify({ 
         success: false, 
         message: 'کد ورود یا رمز عبور اشتباه است' 
@@ -74,12 +65,11 @@ export async function onRequest(context) {
       });
     }
 
-    // حذف password_hash از پاسخ
-    const { password_hash, ...safeUser } = userQuery;
+    const { password_hash, ...safeUser } = user;
 
     return new Response(JSON.stringify({ 
       success: true, 
-      message: 'ورود با موفقیت انجام شد',
+      message: 'ورود موفق',
       user: safeUser 
     }), { 
       headers: { 'Content-Type': 'application/json' } 
@@ -95,4 +85,4 @@ export async function onRequest(context) {
       headers: { 'Content-Type': 'application/json' } 
     });
   }
-}
+        }
