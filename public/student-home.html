@@ -3,346 +3,108 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-<title>دبستان — خانه آریا</title>
+<title>داشبورد دانش‌آموز - دبستان</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-  .phone{padding-bottom:96px;}
-  
-  .progress-card{
-    margin:0 20px 20px;
-    background:var(--card);
-    border-radius:var(--radius);
-    padding:14px 16px;
-    box-shadow:var(--shadow-sm);
-  }
-  .progress-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:10px;
-  }
-  .progress-head .t{
-    font-size:13px;
-    font-weight:600;
-    color:var(--text-2);
-  }
-  .progress-head .v{
-    font-size:12px;
-    font-weight:700;
-    color:var(--primary);
-  }
-  .bar{
-    height:10px;
-    background:var(--primary-soft);
-    border-radius:999px;
-    overflow:hidden;
-  }
-  .bar > span{
-    display:block;
-    height:100%;
-    background:linear-gradient(90deg,var(--primary),#A78BFA);
-    border-radius:999px;
-    width:65%;
-    transition:width .8s var(--ease);
-  }
-  .days{
-    display:flex;
-    justify-content:space-between;
-    margin-top:10px;
-  }
-  .day{
-    flex:1;
-    text-align:center;
-    font-size:11px;
-    color:var(--muted);
-    font-weight:500;
-    position:relative;
-  }
-  .day .dot{
-    width:8px;
-    height:8px;
-    border-radius:50%;
-    background:var(--border);
-    margin:0 auto 4px;
-  }
-  .day.done .dot{background:var(--success);}
-  .day.today .dot{
-    background:var(--primary);
-    box-shadow:0 0 0 4px var(--primary-soft);
-  }
-  .day.today{
-    color:var(--primary);
-    font-weight:700;
-  }
-
-  .section-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:0 20px;
-    margin:4px 0 12px;
-  }
-  .section-head h3{
-    margin:0;
-    font-size:15px;
-    font-weight:700;
-  }
-  .section-head a{
-    font-size:12px;
-    color:var(--primary);
-    font-weight:600;
-    text-decoration:none;
-  }
-
-  .tasks{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    padding:0 20px;
-  }
-
-  .feedbacks{
-    padding:0 20px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    margin-top:4px;
-  }
-  .feedback{
-    background:var(--card);
-    border-radius:var(--radius);
-    padding:12px 14px;
-    display:flex;
-    gap:12px;
-    align-items:center;
-    box-shadow:var(--shadow-sm);
-  }
-  .fb-score{
-    width:46px;
-    height:46px;
-    border-radius:14px;
-    background:linear-gradient(135deg,#FFD166,#FF9F43);
-    color:#fff;
-    font-weight:800;
-    font-size:15px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
-    box-shadow:0 6px 14px rgba(255,159,67,.3);
-  }
-  .fb-body{flex:1; min-width:0;}
-  .fb-title{
-    font-size:13px;
-    font-weight:700;
-    margin-bottom:2px;
-  }
-  .fb-msg{
-    font-size:11.5px;
-    color:var(--text-2);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  .fb-time{
-    font-size:10px;
-    color:var(--muted);
-    margin-top:2px;
-  }
-
-  .task, .feedback, .progress-card, .welcome{
-    animation:rise .5s var(--ease) both;
-  }
-  .task:nth-child(1){animation-delay:.05s;}
-  .task:nth-child(2){animation-delay:.12s;}
-  .task:nth-child(3){animation-delay:.19s;}
-  .feedback:nth-child(1){animation-delay:.05s;}
-  .feedback:nth-child(2){animation-delay:.12s;}
+  .screen { padding: 24px; min-height: 100%; }
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; animation: fadeUp .5s var(--ease) both; }
+  .user-info { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; box-shadow: 0 4px 12px rgba(108,92,231,.3); }
+  .user-text h2 { margin: 0 0 2px; font-size: 16px; font-weight: 700; }
+  .user-text p { margin: 0; font-size: 12px; color: var(--muted); }
+  .logout-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--danger); }
+  .logout-btn:hover { border-color: var(--danger); background: var(--danger-soft); }
+  .logout-btn svg { width: 20px; height: 20px; }
+  .welcome-card { background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; color: white; box-shadow: 0 12px 24px rgba(139,92,246,.3); animation: fadeUp .5s var(--ease) .1s both; text-align: center; }
+  .welcome-card h2 { margin: 0 0 8px; font-size: 20px; font-weight: 800; }
+  .welcome-card p { margin: 0; font-size: 13px; opacity: .9; }
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .stat-item { background: rgba(255,255,255,.2); backdrop-filter: blur(10px); border-radius: 14px; padding: 14px; text-align: center; }
+  .stat-value { font-size: 22px; font-weight: 800; margin: 0 0 2px; }
+  .stat-label { font-size: 11px; opacity: .9; margin: 0; }
+  .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title h3 { margin: 0; font-size: 16px; font-weight: 700; }
+  .section-title a { font-size: 12px; color: var(--primary); text-decoration: none; }
+  .task-card { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; animation: fadeUp .5s var(--ease) both; }
+  .task-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .task-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--primary-soft); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .task-info { flex: 1; }
+  .task-title { font-size: 15px; font-weight: 700; margin: 0 0 4px; }
+  .task-subject { font-size: 12px; color: var(--muted); margin: 0; }
+  .task-meta { display: flex; gap: 12px; font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+  .task-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: white; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .empty-state { text-align: center; padding: 32px 16px; color: var(--muted); }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 8px; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
-
 <div class="phone">
-
-  <header class="header">
-    <div class="greeting">
-      <span class="hi">سلام 👋</span>
-      <span class="name">آریا جان</span>
-    </div>
-    <div class="avatar-wrap">
-      <div class="avatar">آ</div>
-      <div class="bell">۲</div>
-    </div>
-  </header>
-
-  <section class="welcome">
-    <h2>آماده‌ای تکالیفت رو انجام بدی؟ 🚀</h2>
-    <p>امروز ۳ تکلیف داری. بیا شروع کنیم!</p>
-    <div class="stats">
-      <div class="stat">
-        <div class="ico">📚</div>
-        <div>
-          <div class="num">۳</div>
-          <div class="lbl">تکلیف امروز</div>
+  <div class="screen">
+    <div class="header">
+      <div class="user-info">
+        <div class="avatar" id="userAvatar">د</div>
+        <div class="user-text">
+          <h2 id="userName">دانش‌آموز</h2>
+          <p id="userClass">کلاس</p>
         </div>
       </div>
-      <div class="stat">
-        <div class="ico">⭐</div>
-        <div>
-          <div class="num">۲۴</div>
-          <div class="lbl">ستاره‌های من</div>
+      <div class="logout-btn" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+    </div>
+
+    <div class="welcome-card">
+      <h2 id="welcomeText">آماده‌ای تکالیفت رو انجام بدی؟ 🚀</h2>
+      <p>بیا شروع کنیم!</p>
+      <div class="stats-row">
+        <div class="stat-item">
+          <p class="stat-value" id="taskCount">0</p>
+          <p class="stat-label">تکلیف امروز</p>
+        </div>
+        <div class="stat-item">
+          <p class="stat-value">⭐</p>
+          <p class="stat-label">ستاره‌های من</p>
         </div>
       </div>
     </div>
-  </section>
 
-  <section class="progress-card">
-    <div class="progress-head">
-      <span class="t">پیشرفت این هفته</span>
-      <span class="v">۱۳ از ۲۰ تکلیف</span>
+    <div class="section-title">
+      <h3>تکالیف امروز</h3>
+      <a href="#">مشاهده همه</a>
     </div>
-    <div class="bar"><span></span></div>
-    <div class="days">
-      <div class="day done"><div class="dot"></div>ش</div>
-      <div class="day done"><div class="dot"></div>ی</div>
-      <div class="day done"><div class="dot"></div>د</div>
-      <div class="day done"><div class="dot"></div>س</div>
-      <div class="day today"><div class="dot"></div>چ</div>
-      <div class="day"><div class="dot"></div>پ</div>
-      <div class="day"><div class="dot"></div>ج</div>
-    </div>
-  </section>
 
-  <div class="section-head">
-    <h3>تکالیف امروز</h3>
-    <a href="#">مشاهده همه</a>
-  </div>
-
-  <div class="tasks">
-    <a href="student-task.html" class="task math">
-      <div class="task-icon">🧮</div>
-      <div class="task-body">
-        <div class="task-top">
-          <div>
-            <h4 class="task-title">تمرین صفحه ۴۲</h4>
-            <div class="task-subject">ریاضی • سوم الف</div>
-          </div>
-          <span class="badge warn">⏰ تا ۲۰:۰۰</span>
-        </div>
-        <div class="task-meta">
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
-            پاسخ متنی
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            ۱۵ دقیقه
-          </span>
-        </div>
-        <button class="task-action">شروع تکلیف</button>
-      </div>
-    </a>
-
-    <a href="student-task.html" class="task farsi">
-      <div class="task-icon">📖</div>
-      <div class="task-body">
-        <div class="task-top">
-          <div>
-            <h4 class="task-title">روخوانی درس ۵</h4>
-            <div class="task-subject">فارسی • سوم الف</div>
-          </div>
-          <span class="badge new">✨ جدید</span>
-        </div>
-        <div class="task-meta">
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
-            ضبط صدا
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            ۱۰ دقیقه
-          </span>
-        </div>
-        <button class="task-action">شروع تکلیف</button>
-      </div>
-    </a>
-
-    <a href="student-task.html" class="task science">
-      <div class="task-icon">🔬</div>
-      <div class="task-body">
-        <div class="task-top">
-          <div>
-            <h4 class="task-title">گزارش آزمایش گیاه</h4>
-            <div class="task-subject">علوم • سوم الف</div>
-          </div>
-          <span class="badge ok">✅ آسان</span>
-        </div>
-        <div class="task-meta">
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
-            ارسال عکس
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            ۲۰ دقیقه
-          </span>
-        </div>
-        <button class="task-action">شروع تکلیف</button>
-      </div>
-    </a>
-  </div>
-
-  <div class="section-head" style="margin-top:22px;">
-    <h3>آخرین بازخوردها</h3>
-    <a href="#">همه</a>
-  </div>
-
-  <div class="feedbacks">
-    <div class="feedback">
-      <div class="fb-score">۹</div>
-      <div class="fb-body">
-        <div class="fb-title">ریاضی • تمرین صفحه ۳۸</div>
-        <div class="fb-msg">آفرین آریا! خیلی مرتب حل کردی، فقط سؤال ۴ رو یه بار دیگه چک کن.</div>
-        <div class="fb-time">دیروز • خانم احمدی</div>
-      </div>
-    </div>
-    <div class="feedback">
-      <div class="fb-score">۱۰</div>
-      <div class="fb-body">
-        <div class="fb-title">فارسی • املا درس ۴</div>
-        <div class="fb-msg">عالی بود! هیچ غلطی نداشتی 🌟</div>
-        <div class="fb-time">۲ روز پیش • خانم احمدی</div>
+    <div id="tasksList">
+      <div class="empty-state">
+        <div class="emoji"></div>
+        <p>هنوز تکلیفی برای امروز ثبت نشده</p>
       </div>
     </div>
   </div>
-
-  <nav class="nav">
-    <a href="student-home.html" class="nav-item active">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-      <span>خانه</span>
-    </a>
-    <a href="#" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M16 4v4h4"/></svg>
-      <span>تکالیف</span>
-    </a>
-    <a href="#" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
-      <span>ستاره</span>
-    </a>
-    <a href="#" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 5 3 6 3 6H3s3-1 3-6z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
-      <span>اعلان</span>
-    </a>
-    <a href="#" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-      <span>من</span>
-    </a>
-  </nav>
-
 </div>
 
+<script>
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+if (user.name) {
+  document.getElementById('userName').textContent = user.name + ' جان';
+  document.getElementById('userAvatar').textContent = user.name.charAt(0);
+  document.getElementById('welcomeText').textContent = user.name + ' جان، آماده‌ای تکالیفت رو انجام بدی؟ 🚀';
+}
+
+if (user.role === 'student') {
+  document.getElementById('userClass').textContent = 'دانش‌آموز';
+}
+
+function logout() {
+  if (confirm('آیا می‌خواهید خارج شوید؟')) {
+    localStorage.removeItem('user');
+    window.location.href = 'index.html';
+  }
+}
+</script>
 </body>
 </html>
