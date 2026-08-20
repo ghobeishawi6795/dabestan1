@@ -1,14 +1,15 @@
-name = "dabestan-api"
+name = "dabestan1"
+main = "api/_worker.js"
 compatibility_date = "2024-01-01"
-pages_build_output_dir = "public"
 
-# نکته: این پروژه با Cloudflare Pages + Pages Functions اجرا میشه (پوشه‌ی functions/).
-# فایل قدیمی api/_worker.js (که با فیلد Workers-ای "main" ست شده بود) یک نسخه‌ی
-# تکراری و ناهماهنگ از register/login بود که در دیپلوی Pages اصلاً اجرا نمی‌شد؛
-# حذف شد تا سردرگمی نباشه و فقط functions/api/* منبع واقعی API باشه.
-
-# D1 Database
 [[d1_databases]]
-  binding = "DB"
-  database_name = "dabestan_db"
-  database_id = "PLACEHOLDER"  # بعد از ساخت D1 پر می‌کنیم
+binding = "DB"
+database_name = "dabestan-db"
+database_id = "your-database-id-here"
+
+[env.production]
+vars = { JWT_SECRET = "your-production-secret-key" }
+
+[dev]
+port = 8787
+local_protocol = "http"
