@@ -37,7 +37,6 @@
   .result.error { background: var(--danger-soft); color: var(--danger); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   
-  /* پیش‌نمایش سوالات (تب آپلود) */
   .preview-container { max-height: 500px; overflow-y: auto; border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 16px; background: var(--bg); }
   .question-preview { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; transition: all .2s; position: relative; }
   .question-preview:hover { border-color: var(--primary); }
@@ -53,15 +52,6 @@
   .select-all-btn:hover { background: var(--primary); color: white; }
   .selected-count { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
   
-  /* لیست سوالات (تب لیست) */
-  .list-toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .toolbar-btn { padding: 10px 16px; border: 2px solid var(--border); border-radius: 10px; background: var(--card); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
-  .toolbar-btn:hover { border-color: var(--primary); }
-  .toolbar-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-  .toolbar-btn.danger { border-color: var(--danger); color: var(--danger); }
-  .toolbar-btn.danger:hover { background: var(--danger); color: white; }
-  .toolbar-btn.success { background: var(--success-soft); color: #15803D; border-color: #15803D; }
-  .toolbar-btn.success:hover { background: #15803D; color: white; }
   .question-item { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; transition: all .2s; }
   .question-item.selectable { padding-right: 50px; }
   .question-item.selectable:hover { border-color: var(--primary); background: var(--primary-soft); }
@@ -77,8 +67,15 @@
   .empty-state .emoji { font-size: 48px; margin-bottom: 8px; }
   .selection-summary { background: var(--primary-soft); border: 2px solid var(--primary); border-radius: 12px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
   .selection-summary .count { font-size: 14px; font-weight: 700; color: var(--primary); }
+  .list-toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar-btn { padding: 10px 16px; border: 2px solid var(--border); border-radius: 10px; background: var(--card); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .toolbar-btn:hover { border-color: var(--primary); }
+  .toolbar-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .toolbar-btn.danger { border-color: var(--danger); color: var(--danger); }
+  .toolbar-btn.danger:hover { background: var(--danger); color: white; }
+  .toolbar-btn.success { background: var(--success-soft); color: #15803D; border-color: #15803D; }
+  .toolbar-btn.success:hover { background: #15803D; color: white; }
   
-  /* مودال پیش‌نمایش */
   .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
   .modal.active { display: flex; }
   .modal-content { background: var(--card); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
@@ -98,7 +95,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
       </div>
       <div class="page-title">
-        <h1> بانک سوالات</h1>
+        <h1>📚 بانک سوالات</h1>
         <p>مدیریت و آپلود سوالات</p>
       </div>
     </div>
@@ -108,7 +105,6 @@
       <button class="tab" onclick="showTab('list', this)">لیست سوالات</button>
     </div>
 
-    <!-- تب آپلود -->
     <div id="uploadTab" class="card">
       <form id="uploadForm">
         <div class="field">
@@ -172,7 +168,7 @@
             <h3 style="margin:20px 0 12px;font-size:16px;">پیش‌نمایش سوالات</h3>
             <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">سوالاتی که می‌خواهید به بانک اضافه شوند را تیک بزنید:</p>
             <button type="button" class="select-all-btn" onclick="toggleSelectAll()">انتخاب همه</button>
-            <div class="selected-count" id="selectedCount"> سوال انتخاب شده</div>
+            <div class="selected-count" id="selectedCount">۰ سوال انتخاب شده</div>
             <div class="preview-container" id="previewContainer"></div>
           </div>
         </div>
@@ -183,23 +179,19 @@
       <div id="result"></div>
     </div>
 
-    <!-- تب لیست -->
     <div id="listTab" class="card" style="display:none">
-      <!-- نوار ابزار -->
       <div class="list-toolbar">
-        <button class="toolbar-btn" id="selectModeBtn" onclick="toggleSelectMode()">✏️ حالت انتخاب</button>
+        <button class="toolbar-btn" id="selectModeBtn" onclick="toggleSelectMode()">️ حالت انتخاب</button>
         <button class="toolbar-btn" id="selectAllBtn" onclick="toggleSelectAllList()" style="display:none">انتخاب همه</button>
-        <button class="toolbar-btn success" id="createTaskBtn" onclick="createTaskFromSelected()" style="display:none">📝 ایجاد تکلیف از سوالات انتخاب‌شده</button>
-        <button class="toolbar-btn danger" id="deleteSelectedBtn" onclick="deleteSelected()" style="display:none">🗑️ حذف انتخاب‌شده‌ها</button>
+        <button class="toolbar-btn success" id="createTaskBtn" onclick="createTaskFromSelected()" style="display:none">📝 ایجاد تکلیف</button>
+        <button class="toolbar-btn danger" id="deleteSelectedBtn" onclick="deleteSelected()" style="display:none">🗑️ حذف</button>
       </div>
       
-      <!-- خلاصه انتخاب -->
       <div id="selectionSummary" class="selection-summary" style="display:none">
-        <span class="count" id="selectionCount"> سوال انتخاب شده</span>
-        <button class="toolbar-btn" onclick="clearSelection()">پاک کردن انتخاب</button>
+        <span class="count" id="selectionCount">۰ سوال انتخاب شده</span>
+        <button class="toolbar-btn" onclick="clearSelection()">پاک کردن</button>
       </div>
       
-      <!-- فیلترها -->
       <div class="row" style="margin-bottom:16px">
         <div class="field">
           <label>فیلتر درس</label>
@@ -231,7 +223,6 @@
   </div>
 </div>
 
-<!-- مودال پیش‌نمایش -->
 <div id="previewModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -248,8 +239,6 @@ const teacherId = user.id || 1;
 let currentMode = 'manual';
 let parsedQuestions = [];
 let selectedQuestions = new Set();
-
-// متغیرهای تب لیست
 let selectMode = false;
 let selectedListQuestions = new Set();
 let allQuestions = [];
@@ -277,7 +266,6 @@ function setMode(mode) {
   }
 }
 
-// ========== تب آپلود ==========
 function handleFileSelect(input) {
   const file = input.files[0];
   if (file) {
@@ -290,13 +278,16 @@ function handleFileSelect(input) {
   }
 }
 
+// ========== پارسر هوشمند سوالات ==========
 function parseQuestions(htmlContent) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, 'text/html');
-  const questionElements = doc.querySelectorAll('.question');
   
   parsedQuestions = [];
   selectedQuestions.clear();
+  
+  // روش ۱: جستجوی div با کلاس question
+  let questionElements = doc.querySelectorAll('.question');
   
   if (questionElements.length > 0) {
     questionElements.forEach((elem, index) => {
@@ -313,11 +304,116 @@ function parseQuestions(htmlContent) {
       selectedQuestions.add(index);
     });
     displayQuestionsPreview();
-  } else {
-    parsedQuestions = [{ id: 1, title: 'سوال', content: htmlContent, html: htmlContent }];
-    selectedQuestions.add(0);
-    displayQuestionsPreview();
+    return;
   }
+  
+  // روش ۲: جستجوی الگوی "سوال ۱"، "سوال ۲" و غیره در تگ‌های h1-h6
+  const headings = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const questionHeadings = [];
+  
+  headings.forEach(h => {
+    const text = h.textContent.trim();
+    if (/سوال\s*[۰-0-9]/i.test(text) || /^\s*[۰-۹0-9]+[\.\)]\s/.test(text) || /^\s*سوال\s/.test(text)) {
+      questionHeadings.push(h);
+    }
+  });
+  
+  if (questionHeadings.length > 1) {
+    questionHeadings.forEach((heading, index) => {
+      const title = heading.textContent.trim();
+      let content = '';
+      let sibling = heading.nextElementSibling;
+      let html = heading.outerHTML;
+      
+      while (sibling && !questionHeadings.includes(sibling)) {
+        content += sibling.outerHTML;
+        html += sibling.outerHTML;
+        sibling = sibling.nextElementSibling;
+      }
+      
+      parsedQuestions.push({
+        id: index + 1,
+        title: title,
+        content: content || title,
+        html: html
+      });
+      selectedQuestions.add(index);
+    });
+    displayQuestionsPreview();
+    return;
+  }
+  
+  // روش ۳: جستجوی الگو در متن (سوال ۱، سوال ، ...)
+  const body = doc.body.innerHTML;
+  const questionPattern = /(?:سوال\s*[۰-۹0-9]+|سوال\s+[۰-0-9]+[\.\):])/gi;
+  const matches = [...body.matchAll(questionPattern)];
+  
+  if (matches.length > 1) {
+    let lastIndex = 0;
+    let questionIndex = 0;
+    
+    matches.forEach((match, i) => {
+      const startIndex = match.index;
+      const title = match[0];
+      
+      if (i > 0) {
+        const content = body.substring(lastIndex, startIndex);
+        parsedQuestions.push({
+          id: questionIndex,
+          title: `سوال ${questionIndex}`,
+          content: content,
+          html: content
+        });
+        selectedQuestions.add(questionIndex - 1);
+      }
+      
+      questionIndex++;
+      lastIndex = startIndex;
+    });
+    
+    // اضافه کردن آخرین سوال
+    if (lastIndex < body.length) {
+      const content = body.substring(lastIndex);
+      parsedQuestions.push({
+        id: questionIndex,
+        title: `سوال ${questionIndex}`,
+        content: content,
+        html: content
+      });
+      selectedQuestions.add(questionIndex - 1);
+    }
+    
+    displayQuestionsPreview();
+    return;
+  }
+  
+  // روش ۴: تقسیم بر اساس تگ‌های <hr> یا <br> متعدد
+  const hrSections = body.split(/<hr\s*\/?>/i);
+  if (hrSections.length > 1) {
+    hrSections.forEach((section, index) => {
+      if (section.trim()) {
+        parsedQuestions.push({
+          id: index + 1,
+          title: `سوال ${index + 1}`,
+          content: section,
+          html: section
+        });
+        selectedQuestions.add(index);
+      }
+    });
+    displayQuestionsPreview();
+    return;
+  }
+  
+  // روش ۵: اگر هیچ الگویی پیدا نشد، کل محتوا رو یه سوال در نظر بگیر
+  parsedQuestions = [{
+    id: 1,
+    title: 'سوال',
+    content: htmlContent,
+    html: htmlContent
+  }];
+  selectedQuestions.add(0);
+  displayQuestionsPreview();
 }
 
 function displayQuestionsPreview() {
@@ -457,14 +553,14 @@ function toggleSelectMode() {
   
   if (selectMode) {
     btn.classList.add('active');
-    btn.textContent = '✅ حالت انتخاب فعال است';
+    btn.textContent = '✅ حالت انتخاب فعال';
     selectAllBtn.style.display = 'inline-block';
     createTaskBtn.style.display = 'inline-block';
     deleteBtn.style.display = 'inline-block';
     summary.style.display = 'flex';
   } else {
     btn.classList.remove('active');
-    btn.textContent = '️ حالت انتخاب';
+    btn.textContent = '✏️ حالت انتخاب';
     selectAllBtn.style.display = 'none';
     createTaskBtn.style.display = 'none';
     deleteBtn.style.display = 'none';
@@ -584,13 +680,10 @@ function createTaskFromSelected() {
     return;
   }
   
-  // ذخیره سوالات انتخاب‌شده در localStorage
   const selectedQuestionsData = allQuestions.filter(q => selectedListQuestions.has(q.id));
   localStorage.setItem('selectedQuestionsForTask', JSON.stringify(selectedQuestionsData));
-  
-  // رفتن به صفحه ساخت تکلیف
   window.location.href = 'teacher-create.html?fromBank=true';
 }
 </script>
 </body>
-          </html>
+                             </html>
