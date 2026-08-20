@@ -1,294 +1,95 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>بانک سوالات - دبستان</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<title>بانک سوالات</title>
 <link rel="stylesheet" href="shared.css">
 <style>
-  .screen { padding: 24px; min-height: 100%; }
-  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-  .back-btn:hover { border-color: var(--primary); transform: translateX(4px); }
-  .back-btn svg { width: 20px; height: 20px; color: var(--text-2); }
-  .page-title { flex: 1; }
-  .page-title h1 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
-  .page-title p { margin: 0; font-size: 12px; color: var(--muted); }
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-  .tab { flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: 12px; background: var(--card); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
-  .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
-  .card { background: var(--card); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
-  .field { margin-bottom: 16px; }
-  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
-  .field input, .field select, .field textarea { width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 14px; background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); box-sizing: border-box; }
-  .field textarea { min-height: 150px; resize: vertical; font-family: monospace; }
-  .submit-btn { width: 100%; padding: 15px; border: none; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
-  .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
-  .question-list { margin-top: 20px; }
-  .question-item { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-  .question-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .question-title { font-size: 15px; font-weight: 700; margin: 0; }
-  .question-meta { display: flex; gap: 12px; font-size: 11px; color: var(--muted); margin-bottom: 12px; }
-  .question-actions { display: flex; gap: 8px; }
-  .btn-small { padding: 8px 16px; border: none; border-radius: 8px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
-  .btn-preview { background: var(--primary-soft); color: var(--primary); }
-  .btn-delete { background: var(--danger-soft); color: var(--danger); }
-  .empty-state { text-align: center; padding: 40px 16px; color: var(--muted); }
-  .empty-state .emoji { font-size: 48px; margin-bottom: 8px; }
-  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-  .modal.active { display: flex; }
-  .modal-content { background: var(--card); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .modal-header h3 { margin: 0; font-size: 18px; }
-  .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
-  .result { margin-top: 16px; padding: 16px; border-radius: 12px; font-size: 14px; }
-  .result.error { background: var(--danger-soft); color: var(--danger); }
-  .result.success { background: var(--success-soft); color: #15803D; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+body{font-family:Vazirmatn,sans-serif;padding:20px;background:#f5f5f5}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px}
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+.tab{flex:1;padding:12px;border:2px solid #e0e0e0;border-radius:12px;background:#fff;cursor:pointer}
+.tab.active{background:#6C5CE7;color:#fff;border-color:#6C5CE7}
+.field{margin-bottom:16px}
+.field label{display:block;margin-bottom:8px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit}
+.submit-btn{width:100%;padding:15px;border:none;border-radius:12px;background:#6C5CE7;color:#fff;font-weight:700;cursor:pointer}
+.question-item{background:#fff;border:2px solid #e0e0e0;border-radius:12px;padding:16px;margin-bottom:12px}
+.question-header{display:flex;justify-content:space-between;margin-bottom:8px}
+.question-meta{font-size:12px;color:#888}
+.btn-small{padding:8px 16px;border:none;border-radius:8px;margin-right:8px;cursor:pointer}
+.btn-preview{background:#e0e7ff;color:#6C5CE7}
+.btn-delete{background:#fee;color:#c00}
+.result{margin-top:16px;padding:12px;border-radius:10px}
+.result.success{background:#d4edda;color:#155724}
+.result.error{background:#f8d7da;color:#721c24}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 </style>
 </head>
 <body>
-<div class="phone">
-  <div class="screen">
-    <div class="header">
-      <div class="back-btn" onclick="window.location.href='teacher-home.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-      </div>
-      <div class="page-title">
-        <h1>بانک سوالات</h1>
-        <p>مدیریت و آپلود سوالات</p>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" onclick="showTab('upload')">آپلود سوال جدید</button>
-      <button class="tab" onclick="showTab('list')">لیست سوالات</button>
-    </div>
-
-    <!-- تب آپلود -->
-    <div id="uploadTab" class="card">
-      <form id="uploadForm">
-        <div class="field">
-          <label>عنوان سوال</label>
-          <input type="text" id="questionTitle" placeholder="مثلاً: سوال فصل اول ریاضی" required />
-        </div>
-        
-        <div class="row">
-          <div class="field">
-            <label>درس</label>
-            <select id="questionSubject">
-              <option value="">انتخاب کنید</option>
-              <option value="ریاضی">ریاضی</option>
-              <option value="فارسی">فارسی</option>
-              <option value="علوم">علوم</option>
-              <option value="مطالعات اجتماعی">مطالعات اجتماعی</option>
-              <option value="هدیه‌های آسمانی">هدیه‌های آسمانی</option>
-              <option value="قرآن">قرآن</option>
-            </select>
-          </div>
-          
-          <div class="field">
-            <label>پایه تحصیلی</label>
-            <select id="questionGrade">
-              <option value="">انتخاب کنید</option>
-              <option value="1">اول ابتدایی</option>
-              <option value="2">دوم ابتدایی</option>
-              <option value="3">سوم ابتدایی</option>
-              <option value="4">چهارم ابتدایی</option>
-              <option value="5">پنجم ابتدایی</option>
-              <option value="6">ششم ابتدایی</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="field">
-          <label>محتوای سوال (HTML)</label>
-          <textarea id="questionHtml" placeholder="کد HTML سوال را اینجا وارد کنید..." required></textarea>
-        </div>
-        
-        <button type="submit" class="submit-btn" id="uploadBtn">آپلود در بانک سوالات</button>
-      </form>
-      
-      <div id="uploadResult"></div>
-    </div>
-
-    <!-- تب لیست -->
-    <div id="listTab" style="display: none;">
-      <div class="card">
-        <div class="row">
-          <div class="field">
-            <label>فیلتر بر اساس درس</label>
-            <select id="filterSubject" onchange="loadQuestions()">
-              <option value="all">همه دروس</option>
-              <option value="ریاضی">ریاضی</option>
-              <option value="فارسی">فارسی</option>
-              <option value="علوم">علوم</option>
-              <option value="مطالعات اجتماعی">مطالعات اجتماعی</option>
-              <option value="هدیه‌های آسمانی">هدیه‌های آسمانی</option>
-              <option value="قرآن">قرآن</option>
-            </select>
-          </div>
-          
-          <div class="field">
-            <label>فیلتر بر اساس پایه</label>
-            <select id="filterGrade" onchange="loadQuestions()">
-              <option value="all">همه پایه‌ها</option>
-              <option value="1">اول ابتدایی</option>
-              <option value="2">دوم ابتدایی</option>
-              <option value="3">سوم ابتدایی</option>
-              <option value="4">چهارم ابتدایی</option>
-              <option value="5">پنجم ابتدایی</option>
-              <option value="6">ششم ابتدایی</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <div id="questionsList" class="question-list">
-        <div class="empty-state">
-          <div class="emoji">📭</div>
-          <p>هنوز سوالی در بانک وجود ندارد</p>
-        </div>
-      </div>
-    </div>
-  </div>
+<h1>بانک سوالات</h1>
+<div class="tabs">
+<button class="tab active" onclick="showTab('upload')">آپلود سوال</button>
+<button class="tab" onclick="showTab('list')">لیست سوالات</button>
 </div>
-
-<!-- مودال پیش‌نمایش -->
-<div id="previewModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>پیش‌نمایش سوال</h3>
-      <button class="close-btn" onclick="closeModal()">&times;</button>
-    </div>
-    <div id="previewContent"></div>
-  </div>
+<div id="uploadTab" class="card">
+<form id="uploadForm">
+<div class="field"><label>عنوان</label><input type="text" id="title" required></div>
+<div class="row">
+<div class="field"><label>درس</label><select id="subject"><option value="">-</option><option>ریاضی</option><option>فارسی</option><option>علوم</option></select></div>
+<div class="field"><label>پایه</label><select id="grade"><option value="">-</option><option value="1">اول</option><option value="2">دوم</option><option value="3">سوم</option></select></div>
 </div>
-
+<div class="field"><label>سوال (HTML)</label><textarea id="html" rows="6" required></textarea></div>
+<button class="submit-btn">آپلود</button>
+</form>
+<div id="result"></div>
+</div>
+<div id="listTab" style="display:none"><div id="questionsList"></div></div>
 <script>
-const user = JSON.parse(localStorage.getItem('user') || '{}');
-const teacherId = user.id || 1;
-
-function showTab(tabName) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('#uploadTab, #listTab').forEach(t => t.style.display = 'none');
-  
-  if (tabName === 'upload') {
-    document.querySelector('.tab:nth-child(1)').classList.add('active');
-    document.getElementById('uploadTab').style.display = 'block';
-  } else {
-    document.querySelector('.tab:nth-child(2)').classList.add('active');
-    document.getElementById('listTab').style.display = 'block';
-    loadQuestions();
-  }
+const user=JSON.parse(localStorage.getItem('user')||'{}');
+const teacherId=user.id||1;
+function showTab(t){
+document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+document.getElementById('uploadTab').style.display=t==='upload'?'block':'none';
+document.getElementById('listTab').style.display=t==='list'?'block':'none';
+event.target.classList.add('active');
+if(t==='list')loadQuestions();
 }
-
-document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  
-  const btn = document.getElementById('uploadBtn');
-  const result = document.getElementById('uploadResult');
-  
-  btn.disabled = true;
-  btn.textContent = 'در حال آپلود...';
-  result.innerHTML = '';
-  
-  try {
-    const res = await fetch('/api/teacher/upload-question', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        teacherId: teacherId,
-        title: document.getElementById('questionTitle').value,
-        subject: document.getElementById('questionSubject').value || null,
-        grade: document.getElementById('questionGrade').value || null,
-        questionHtml: document.getElementById('questionHtml').value,
-        questionType: 'html'
-      })
-    });
-    
-    const data = await res.json();
-    
-    if (data.success) {
-      result.className = 'result success';
-      result.innerHTML = '✅ ' + data.message;
-      document.getElementById('uploadForm').reset();
-    } else {
-      result.className = 'result error';
-      result.textContent = '❌ ' + data.message;
-    }
-  } catch (err) {
-    result.className = 'result error';
-    result.textContent = '❌ خطا در اتصال به سرور';
-  }
-  
-  btn.disabled = false;
-  btn.textContent = 'آپلود در بانک سوالات';
+document.getElementById('uploadForm').onsubmit=async function(e){
+e.preventDefault();
+const btn=this.querySelector('.submit-btn');
+const resDiv=document.getElementById('result');
+btn.disabled=true;btn.textContent='در حال آپلود...';
+try{
+const res=await fetch('/api/teacher/upload-question',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+teacherId,title:document.getElementById('title').value,
+subject:document.getElementById('subject').value||null,
+grade:document.getElementById('grade').value||null,
+questionHtml:document.getElementById('html').value,
+questionType:'html'
+})
 });
-
-async function loadQuestions() {
-  const list = document.getElementById('questionsList');
-  const subject = document.getElementById('filterSubject').value;
-  const grade = document.getElementById('filterGrade').value;
-  
-  try {
-    const url = `/api/teacher/get-questions?teacherId=${teacherId}&subject=${subject}&grade=${grade}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    
-    if (data.success && data.questions.length > 0) {
-      list.innerHTML = data.questions.map(q => `
-        <div class="question-item">
-          <div class="question-header">
-            <h4 class="question-title">${q.title}</h4>
-          </div>
-          <div class="question-meta">
-            <span>${q.subject || 'بدون درس'}</span>
-            <span>پایه ${q.grade || '-'}</span>
-            <span>${new Date(q.created_at).toLocaleDateString('fa-IR')}</span>
-          </div>
-          <div class="question-actions">
-            <button class="btn-small btn-preview" onclick="previewQuestion(${q.id}, '${q.title.replace(/'/g, "\\'")}')">پیش‌نمایش</button>
-            <button class="btn-small btn-delete" onclick="deleteQuestion(${q.id})">حذف</button>
-          </div>
-        </div>
-      `).join('');
-    } else {
-      list.innerHTML = `
-        <div class="empty-state">
-          <div class="emoji">📭</div>
-          <p>سوالی یافت نشد</p>
-        </div>
-      `;
-    }
-  } catch (err) {
-    list.innerHTML = '<div class="result error">خطا در دریافت سوالات</div>';
-  }
+const data=await res.json();
+resDiv.className='result '+(data.success?'success':'error');
+resDiv.textContent=(data.success?'✅':'❌ ')+data.message;
+if(data.success)this.reset();
+}catch(err){
+resDiv.className='result error';resDiv.textContent=' خطا';
 }
-
-function previewQuestion(id, title) {
-  const modal = document.getElementById('previewModal');
-  const content = document.getElementById('previewContent');
-  
-  // اینجا باید سوال رو از API بگیریم
-  // فعلاً یه پیش‌نمایش ساده نشون می‌دیم
-  content.innerHTML = `<h4>${title}</h4><p>پیش‌نمایش سوال...</p>`;
-  modal.classList.add('active');
-}
-
-function closeModal() {
-  document.getElementById('previewModal').classList.remove('active');
-}
-
-function deleteQuestion(id) {
-  if (confirm('آیا از حذف این سوال اطمینان دارید؟')) {
-    // اینجا باید به API delete درخواست بفرستیم
-    alert('سوال حذف شد');
-    loadQuestions();
-  }
+btn.disabled=false;btn.textContent='آپلود';
+};
+async function loadQuestions(){
+const list=document.getElementById('questionsList');
+try{
+const res=await fetch('/api/teacher/get-questions?teacherId='+teacherId);
+const data=await res.json();
+if(data.success&&data.questions.length>0){
+list.innerHTML=data.questions.map(q=>'<div class="question-item"><div class="question-header"><strong>'+q.title+'</strong></div><div class="question-meta">'+(q.subject||'-')+' | پایه '+(q.grade||'-')+'</div><button class="btn-small btn-preview" onclick="alert(\''+q.question_html.replace(/'/g,"\\'")+'\')">پیش‌نمایش</button></div>').join('');
+}else list.innerHTML='<p>سوالی یافت نشد</p>';
+}catch(err){list.innerHTML='<p>خطا</p>';}
 }
 </script>
 </body>
