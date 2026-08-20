@@ -1,291 +1,78 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>اضافه کردن دانش‌آموز - دبستان</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css">
-<style>
-  .screen {
-    padding: 24px;
-    min-height: 100%;
-  }
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .back-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: var(--card);
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all .2s var(--ease);
-  }
-  .back-btn:hover {
-    border-color: var(--primary);
-    transform: translateX(4px);
-  }
-  .back-btn svg {
-    width: 20px;
-    height: 20px;
-    color: var(--text-2);
-  }
-  .page-title {
-    flex: 1;
-  }
-  .page-title h1 {
-    margin: 0 0 4px;
-    font-size: 20px;
-    font-weight: 800;
-  }
-  .page-title p {
-    margin: 0;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .card {
-    background: var(--card);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow);
-  }
-  .field {
-    margin-bottom: 16px;
-  }
-  .field label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-2);
-    margin-bottom: 8px;
-  }
-  .field input, .field select {
-    width: 100%;
-    padding: 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    background: var(--bg);
-    font-family: inherit;
-    font-size: 14px;
-    color: var(--text);
-    transition: all .2s var(--ease);
-    box-sizing: border-box;
-  }
-  .field input:focus, .field select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px var(--primary-soft);
-    background: var(--card);
-  }
-  .submit-btn {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--primary), #8B7CF6);
-    color: #fff;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 8px 20px rgba(108,92,231,.3);
-    transition: all .2s var(--ease);
-    margin-top: 8px;
-  }
-  .submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(108,92,231,.4);
-  }
-  .submit-btn:active {
-    transform: scale(.98);
-  }
-  .submit-btn:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-    transform: none;
-  }
-  .result {
-    margin-top: 16px;
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 14px;
-  }
-  .result.error {
-    background: var(--danger-soft);
-    color: var(--danger);
-  }
-  .result.success {
-    background: var(--success-soft);
-    color: #15803D;
-  }
-  .code-box {
-    background: white;
-    padding: 16px;
-    border-radius: 10px;
-    margin-top: 12px;
-    text-align: center;
-  }
-  .code-label {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
-  .code-value {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--primary);
-    letter-spacing: 2px;
-    font-family: monospace;
-  }
-  .password-box {
-    background: white;
-    padding: 12px;
-    border-radius: 10px;
-    margin-top: 8px;
-    text-align: center;
-    font-size: 16px;
-    font-weight: 700;
-  }
-  .optional {
-    font-size: 11px;
-    color: var(--muted);
-    margin-right: 6px;
-  }
-</style>
-</head>
-<body>
-
-<div class="phone">
-  <div class="screen">
-    <div class="header">
-      <div class="back-btn" onclick="window.location.href='teacher-home.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 18l-6-6 6-6"/>
-        </svg>
-      </div>
-      <div class="page-title">
-        <h1>اضافه کردن دانش‌آموز</h1>
-        <p>اطلاعات دانش‌آموز جدید را وارد کنید</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <form id="addStudentForm">
-        <div class="field">
-          <label>نام و نام خانوادگی دانش‌آموز</label>
-          <input type="text" id="studentName" placeholder="مثلاً: علی محمدی" required />
-        </div>
-        
-        <div class="field">
-          <label>شماره موبایل والدین</label>
-          <input type="tel" id="phone" placeholder="09123456789" required />
-        </div>
-        
-        <div class="field">
-          <label>نام والدین</label>
-          <input type="text" id="parentName" placeholder="مثلاً: محمد محمدی" />
-        </div>
-        
-        <div class="field">
-          <label>نام کلاس <span class="optional">(اختیاری)</span></label>
-          <input type="text" id="className" placeholder="مثلاً: کلاس اول الف" />
-        </div>
-        
-        <div class="field">
-          <label>پایه تحصیلی <span class="optional">(اختیاری)</span></label>
-          <select id="grade">
-            <option value="">انتخاب کنید</option>
-            <option value="1">اول ابتدایی</option>
-            <option value="2">دوم ابتدایی</option>
-            <option value="3">سوم ابتدایی</option>
-            <option value="4">چهارم ابتدایی</option>
-            <option value="5">پنجم ابتدایی</option>
-            <option value="6">ششم ابتدایی</option>
-          </select>
-        </div>
-        
-        <button type="submit" class="submit-btn" id="submitBtn">اضافه کردن دانش‌آموز</button>
-      </form>
-      
-      <div id="result"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-// گرفتن اطلاعات کاربر از localStorage
-const user = JSON.parse(localStorage.getItem('user') || '{}');
-const teacherId = user.id || 1; // پیش‌فرض 1
-
-document.getElementById('addStudentForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
+export async function onRequest(context) {
+  const { env } = context;
   
-  const btn = document.getElementById('submitBtn');
-  const result = document.getElementById('result');
-  
-  btn.disabled = true;
-  btn.textContent = 'در حال ثبت...';
-  result.innerHTML = '';
+  if (context.request.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  }
   
   try {
-    const res = await fetch('/api/teacher/add-student', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        teacherId: teacherId,
-        studentName: document.getElementById('studentName').value,
-        phone: document.getElementById('phone').value,
-        parentName: document.getElementById('parentName').value || null,
-        className: document.getElementById('className').value || null,
-        grade: document.getElementById('grade').value || null
-      })
+    const body = await context.request.json();
+    const { teacherId, studentName, phone, className, grade } = body;
+    
+    // بررسی اینکه معلم هست یا نه
+    const teacher = await env.DB.prepare(`
+      SELECT * FROM users WHERE id = ? AND role = 'teacher'
+    `).bind(teacherId).first();
+    
+    if (!teacher) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        message: 'دسترسی غیرمجاز - معلم یافت نشد' 
+      }), { 
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
+    // ساخت کد دعوت برای دانش‌آموز
+    const inviteCode = 'S' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    // پیدا کردن یا ساخت کلاس
+    let classId = null;
+    if (className && grade) {
+      const existingClass = await env.DB.prepare(`
+        SELECT id FROM classes WHERE school_id = ? AND name = ? AND grade = ?
+      `).bind(teacher.school_id, className, grade).first();
+      
+      if (existingClass) {
+        classId = existingClass.id;
+      } else {
+        await env.DB.prepare(`
+          INSERT INTO classes (school_id, name, grade, teacher_id) VALUES (?, ?, ?, ?)
+        `).bind(teacher.school_id, className, grade, teacher.id).run();
+        
+        const classResult = await env.DB.prepare(`
+          SELECT id FROM classes WHERE school_id = ? AND name = ? AND grade = ?
+        `).bind(teacher.school_id, className, grade).first();
+        
+        classId = classResult ? classResult.id : null;
+      }
+    }
+    
+    // ثبت دانش‌آموز (بدون parent_name)
+    const passwordHash = btoa('student123');
+    
+    await env.DB.prepare(`
+      INSERT INTO users (school_id, name, phone, password_hash, role, class_id, invite_code, is_active)
+      VALUES (?, ?, ?, ?, 'student', ?, ?, 0)
+    `).bind(teacher.school_id, studentName, phone, passwordHash, classId, inviteCode).run();
+    
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: 'دانش‌آموز با موفقیت اضافه شد',
+      inviteCode: inviteCode,
+      defaultPassword: 'student123'
+    }), { 
+      headers: { 'Content-Type': 'application/json' }
     });
     
-    const data = await res.json();
-    
-    if (data.success) {
-      result.className = 'result success';
-      result.innerHTML = `
-        ✅ ${data.message}
-        <div class="code-box">
-          <div class="code-label">کد ورود دانش‌آموز:</div>
-          <div class="code-value">${data.inviteCode}</div>
-        </div>
-        <div class="code-box">
-          <div class="code-label">رمز عبور پیش‌فرض:</div>
-          <div class="password-box">${data.defaultPassword}</div>
-        </div>
-        <div style="font-size:12px;margin-top:12px;color:var(--muted);">
-          این اطلاعات رو به والدین بدید تا دانش‌آموز بتونه وارد بشه.
-        </div>
-      `;
-      
-      // پاک کردن فرم
-      document.getElementById('addStudentForm').reset();
-    } else {
-      result.className = 'result error';
-      result.textContent = '❌ ' + data.message;
-    }
-  } catch (err) {
-    result.className = 'result error';
-    result.textContent = '❌ خطا در اتصال به سرور';
+  } catch (error) {
+    return new Response(JSON.stringify({ 
+      success: false, 
+      message: 'خطا در اضافه کردن دانش‌آموز: ' + error.message 
+    }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-  
-  btn.disabled = false;
-  btn.textContent = 'اضافه کردن دانش‌آموز';
-});
-</script>
-
-</body>
-</html>
+}
