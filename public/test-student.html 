@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>تست اضافه کردن دانش‌آموز</title>
+<style>
+  body {
+    font-family: Vazirmatn, sans-serif;
+    padding: 20px;
+    background: #f5f5f5;
+  }
+  .card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  button {
+    background: #6C5CE7;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    margin: 5px;
+    width: 100%;
+  }
+  .result {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    white-space: pre-wrap;
+    font-size: 12px;
+    direction: ltr;
+    text-align: left;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .error { background: #fee; color: #c00; }
+  .success { background: #efe; color: #060; }
+</style>
+</head>
+<body>
+
+<h1> تست API اضافه کردن دانش‌آموز</h1>
+
+<div class="card">
+  <h3>تست با اطلاعات ساده</h3>
+  <button onclick="testSimple()">تست ۱: بدون کلاس</button>
+  <button onclick="testWithClass()">تست ۲: با کلاس</button>
+  <div id="result"></div>
+</div>
+
+<script>
+async function testSimple() {
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = '<div>در حال ارسال...</div>';
+  
+  try {
+    const res = await fetch('/api/teacher/add-student', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        teacherId: 2,
+        studentName: 'علی تستی',
+        phone: '09121111111',
+        className: null,
+        grade: null
+      })
+    });
+    
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      data = text;
+    }
+    
+    const className = res.ok ? 'success' : 'error';
+    resultDiv.innerHTML = '<div class="result ' + className + '">Status: ' + res.status + '\n' + JSON.stringify(data, null, 2) + '</div>';
+  } catch (err) {
+    resultDiv.innerHTML = '<div class="result error">Error: ' + err.message + '</div>';
+  }
+}
+
+async function testWithClass() {
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = '<div>در حال ارسال...</div>';
+  
+  try {
+    const res = await fetch('/api/teacher/add-student', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        teacherId: 2,
+        studentName: 'حسن تستی',
+        phone: '09122222222',
+        className: 'کلاس اول الف',
+        grade: '1'
+      })
+    });
+    
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      data = text;
+    }
+    
+    const className = res.ok ? 'success' : 'error';
+    resultDiv.innerHTML = '<div class="result ' + className + '">Status: ' + res.status + '\n' + JSON.stringify(data, null, 2) + '</div>';
+  } catch (err) {
+    resultDiv.innerHTML = '<div class="result error">Error: ' + err.message + '</div>';
+  }
+}
+</script>
+
+</body>
+</html>
