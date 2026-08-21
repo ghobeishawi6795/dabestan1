@@ -1,745 +1,286 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-<title>دبستان — بررسی تکلیف</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بررسی پاسخ‌ها</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css">
 <style>
-  .phone{padding-bottom:100px;}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Vazirmatn', sans-serif; background: #F5F3FF; color: #1F2937; direction: rtl; }
+  .phone { max-width: 480px; margin: 0 auto; min-height: 100vh; background: #F5F3FF; }
+  .screen { padding: 24px; min-height: 100%; }
   
-  .header{
-    padding:18px 20px 14px;
-    background:var(--card);
-    border-bottom:1px solid var(--border);
-    position:sticky;
-    top:0;
-    z-index:10;
-  }
-  .header-row{
-    display:flex;
-    align-items:center;
-    gap:12px;
-  }
-  .back-btn{
-    width:38px;
-    height:38px;
-    border-radius:12px;
-    background:var(--bg);
-    border:none;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    transition:all .2s var(--ease);
-    text-decoration:none;
-    color:var(--text);
-  }
-  .back-btn:hover{background:var(--primary-soft);}
-  .back-btn svg{
-    width:20px;
-    height:20px;
-    transform:scaleX(-1);
-  }
-  .header-info{flex:1;}
-  .header-title{
-    font-size:16px;
-    font-weight:700;
-    margin:0;
-  }
-  .header-sub{
-    font-size:11px;
-    color:var(--muted);
-    margin-top:1px;
-  }
-  .header-count{
-    background:var(--warning-soft);
-    color:#B45309;
-    font-size:11px;
-    font-weight:700;
-    padding:4px 10px;
-    border-radius:999px;
-  }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: white; border: 2px solid #E5E7EB; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .back-btn svg { width: 20px; height: 20px; color: #6B7280; }
+  .page-title { flex: 1; }
+  .page-title h1 { font-size: 18px; font-weight: 800; color: #1F2937; margin: 0; }
+  .page-title p { font-size: 12px; color: #6B7280; margin: 4px 0 0; }
 
-  .status-bar{
-    margin:16px 20px;
-    background:var(--card);
-    border-radius:var(--radius);
-    padding:14px 16px;
-    box-shadow:var(--shadow-sm);
-    display:flex;
-    gap:6px;
-    animation:fadeUp .4s var(--ease) both;
-  }
-  .status-segment{
-    height:8px;
-    border-radius:999px;
-    transition:width .6s var(--ease);
-  }
-  .status-segment.done{background:var(--success);}
-  .status-segment.review{background:var(--warning);}
-  .status-segment.pending{background:var(--border);}
-  .status-legend{
-    display:flex;
-    gap:14px;
-    margin-top:10px;
-    font-size:11px;
-    color:var(--text-2);
-  }
-  .status-legend span{
-    display:flex;
-    align-items:center;
-    gap:4px;
-  }
-  .legend-dot{
-    width:8px;
-    height:8px;
-    border-radius:50%;
-  }
-  .legend-dot.done{background:var(--success);}
-  .legend-dot.review{background:var(--warning);}
-  .legend-dot.pending{background:var(--border);}
+  .task-card { background: white; border: 2px solid #E5E7EB; border-radius: 16px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all .2s; }
+  .task-card:hover { border-color: #6C5CE7; transform: translateY(-2px); }
+  .task-title { font-size: 15px; font-weight: 700; color: #1F2937; margin-bottom: 8px; }
+  .task-meta { display: flex; justify-content: space-between; font-size: 12px; color: #6B7280; }
+  .badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .badge.pending { background: #FEF3C7; color: #D97706; }
+  .badge.done { background: #DCFCE7; color: #15803D; }
 
-  .tabs{
-    display:flex;
-    gap:8px;
-    padding:0 20px;
-    margin-bottom:14px;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
-  }
-  .tabs::-webkit-scrollbar{display:none;}
-  .tab{
-    flex-shrink:0;
-    padding:7px 14px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:600;
-    background:var(--card);
-    color:var(--text-2);
-    border:1.5px solid var(--border);
-    cursor:pointer;
-    transition:all .2s var(--ease);
-    white-space:nowrap;
-  }
-  .tab.active{
-    background:var(--primary);
-    color:#fff;
-    border-color:var(--primary);
-  }
-  .tab .count{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-width:18px;
-    height:18px;
-    border-radius:999px;
-    font-size:10px;
-    font-weight:800;
-    margin-right:4px;
-    background:rgba(0,0,0,.08);
-  }
-  .tab.active .count{
-    background:rgba(255,255,255,.25);
-    color:#fff;
-  }
+  .student-card { background: white; border: 2px solid #E5E7EB; border-radius: 12px; padding: 14px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .student-card:hover { border-color: #6C5CE7; }
+  .student-info h4 { font-size: 14px; font-weight: 700; color: #1F2937; margin-bottom: 4px; }
+  .student-info p { font-size: 11px; color: #6B7280; }
+  .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+  .status-pending { background: #FEF3C7; color: #D97706; }
+  .status-reviewed { background: #DCFCE7; color: #15803D; }
+  .status-revision { background: #FEE2E2; color: #DC2626; }
 
-  .responses{
-    padding:0 20px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .response{
-    background:var(--card);
-    border-radius:var(--radius);
-    overflow:hidden;
-    box-shadow:var(--shadow-sm);
-    cursor:pointer;
-    transition:all .2s var(--ease);
-    animation:fadeUp .4s var(--ease) both;
-  }
-  .response:nth-child(1){animation-delay:.05s;}
-  .response:nth-child(2){animation-delay:.1s;}
-  .response:nth-child(3){animation-delay:.15s;}
-  .response:nth-child(4){animation-delay:.2s;}
-  .response:hover{
-    box-shadow:var(--shadow);
-    transform:translateY(-2px);
-  }
-  .response:active{transform:scale(.98);}
+  .empty-state { text-align: center; padding: 40px 16px; color: #6B7280; }
+  .loading { text-align: center; padding: 40px; color: #6B7280; }
 
-  .response-head{
-    padding:14px 14px 10px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-  }
-  .response-avatar{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:800;
-    color:#fff;
-    font-size:16px;
-    flex-shrink:0;
-  }
-  .av-1{background:linear-gradient(135deg,#FFB86B,#FF7A90);}
-  .av-2{background:linear-gradient(135deg,#6BCB77,#4D96FF);}
-  .av-3{background:linear-gradient(135deg,#9B59B6,#E74C3C);}
-  .av-4{background:linear-gradient(135deg,#3498DB,#2ECC71);}
+  /* Modal Styles */
+  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; justify-content: center; }
+  .modal.active { display: flex; }
+  .modal-content { background: white; border-radius: 24px 24px 0 0; padding: 24px; width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6; }
+  .modal-title { font-size: 16px; font-weight: 800; color: #1F2937; }
+  .close-btn { width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; border: none; font-size: 18px; cursor: pointer; color: #6B7280; display: flex; align-items: center; justify-content: center; }
 
-  .response-info{flex:1; min-width:0;}
-  .response-name{
-    font-size:14px;
-    font-weight:700;
-    margin:0;
-  }
-  .response-time{
-    font-size:11px;
-    color:var(--muted);
-  }
-  .response-badge{
-    font-size:10px;
-    font-weight:700;
-    padding:3px 8px;
-    border-radius:999px;
-  }
-  .badge-new{background:var(--warning-soft); color:#B45309;}
-  .badge-scored{background:var(--success-soft); color:#15803D;}
+  .answer-box { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; padding: 16px; margin-bottom: 20px; font-size: 14px; line-height: 1.8; color: #374151; max-height: 200px; overflow-y: auto; white-space: pre-wrap; }
+  
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1.5px solid #E5E7EB; border-radius: 10px; font-family: inherit; font-size: 14px; background: white; }
+  .form-group textarea { resize: vertical; min-height: 80px; }
 
-  .response-preview{
-    margin:0 14px 14px;
-    border-radius:14px;
-    overflow:hidden;
-    position:relative;
-  }
-  .response-img{
-    width:100%;
-    height:160px;
-    background:linear-gradient(135deg,#f0e6ff,#e0f0ff);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:48px;
-    position:relative;
-  }
-  .response-img::after{
-    content:"🔍 بزرگ‌نمایی";
-    position:absolute;
-    bottom:8px;
-    left:8px;
-    background:rgba(0,0,0,.55);
-    color:#fff;
-    font-size:10px;
-    font-weight:600;
-    padding:4px 10px;
-    border-radius:999px;
-    backdrop-filter:blur(4px);
-  }
-  .response-text-preview{
-    background:var(--bg);
-    padding:12px 14px;
-    border-radius:14px;
-    font-size:13px;
-    color:var(--text-2);
-    line-height:1.8;
-  }
-  .response-audio-preview{
-    background:var(--bg);
-    padding:12px 14px;
-    border-radius:14px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-  }
-  .play-btn{
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    background:var(--primary);
-    color:#fff;
-    border:none;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:18px;
-    cursor:pointer;
-    box-shadow:0 4px 12px rgba(108,92,231,.3);
-  }
-  .audio-wave{
-    flex:1;
-    height:32px;
-    display:flex;
-    align-items:center;
-    gap:2px;
-  }
-  .audio-wave span{
-    flex:1;
-    background:var(--primary-soft);
-    border-radius:999px;
-    min-width:3px;
-  }
-  .audio-duration{
-    font-size:11px;
-    color:var(--muted);
-    font-weight:600;
-  }
-
-  .overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(20,20,40,.5);
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .3s var(--ease);
-    z-index:50;
-    display:flex;
-    align-items:flex-end;
-    justify-content:center;
-  }
-  .overlay.open{
-    opacity:1;
-    pointer-events:auto;
-  }
-  .sheet{
-    width:100%;
-    max-width:430px;
-    background:var(--card);
-    border-radius:28px 28px 0 0;
-    padding:0;
-    transform:translateY(100%);
-    transition:transform .4s var(--ease);
-    max-height:90vh;
-    overflow-y:auto;
-  }
-  .overlay.open .sheet{transform:translateY(0);}
-  .sheet-handle{
-    width:40px;
-    height:4px;
-    border-radius:999px;
-    background:var(--border);
-    margin:12px auto 0;
-  }
-  .sheet-header{
-    padding:16px 22px 12px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    border-bottom:1px solid var(--border);
-  }
-  .sheet-avatar{
-    width:48px;
-    height:48px;
-    border-radius:50%;
-    background:linear-gradient(135deg,#FFB86B,#FF7A90);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:800;
-    color:#fff;
-    font-size:20px;
-  }
-  .sheet-name{
-    font-size:16px;
-    font-weight:700;
-    margin:0;
-  }
-  .sheet-task{
-    font-size:12px;
-    color:var(--muted);
-  }
-
-  .sheet-body{padding:18px 22px;}
-
-  .sheet-image{
-    width:100%;
-    height:220px;
-    background:linear-gradient(135deg,#f0e6ff,#e0f0ff);
-    border-radius:var(--radius);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:72px;
-    margin-bottom:18px;
-    position:relative;
-    overflow:hidden;
-  }
-  .sheet-image .zoom-hint{
-    position:absolute;
-    top:10px;
-    left:10px;
-    background:rgba(0,0,0,.5);
-    color:#fff;
-    font-size:11px;
-    font-weight:600;
-    padding:4px 12px;
-    border-radius:999px;
-    backdrop-filter:blur(4px);
-  }
-
-  .score-section{margin-bottom:18px;}
-  .score-label{
-    font-size:13px;
-    font-weight:700;
-    margin-bottom:8px;
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-  .stars{
-    display:flex;
-    gap:6px;
-    direction:ltr;
-  }
-  .star{
-    width:42px;
-    height:42px;
-    border-radius:12px;
-    background:var(--bg);
-    border:2px solid var(--border);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:22px;
-    cursor:pointer;
-    transition:all .2s var(--ease);
-  }
-  .star:hover{transform:scale(1.15);}
-  .star.active{
-    background:var(--warning-soft);
-    border-color:var(--warning);
-    transform:scale(1.1);
-  }
-  .score-text{
-    margin-top:6px;
-    font-size:12px;
-    color:var(--muted);
-    font-weight:600;
-  }
-
-  .feedback-section{margin-bottom:18px;}
-  .feedback-label{
-    font-size:13px;
-    font-weight:700;
-    margin-bottom:8px;
-  }
-  .feedback-input{
-    width:100%;
-    min-height:80px;
-    padding:12px 14px;
-    border:1.5px solid var(--border);
-    border-radius:14px;
-    background:var(--bg);
-    font-family:inherit;
-    font-size:13px;
-    color:var(--text);
-    resize:vertical;
-    transition:all .2s var(--ease);
-  }
-  .feedback-input:focus{
-    outline:none;
-    border-color:var(--primary);
-    box-shadow:0 0 0 4px var(--primary-soft);
-    background:var(--card);
-  }
-  .feedback-input::placeholder{color:var(--muted);}
-
-  .quick-feedbacks{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    margin-top:8px;
-  }
-  .quick-fb{
-    padding:5px 12px;
-    border-radius:999px;
-    font-size:11px;
-    font-weight:600;
-    background:var(--primary-soft);
-    color:var(--primary);
-    border:none;
-    cursor:pointer;
-    transition:all .2s var(--ease);
-  }
-  .quick-fb:hover{
-    background:var(--primary);
-    color:#fff;
-  }
-
-  .sheet-actions{
-    padding:16px 22px 24px;
-    display:flex;
-    gap:10px;
-    border-top:1px solid var(--border);
-  }
-  .btn{
-    flex:1;
-    padding:14px;
-    border:none;
-    border-radius:14px;
-    font-family:inherit;
-    font-size:14px;
-    font-weight:700;
-    cursor:pointer;
-    transition:all .2s var(--ease);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-  }
-  .btn:active{transform:scale(.97);}
-  .btn-warning{
-    background:var(--warning-soft);
-    color:#B45309;
-  }
+  .btn-primary { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C5CE7, #8B7CF6); color: white; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>
 </head>
 <body>
-
 <div class="phone">
-
-  <header class="header">
-    <div class="header-row">
-      <a href="teacher-home.html" class="back-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </a>
-      <div class="header-info">
-        <h1 class="header-title">تمرین صفحه ۴۲</h1>
-        <div class="header-sub">ریاضی • سوم الف • مهلت: امروز ۲۰:۰۰</div>
+  <div class="screen">
+    <!-- Header -->
+    <div class="header">
+      <div class="back-btn" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
       </div>
-      <div class="header-count">۳ جدید</div>
+      <div class="page-title">
+        <h1 id="pageTitle">بررسی پاسخ‌ها</h1>
+        <p id="pageSubtitle">لیست تکالیف فعال</p>
+      </div>
     </div>
-  </header>
 
-  <div class="status-bar">
-    <div style="flex:1;">
-      <div style="display:flex; gap:4px;">
-        <div class="status-segment done" style="width:60%;"></div>
-        <div class="status-segment review" style="width:20%;"></div>
-        <div class="status-segment pending" style="width:20%;"></div>
-      </div>
-      <div class="status-legend">
-        <span><div class="legend-dot done"></div> ۱۵ بررسی‌شده</span>
-        <span><div class="legend-dot review"></div> ۵ منتظر</span>
-        <span><div class="legend-dot pending"></div> ۴ تحویل‌نداده</span>
-      </div>
+    <!-- Task List View -->
+    <div id="taskListView">
+      <div id="taskList" class="loading">در حال بارگذاری تکالیف...</div>
+    </div>
+
+    <!-- Submission List View (Hidden initially) -->
+    <div id="submissionListView" style="display: none;">
+      <div id="submissionList" class="loading">در حال بارگذاری پاسخ‌ها...</div>
     </div>
   </div>
-
-  <div class="tabs">
-    <div class="tab active">همه <span class="count">۲۴</span></div>
-    <div class="tab">منتظر بررسی <span class="count">۵</span></div>
-    <div class="tab">بررسی‌شده <span class="count">۱۵</span></div>
-    <div class="tab">تحویل‌نداده <span class="count">۴</span></div>
-  </div>
-
-  <div class="responses">
-
-    <div class="response" data-student="aria">
-      <div class="response-head">
-        <div class="response-avatar av-1">آ</div>
-        <div class="response-info">
-          <h3 class="response-name">آریا محمدی</h3>
-          <div class="response-time">۱۰ دقیقه پیش • عکس از مشق</div>
-        </div>
-        <span class="response-badge badge-new">⏳ جدید</span>
-      </div>
-      <div class="response-preview">
-        <div class="response-img">📝</div>
-      </div>
-    </div>
-
-    <div class="response" data-student="sara">
-      <div class="response-head">
-        <div class="response-avatar av-2">س</div>
-        <div class="response-info">
-          <h3 class="response-name">سارا رضایی</h3>
-          <div class="response-time">۳۰ دقیقه پیش • عکس از مشق</div>
-        </div>
-        <span class="response-badge badge-new">⏳ جدید</span>
-      </div>
-      <div class="response-preview">
-        <div class="response-img">📐</div>
-      </div>
-    </div>
-
-    <div class="response" data-student="mohammad">
-      <div class="response-head">
-        <div class="response-avatar av-3">م</div>
-        <div class="response-info">
-          <h3 class="response-name">محمد حسینی</h3>
-          <div class="response-time">۲ ساعت پیش • پاسخ متنی</div>
-        </div>
-        <span class="response-badge badge-scored">⭐ ۸ از ۱۰</span>
-      </div>
-      <div class="response-preview">
-        <div class="response-text-preview">
-          ۱) ۱۲ × ۳ = ۳۶<br>
-          ۲) ۱۵ × ۴ = ۶۰<br>
-          ۳) ۲۱ × ۲ = ۴۲<br>
-          ۴) ۱۱ × ۷ = ۷۷
-        </div>
-      </div>
-    </div>
-
-    <div class="response" data-student="zahra">
-      <div class="response-head">
-        <div class="response-avatar av-4">ز</div>
-        <div class="response-info">
-          <h3 class="response-name">زهرا کریمی</h3>
-          <div class="response-time">۱ ساعت پیش • ضبط صدا</div>
-        </div>
-        <span class="response-badge badge-new">⏳ جدید</span>
-      </div>
-      <div class="response-preview">
-        <div class="response-audio-preview">
-          <button class="play-btn">▶</button>
-          <div class="audio-wave" id="wave"></div>
-          <div class="audio-duration">۰:۴۵</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
 </div>
 
-<div class="overlay" id="overlay">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <div class="sheet-avatar" id="sheetAvatar">آ</div>
-      <div>
-        <h3 class="sheet-name" id="sheetName">آریا محمدی</h3>
-        <div class="sheet-task">تمرین صفحه ۴۲ • ریاضی</div>
-      </div>
+<!-- Grading Modal -->
+<div id="gradeModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalStudentName">پاسخ دانش‌آموز</div>
+      <button class="close-btn" onclick="closeModal()">&times;</button>
     </div>
-    <div class="sheet-body">
-
-      <div class="sheet-image" id="sheetImage">
-        📝
-        <div class="zoom-hint">🔍 برای بزرگ‌نمایی کلیک کنید</div>
-      </div>
-
-      <div class="score-section">
-        <div class="score-label">⭐ امتیاز</div>
-        <div class="stars" id="stars">
-          <div class="star" data-score="1">⭐</div>
-          <div class="star" data-score="2">⭐</div>
-          <div class="star" data-score="3">⭐</div>
-          <div class="star" data-score="4">⭐</div>
-          <div class="star" data-score="5">⭐</div>
-        </div>
-        <div class="score-text" id="scoreText">امتیازی انتخاب نشده</div>
-      </div>
-
-      <div class="feedback-section">
-        <div class="feedback-label">💬 بازخورد</div>
-        <textarea class="feedback-input" id="feedbackInput" placeholder="بازخورد خود را برای دانش‌آموز بنویسید..."></textarea>
-        <div class="quick-feedbacks">
-          <button class="quick-fb" data-fb="آفرین! عالی بود 🌟">آفرین! عالی بود 🌟</button>
-          <button class="quick-fb" data-fb="خیلی مرتب حل کردی 👏">خیلی مرتب 👏</button>
-          <button class="quick-fb" data-fb="دوباره بررسی کن 🔄">دوباره بررسی کن 🔄</button>
-          <button class="quick-fb" data-fb="سؤال ۴ رو اصلاح کن ✏️">سؤال ۴ رو اصلاح کن ✏️</button>
-        </div>
-      </div>
-
+    
+    <div class="form-group">
+      <label>پاسخ ارسالی:</label>
+      <div class="answer-box" id="modalAnswer">...</div>
     </div>
-    <div class="sheet-actions">
-      <button class="btn btn-warning" id="btnRevision">↩️ درخواست اصلاح</button>
-      <button class="btn btn-primary" id="btnApprove">✅ تأیید و ارسال</button>
+
+    <div class="form-group">
+      <label>نمره (از <span id="maxScoreDisplay">20</span>):</label>
+      <input type="number" id="gradeScore" min="0" step="0.5">
     </div>
+
+    <div class="form-group">
+      <label>وضعیت:</label>
+      <select id="gradeStatus">
+        <option value="reviewed">تأیید و نمره‌دهی</option>
+        <option value="revision">درخواست اصلاح</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>بازخورد معلم:</label>
+      <textarea id="gradeFeedback" placeholder="آفرین! خیلی خوب بود... یا نیاز به تمرین بیشتر داری."></textarea>
+    </div>
+
+    <button class="btn-primary" id="submitGradeBtn" onclick="submitGrade()">ثبت نمره و بازخورد</button>
   </div>
 </div>
 
 <script>
-  const wave = document.getElementById('wave');
-  for(let i=0; i<30; i++){
-    const bar = document.createElement('span');
-    const h = Math.random() * 24 + 6;
-    bar.style.height = h + 'px';
-    wave.appendChild(bar);
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+if (!user || user.role !== 'teacher') {
+  window.location.href = 'login.html?role=teacher';
+}
+
+let currentTask = null;
+let currentSubmission = null;
+
+// Navigation
+function goBack() {
+  if (document.getElementById('submissionListView').style.display === 'block') {
+    document.getElementById('submissionListView').style.display = 'none';
+    document.getElementById('taskListView').style.display = 'block';
+    document.getElementById('pageTitle').textContent = 'بررسی پاسخ‌ها';
+    document.getElementById('pageSubtitle').textContent = 'لیست تکالیف فعال';
+  } else {
+    window.location.href = 'teacher-home.html';
   }
+}
 
-  document.querySelectorAll('.tab').forEach(tab=>{
-    tab.addEventListener('click',()=>{
-      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-      tab.classList.add('active');
-    });
-  });
-
-  const overlay = document.getElementById('overlay');
-  const sheetName = document.getElementById('sheetName');
-  const sheetAvatar = document.getElementById('sheetAvatar');
-  const sheetImage = document.getElementById('sheetImage');
-
-  const studentData = {
-    aria:     { name:'آریا محمدی',  initial:'آ', emoji:'📝' },
-    sara:     { name:'سارا رضایی',  initial:'س', emoji:'📐' },
-    mohammad: { name:'محمد حسینی',  initial:'م', emoji:'📝' },
-    zahra:    { name:'زهرا کریمی',  initial:'ز', emoji:'🎙️' }
-  };
-
-  document.querySelectorAll('.response').forEach(r=>{
-    r.addEventListener('click',()=>{
-      const key = r.dataset.student;
-      const d = studentData[key];
-      sheetName.textContent = d.name;
-      sheetAvatar.textContent = d.initial;
-      sheetImage.innerHTML = d.emoji + '<div class="zoom-hint">🔍 برای بزرگ‌نمایی کلیک کنید</div>';
-      document.querySelectorAll('.star').forEach(s=>s.classList.remove('active'));
-      document.getElementById('scoreText').textContent = 'امتیازی انتخاب نشده';
-      document.getElementById('feedbackInput').value = '';
-      overlay.classList.add('open');
-    });
-  });
-
-  overlay.addEventListener('click',(e)=>{
-    if(e.target === overlay) overlay.classList.remove('open');
-  });
-
-  const scoreLabels = ['','خیلی ضعیف 😟','ضعیف 😕','متوسط 🙂','خوب 😊','عالی 🌟'];
-  document.querySelectorAll('.star').forEach(star=>{
-    star.addEventListener('click',()=>{
-      const score = parseInt(star.dataset.score);
-      document.querySelectorAll('.star').forEach(s=>{
-        s.classList.toggle('active',parseInt(s.dataset.score) <= score);
-      });
-      document.getElementById('scoreText').textContent = score + ' از ۵ — ' + scoreLabels[score];
-    });
-  });
-
-  document.querySelectorAll('.quick-fb').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const input = document.getElementById('feedbackInput');
-      input.value = input.value ? input.value + '\n' + btn.dataset.fb : btn.dataset.fb;
-      input.focus();
-    });
-  });
-
-  document.getElementById('btnApprove').addEventListener('click',()=>{
-    overlay.classList.remove('open');
-    alert('✅ بازخورد ارسال شد!');
-  });
-
-  document.getElementById('btnRevision').addEventListener('click',()=>{
-    const fb = document.getElementById('feedbackInput').value;
-    if(!fb){
-      alert('لطفاً دلیل درخواست اصلاح را بنویسید.');
-      return;
+// Load Tasks
+async function loadTasks() {
+  const container = document.getElementById('taskList');
+  try {
+    const res = await fetch(`/api/teacher/get-tasks?teacherId=${user.id}`);
+    const data = await res.json();
+    
+    if (data.success && data.tasks && data.tasks.length > 0) {
+      container.innerHTML = data.tasks.map(task => `
+        <div class="task-card" onclick="loadSubmissions(${task.id}, '${task.title.replace(/'/g, "\\'")}', ${task.max_score || 20})">
+          <div class="task-title">${task.title}</div>
+          <div class="task-meta">
+            <span>📚 ${task.subject || 'عمومی'} | پایه ${task.grade || '-'}</span>
+            <span class="badge pending">مشاهده پاسخ‌ها ←</span>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      container.innerHTML = '<div class="empty-state"><p>هنوز تکلیفی ایجاد نکرده‌اید.</p></div>';
     }
-    overlay.classList.remove('open');
-    alert('↩️ درخواست اصلاح ارسال شد!');
-  });
-</script>
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><p>خطا در بارگذاری تکالیف</p></div>';
+    console.error(err);
+  }
+}
 
+// Load Submissions for a specific task
+async function loadSubmissions(taskId, taskTitle, maxScore) {
+  document.getElementById('taskListView').style.display = 'none';
+  document.getElementById('submissionListView').style.display = 'block';
+  document.getElementById('pageTitle').textContent = taskTitle;
+  document.getElementById('pageSubtitle').textContent = 'لیست پاسخ‌های ارسالی';
+  
+  const container = document.getElementById('submissionList');
+  container.innerHTML = '<div class="loading">در حال بارگذاری...</div>';
+  
+  try {
+    const res = await fetch(`/api/teacher/get-submissions?taskId=${taskId}&teacherId=${user.id}`);
+    const data = await res.json();
+    
+    if (data.success && data.submissions && data.submissions.length > 0) {
+      currentTask = { id: taskId, maxScore: maxScore };
+      
+      container.innerHTML = data.submissions.map(sub => {
+        let statusClass = 'status-pending';
+        let statusText = 'در انتظار بررسی';
+        if (sub.status === 'reviewed') { statusClass = 'status-reviewed'; statusText = 'بررسی‌شده'; }
+        if (sub.status === 'revision') { statusClass = 'status-revision'; statusText = 'نیاز به اصلاح'; }
+        
+        let scoreDisplay = sub.score !== null ? `نمره: ${sub.score}` : 'بدون نمره';
+        
+        return `
+          <div class="student-card" onclick='openGradeModal(${JSON.stringify(sub).replace(/'/g, "&#39;")})'>
+            <div class="student-info">
+              <h4>${sub.student_name || 'دانش‌آموز'}</h4>
+              <p>${scoreDisplay} • ${new Date(sub.submitted_at).toLocaleDateString('fa-IR')}</p>
+            </div>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+        `;
+      }).join('');
+    } else {
+      container.innerHTML = '<div class="empty-state"><p>هنوز پاسخی برای این تکلیف ثبت نشده است.</p></div>';
+    }
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><p>خطا در بارگذاری پاسخ‌ها</p></div>';
+    console.error(err);
+  }
+}
+
+// Open Grading Modal
+function openGradeModal(submission) {
+  currentSubmission = submission;
+  document.getElementById('modalStudentName').textContent = submission.student_name || 'دانش‌آموز';
+  
+  // Parse answer if it's JSON, otherwise show as text
+  let answerText = submission.answer_text || 'پاسخی ثبت نشده است.';
+  try {
+    const parsed = JSON.parse(answerText);
+    answerText = JSON.stringify(parsed, null, 2); // Format JSON nicely
+  } catch (e) {
+    // It's plain text or HTML, leave as is
+  }
+  document.getElementById('modalAnswer').textContent = answerText;
+  
+  document.getElementById('maxScoreDisplay').textContent = currentTask.maxScore;
+  document.getElementById('gradeScore').value = submission.score || '';
+  document.getElementById('gradeFeedback').value = submission.feedback || '';
+  document.getElementById('gradeStatus').value = submission.status || 'reviewed';
+  
+  document.getElementById('gradeModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('gradeModal').classList.remove('active');
+}
+
+// Submit Grade
+async function submitGrade() {
+  const btn = document.getElementById('submitGradeBtn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ثبت...';
+  
+  const score = document.getElementById('gradeScore').value;
+  const feedback = document.getElementById('gradeFeedback').value;
+  const status = document.getElementById('gradeStatus').value;
+  
+  try {
+    const res = await fetch('/api/teacher/update-submission', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        submissionId: currentSubmission.id,
+        teacherId: user.id,
+        score: score === '' ? null : parseFloat(score),
+        feedback: feedback,
+        status: status
+      })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      alert('✅ نمره و بازخورد با موفقیت ثبت شد!');
+      closeModal();
+      // Reload submissions to show updated status
+      loadSubmissions(currentTask.id, document.getElementById('pageTitle').textContent, currentTask.maxScore);
+    } else {
+      alert('❌ خطا: ' + (data.message || 'مشکلی پیش آمد'));
+    }
+    } catch (err) {
+    alert('❌ خطا در ارتباط با سرور');
+  }
+  
+  btn.disabled = false;
+  btn.textContent = 'ثبت نمره و بازخورد';
+}
+
+// Initialize
+loadTasks();
+</script>
 </body>
 </html>
