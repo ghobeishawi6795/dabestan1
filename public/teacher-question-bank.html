@@ -55,7 +55,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
       </div>
       <div class="page-title">
-        <h1> بانک سوالات</h1>
+        <h1>📚 بانک سوالات</h1>
         <p>مدیریت و آپلود سوالات</p>
       </div>
     </div>
@@ -179,8 +179,8 @@ function parseQuestions(htmlContent) {
     return;
   }
   
-  // روش 2: الگوی "مرحله X" - فقط این الگو
-  const stageRegex = /مرحله\s+[۰-0-9]+/g;
+  // روش 2: الگوی "مرحله X"
+  const stageRegex = /مرحله\s+[۰-۹0-9]+/g;
   const stageMatches = [...html.matchAll(stageRegex)];
   
   console.log('Found stages:', stageMatches.length);
@@ -275,7 +275,7 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
   } else {
     if (parsedQuestions.length === 0) { 
       resDiv.className = 'result error'; 
-      resDiv.textContent = '❌ لطفاً ابتدا فایل HTML را انتخاب کنید'; 
+      resDiv.textContent = ' لطفاً ابتدا فایل HTML را انتخاب کنید'; 
       btn.disabled = false; 
       btn.textContent = 'آپلود در بانک'; 
       return; 
@@ -317,7 +317,7 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
       document.getElementById('fileName').textContent = 'فرمت‌های مجاز: .html, .htm';
     } else {
       resDiv.className = 'result error';
-      resDiv.textContent = '❌ ' + (data.message || 'خطا در آپلود');
+      resDiv.textContent = ' ' + (data.message || 'خطا در آپلود');
     }
   } catch (err) { 
     resDiv.className = 'result error'; 
@@ -329,4 +329,4 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
 };
 </script>
 </body>
-  </html>
+</html>
