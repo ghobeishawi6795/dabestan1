@@ -10,34 +10,17 @@ export async function onRequest(context) {
     const { taskId } = body;
     
     if (!taskId) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'شناسه تکلیف الزامی است' 
-      }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(JSON.stringify({ success: false, message: 'شناسه تکلیف الزامی است' }), { status: 400 });
     }
     
-    // حذف تکلیف (soft delete - غیرفعال کردن)
+    // Soft delete - غیرفعال کردن به جای حذف کامل
     await env.DB.prepare(`
       UPDATE tasks SET is_active = 0 WHERE id = ?
     `).bind(taskId).run();
     
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'تکلیف با موفقیت حذف شد'
-    }), { 
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(JSON.stringify({ success: true, message: 'تکلیف حذف شد' }));
     
   } catch (error) {
-    return new Response(JSON.stringify({ 
-      success: false, 
-      message: 'خطا در حذف تکلیف: ' + error.message 
-    }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(JSON.stringify({ success: false, message: error.message }), { status: 500 });
   }
 }
