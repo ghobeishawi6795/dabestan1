@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>داشبورد دانش‌آموز - دبستان</title>
+<title>داشبورد دانش‌آموز</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
@@ -30,11 +30,13 @@
   
   .task-card { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all .2s; }
   .task-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(108,92,231,.15); }
+  .task-card.completed { opacity: .7; border-color: var(--success); }
   .task-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .task-title { font-size: 15px; font-weight: 700; margin: 0; flex: 1; }
   .task-badge { padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 700; margin-right: 8px; }
   .task-badge.new { background: #DCFCE7; color: #15803D; }
   .task-badge.urgent { background: #FEE2E2; color: #DC2626; }
+  .task-badge.done { background: #E0E7FF; color: #4F46E5; }
   .task-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 12px; }
   .task-meta-item { display: flex; align-items: center; gap: 4px; }
   .task-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
@@ -83,11 +85,11 @@
 
     <div class="quick-actions">
       <a href="student-task.html" class="action-btn">
-        <div class="action-icon"></div>
-        <div class="action-label">تکالیف من</div>
+        <div class="action-icon">📋</div>
+        <div class="action-label">همه تکالیف</div>
       </a>
       <a href="#" class="action-btn">
-        <div class="action-icon">📊</div>
+        <div class="action-icon"></div>
         <div class="action-label">نمرات من</div>
       </a>
     </div>
@@ -141,19 +143,19 @@ async function loadTasks() {
               <span class="task-badge ${isUrgent ? 'urgent' : 'new'}">${isUrgent ? 'فوری' : 'جدید'}</span>
             </div>
             <div class="task-meta">
-              <div class="task-meta-item"> ${task.subject || '-'}</div>
+              <div class="task-meta-item">📚 ${task.subject || '-'}</div>
               <div class="task-meta-item">🎓 پایه ${task.grade || '-'}</div>
               <div class="task-meta-item">⏰ ${deadline}</div>
             </div>
             <div class="task-footer">
-              <div class="task-teacher">👨‍🏫 ${task.teacher_name || 'معلم'}</div>
+              <div class="task-teacher">👨🏫 ${task.teacher_name || 'معلم'}</div>
               <div class="task-action">مشاهده و انجام ←</div>
             </div>
           </div>
         `;
       }).join('');
     } else {
-      subtitle.textContent = 'تکلیفی نداری! ';
+      subtitle.textContent = 'تکلیفی نداری! 🎉';
       document.getElementById('statPending').textContent = '0';
       document.getElementById('statDone').textContent = '0';
       list.innerHTML = `
@@ -176,4 +178,4 @@ function openTask(id) {
 loadTasks();
 </script>
 </body>
-      </html>
+</html>
