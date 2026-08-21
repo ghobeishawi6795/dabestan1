@@ -20,7 +20,7 @@
   .field { margin-bottom: 16px; }
   .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
   .field input, .field select, .field textarea { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg); font-family: inherit; font-size: 14px; box-sizing: border-box; }
-  .field textarea { min-height: 100px; resize: vertical; }
+  .field textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .submit-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
   .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
@@ -28,11 +28,47 @@
   .result.success { background: var(--success-soft); color: #15803D; }
   .result.error { background: var(--danger-soft); color: var(--danger); }
   .loading { text-align: center; padding: 40px; color: var(--muted); }
-  .task-questions-container { margin-top: 16px; padding: 12px; background: var(--bg); border-radius: 10px; }
-  .task-question { padding: 12px; margin-bottom: 12px; background: var(--card); border-radius: 8px; border: 1px solid var(--border); }
-  .task-question:last-child { margin-bottom: 0; }
-  .task-question strong { color: var(--primary); display: block; margin-bottom: 8px; }
-  .task-question * { max-width: 100% !important; box-sizing: border-box !important; }
+  
+  /* سوالات */
+  .questions-section { margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--border); }
+  .questions-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .questions-header h3 { margin: 0; font-size: 16px; color: var(--primary); }
+  .add-question-btn { padding: 8px 16px; border: 2px dashed var(--primary); border-radius: 10px; background: var(--primary-soft); color: var(--primary); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .add-question-btn:hover { background: var(--primary); color: white; }
+  
+  .question-card { background: var(--bg); border: 2px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; position: relative; }
+  .question-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .question-card-title { font-size: 13px; font-weight: 700; color: var(--primary); margin: 0; }
+  .question-card-remove { background: var(--danger-soft); color: var(--danger); border: none; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .question-card-remove:hover { background: var(--danger); color: white; }
+  .question-card-content { font-size: 13px; line-height: 1.6; max-height: 150px; overflow-y: auto; padding: 10px; background: var(--card); border-radius: 8px; }
+  .question-card-content * { max-width: 100% !important; box-sizing: border-box !important; }
+  .question-card-content script, .question-card-content style { display: none !important; }
+  .no-questions { text-align: center; padding: 20px; color: var(--muted); font-size: 13px; }
+  
+  /* مودال بانک سوالات */
+  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal.active { display: flex; }
+  .modal-content { background: var(--card); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .modal-header h3 { margin: 0; font-size: 18px; }
+  .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
+  .bank-filter { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .bank-question-item { background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; gap: 10px; align-items: flex-start; cursor: pointer; transition: all .2s; }
+  .bank-question-item:hover { border-color: var(--primary); }
+  .bank-question-item.selected { border-color: var(--primary); background: var(--primary-soft); }
+  .bank-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0; margin-top: 2px; }
+  .bank-q-content { flex: 1; }
+  .bank-q-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+  .bank-q-text { font-size: 12px; line-height: 1.5; max-height: 80px; overflow-y: auto; }
+  .bank-q-text * { max-width: 100% !important; box-sizing: border-box !important; }
+  .bank-q-text script, .bank-q-text style { display: none !important; }
+  .bank-q-meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .bank-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .bank-actions button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .bank-confirm { background: var(--primary); color: white; }
+  .bank-cancel { background: var(--border); color: var(--text-2); }
+  .bank-summary { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -95,10 +131,17 @@
         
         <div class="field">
           <label>توضیحات تکلیف</label>
-          <textarea id="description"></textarea>
+          <textarea id="description" placeholder="توضیحات تکلیف را اینجا بنویسید..."></textarea>
         </div>
         
-        <div id="questionsContainer"></div>
+        <!-- بخش سوالات -->
+        <div class="questions-section">
+          <div class="questions-header">
+            <h3> سوالات این تکلیف</h3>
+            <button type="button" class="add-question-btn" onclick="openBankModal()">+ افزودن سوال</button>
+          </div>
+          <div id="questionsList"></div>
+        </div>
         
         <div class="row">
           <div class="field">
@@ -137,13 +180,71 @@
   </div>
 </div>
 
+<!-- مودال بانک سوالات -->
+<div id="bankModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>📚 افزودن سوال از بانک</h3>
+      <button class="close-btn" onclick="closeBankModal()">&times;</button>
+    </div>
+    
+    <div class="bank-filter">
+      <div class="field">
+        <label>فیلتر درس</label>
+        <select id="bankFilterSubject" onchange="loadBankQuestions()">
+          <option value="all">همه دروس</option>
+          <option>ریاضی</option>
+          <option>فارسی</option>
+          <option>علوم</option>
+          <option>مطالعات اجتماعی</option>
+          <option>هدیه‌های آسمانی</option>
+          <option>قرآن</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>فیلتر پایه</label>
+        <select id="bankFilterGrade" onchange="loadBankQuestions()">
+          <option value="all">همه پایه‌ها</option>
+          <option value="1">اول</option>
+          <option value="2">دوم</option>
+          <option value="3">سوم</option>
+          <option value="4">چهارم</option>
+          <option value="5">پنجم</option>
+          <option value="6">ششم</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="bank-summary" id="bankSummary">در حال بارگذاری...</div>
+    <div id="bankQuestionsList"></div>
+    
+    <div class="bank-actions">
+      <button class="bank-cancel" onclick="closeBankModal()">انصراف</button>
+      <button class="bank-confirm" onclick="confirmBankSelection()">افزودن به تکلیف</button>
+    </div>
+  </div>
+</div>
+
 <script>
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+const teacherId = user.id || 1;
 const urlParams = new URLSearchParams(window.location.search);
 const taskId = urlParams.get('id');
+let currentQuestions = [];
+let bankQuestions = [];
+let tempBankSelection = new Set();
 
 if (!taskId) {
   alert('شناسه تکلیف مشخص نیست!');
   window.location.href = 'teacher-manage-tasks.html';
+}
+
+// تبدیل HTML به متن ساده
+function htmlToText(html) {
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  temp.querySelectorAll('script, style').forEach(el => el.remove());
+  return temp.textContent || temp.innerText || '';
 }
 
 // بارگذاری اطلاعات تکلیف
@@ -155,32 +256,48 @@ async function loadTask() {
     if (data.success && data.task) {
       const task = data.task;
       
-      // پر کردن فرم
       document.getElementById('taskId').value = task.id;
       document.getElementById('title').value = task.title;
       document.getElementById('subject').value = task.subject || '';
       document.getElementById('grade').value = task.grade || '';
       document.getElementById('className').value = task.class_name || '';
-      document.getElementById('description').value = task.description || '';
+      
+      // استخراج توضیحات بدون HTML سوالات
+      let description = task.description || '';
+      if (description.includes('task-questions-container')) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = description;
+        const qContainer = tempDiv.querySelector('.task-questions-container');
+        if (qContainer) {
+          qContainer.remove();
+        }
+        description = tempDiv.innerHTML;
+      }
+      document.getElementById('description').value = htmlToText(description).trim();
+      
       document.getElementById('deadline').value = task.deadline || '';
       document.getElementById('answerType').value = task.answer_type || 'text';
       document.getElementById('maxScore').value = task.max_score || 20;
       document.getElementById('isActive').value = task.is_active || 1;
       
-      // نمایش سوالات (اگر وجود دارن)
+      // استخراج سوالات
       if (task.description && task.description.includes('task-questions-container')) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = task.description;
-        const questionsContainer = tempDiv.querySelector('.task-questions-container');
-        if (questionsContainer) {
-          document.getElementById('questionsContainer').innerHTML = `
-            <div class="task-questions-container">
-              <h4 style="margin:0 0 12px;color:var(--primary);font-size:14px">📋 سوالات این تکلیف:</h4>
-              ${questionsContainer.innerHTML}
-            </div>
-          `;
+        const qContainer = tempDiv.querySelector('.task-questions-container');
+        if (qContainer) {
+          const questionItems = qContainer.querySelectorAll('.task-question');
+          questionItems.forEach((item, index) => {
+            currentQuestions.push({
+              id: Date.now() + index,
+              title: `سوال ${index + 1}`,
+              content: item.innerHTML
+            });
+          });
         }
       }
+      
+      displayQuestions();
       
       document.getElementById('loading').style.display = 'none';
       document.getElementById('editFormContainer').style.display = 'block';
@@ -194,6 +311,105 @@ async function loadTask() {
   }
 }
 
+function displayQuestions() {
+  const list = document.getElementById('questionsList');
+  
+  if (currentQuestions.length === 0) {
+    list.innerHTML = '<div class="no-questions">هنوز سوالی اضافه نشده است</div>';
+    return;
+  }
+  
+  list.innerHTML = currentQuestions.map((q, index) => `
+    <div class="question-card">
+      <div class="question-card-header">
+        <h4 class="question-card-title">سوال ${index + 1}: ${q.title || ''}</h4>
+        <button type="button" class="question-card-remove" onclick="removeQuestion(${index})">حذف</button>
+      </div>
+      <div class="question-card-content">${q.content}</div>
+    </div>
+  `).join('');
+}
+
+function removeQuestion(index) {
+  if (confirm('آیا از حذف این سوال اطمینان دارید؟')) {
+    currentQuestions.splice(index, 1);
+    displayQuestions();
+  }
+}
+
+// مودال بانک سوالات
+function openBankModal() {
+  document.getElementById('bankModal').classList.add('active');
+  tempBankSelection.clear();
+  loadBankQuestions();
+}
+
+function closeBankModal() {
+  document.getElementById('bankModal').classList.remove('active');
+}
+
+async function loadBankQuestions() {
+  const list = document.getElementById('bankQuestionsList');
+  const summary = document.getElementById('bankSummary');
+  const subject = document.getElementById('bankFilterSubject').value;
+  const grade = document.getElementById('bankFilterGrade').value;
+  
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">در حال بارگذاری...</div>';
+  
+  try {
+    let url = `/api/teacher/get-questions?teacherId=${teacherId}`;
+    if (subject !== 'all') url += `&subject=${subject}`;
+    if (grade !== 'all') url += `&grade=${grade}`;
+    
+    const res = await fetch(url);
+    const data = await res.json();
+    bankQuestions = data.success ? (data.questions || []) : [];
+    
+    if (bankQuestions.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">سوالی یافت نشد</div>';
+      summary.textContent = '۰ سوال در بانک';
+      return;
+    }
+    
+    summary.textContent = `${bankQuestions.length} سوال در بانک | ${tempBankSelection.size} انتخاب شده`;
+    
+    list.innerHTML = bankQuestions.map(q => `
+      <div class="bank-question-item ${tempBankSelection.has(q.id) ? 'selected' : ''}" onclick="toggleBankQuestion(${q.id})">
+        <input type="checkbox" class="bank-checkbox" ${tempBankSelection.has(q.id) ? 'checked' : ''} onclick="event.stopPropagation(); toggleBankQuestion(${q.id})">
+        <div class="bank-q-content">
+          <div class="bank-q-title">${q.title}</div>
+          <div class="bank-q-text">${q.question_html || ''}</div>
+          <div class="bank-q-meta">${q.subject || '-'} | پایه ${q.grade || '-'}</div>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--danger)">خطا در بارگذاری</div>';
+  }
+}
+
+function toggleBankQuestion(id) {
+  if (tempBankSelection.has(id)) {
+    tempBankSelection.delete(id);
+  } else {
+    tempBankSelection.add(id);
+  }
+  loadBankQuestions();
+}
+
+function confirmBankSelection() {
+  const selectedQuestions = bankQuestions.filter(q => tempBankSelection.has(q.id));
+  selectedQuestions.forEach(q => {
+    currentQuestions.push({
+      id: q.id,
+      title: q.title,
+      content: q.question_html || q.content || ''
+    });
+  });
+  displayQuestions();
+  closeBankModal();
+}
+
 // ارسال فرم
 document.getElementById('editTaskForm').onsubmit = async function(e) {
   e.preventDefault();
@@ -204,21 +420,40 @@ document.getElementById('editTaskForm').onsubmit = async function(e) {
   btn.textContent = 'در حال ذخیره...';
   resDiv.innerHTML = '';
   
+  const title = document.getElementById('title').value;
+  const subject = document.getElementById('subject').value;
+  const grade = document.getElementById('grade').value;
+  const className = document.getElementById('className').value;
+  const description = document.getElementById('description').value;
+  const deadline = document.getElementById('deadline').value;
+  const answerType = document.getElementById('answerType').value;
+  const maxScore = parseInt(document.getElementById('maxScore').value);
+  const isActive = parseInt(document.getElementById('isActive').value);
+  
+  // ساخت توضیحات نهایی با سوالات
+  let finalDescription = description;
+  if (currentQuestions.length > 0) {
+    const questionsHtml = currentQuestions.map((q, i) => 
+      `<div class="task-question"><strong>سوال ${i + 1}:</strong> ${q.content}</div>`
+    ).join('');
+    finalDescription = description + '\n\n<div class="task-questions-container">' + questionsHtml + '</div>';
+  }
+  
   try {
     const res = await fetch('/api/teacher/update-task', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         taskId: parseInt(document.getElementById('taskId').value),
-        title: document.getElementById('title').value,
-        description: document.getElementById('description').value,
-        subject: document.getElementById('subject').value,
-        grade: document.getElementById('grade').value,
-        className: document.getElementById('className').value,
-        deadline: document.getElementById('deadline').value || null,
-        answerType: document.getElementById('answerType').value,
-        maxScore: parseInt(document.getElementById('maxScore').value),
-        isActive: parseInt(document.getElementById('isActive').value)
+        title: title,
+        description: finalDescription,
+        subject: subject,
+        grade: grade,
+        className: className,
+        deadline: deadline || null,
+        answerType: answerType,
+        maxScore: maxScore,
+        isActive: isActive
       })
     });
     
@@ -236,15 +471,20 @@ document.getElementById('editTaskForm').onsubmit = async function(e) {
     }
   } catch (err) {
     resDiv.className = 'result error';
-    resDiv.textContent = ' خطا: ' + err.message;
+    resDiv.textContent = '❌ خطا: ' + err.message;
   }
   
   btn.disabled = false;
   btn.textContent = 'ذخیره تغییرات';
 };
 
+// بستن مودال با کلیک بیرون
+document.getElementById('bankModal').addEventListener('click', function(e) {
+  if (e.target === this) closeBankModal();
+});
+
 // بارگذاری هنگام ورود به صفحه
 loadTask();
 </script>
 </body>
-</html>
+  </html>
