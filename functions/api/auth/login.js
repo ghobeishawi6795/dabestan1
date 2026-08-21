@@ -9,9 +9,10 @@ export async function onRequest(context) {
     const body = await context.request.json();
     const { inviteCode, password } = body;
     
+    // جستجو با username یا invite_code
     const user = await env.DB.prepare(`
-      SELECT * FROM users WHERE invite_code = ?
-    `).bind(inviteCode).first();
+      SELECT * FROM users WHERE username = ? OR invite_code = ?
+    `).bind(inviteCode, inviteCode).first();
     
     if (!user) {
       return new Response(JSON.stringify({ 
@@ -23,9 +24,11 @@ export async function onRequest(context) {
       });
     }
     
+    // بررسی رمز عبور (هم plain text و هم hash شده)
     const passwordHash = btoa(password);
+    const isPasswordCorrect = (user.password === password) || (user.password_hash === passwordHash) || (user.password === passwordHash);
     
-    if (user.password_hash !== passwordHash) {
+    if (!isPasswordCorrect) {
       return new Response(JSON.stringify({ 
         success: false, 
         message: 'رمز عبور اشتباه است' 
@@ -58,4 +61,4 @@ export async function onRequest(context) {
       headers: { 'Content-Type': 'application/json' }
     });
   }
-        }
+                        }
