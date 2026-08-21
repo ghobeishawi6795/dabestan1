@@ -1,0 +1,14 @@
+name = "dabestan-api"
+main = "api/_worker.js"
+compatibility_date = "2024-01-01"
+
+# Pages build configuration
+[build]
+  command = ""
+  destination = "public"
+
+# D1 Database
+[[d1_databases]]
+  binding = "DB"
+  database_name = "dabestan_db"
+  database_id = "PLACEHOLDER"  # بعد از ساخت D1 پر می‌کنیم
