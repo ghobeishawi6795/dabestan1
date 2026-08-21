@@ -99,7 +99,7 @@
         <div id="fileMode" style="display:none">
           <div class="field">
             <div class="file-upload-area" onclick="document.getElementById('htmlFile').click()">
-              <div class="file-icon">📄</div>
+              <div class="file-icon"></div>
               <div>برای انتخاب فایل HTML کلیک کنید</div>
               <div class="file-name" id="fileName">فرمت‌های مجاز: .html, .htm</div>
             </div>
@@ -133,7 +133,6 @@ let parsedQuestions = [];
 let selectedQuestions = new Set();
 
 console.log('Teacher ID:', teacherId);
-console.log('User:', user);
 
 function showTab(tab, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -186,7 +185,7 @@ function parseQuestions(htmlContent) {
   }
   
   // روش 2: الگوی "مرحله X"
-  const stageRegex = /مرحله\s*[-۹0-9]+/g;
+  const stageRegex = /مرحله\s*[۰-۹0-9]+/g;
   const stageMatches = [...html.matchAll(stageRegex)];
   
   if (stageMatches.length > 1) {
@@ -290,4 +289,52 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
     }
     const baseTitle = document.getElementById('title').value;
     const subject = document.getElementById('subject').value || null;
-    const grade = document.getElementById('grade').
+    const grade = document.getElementById('grade').value || null;
+    selectedQuestions.forEach(index => {
+      const q = parsedQuestions[index];
+      questionsToUpload.push({ 
+        title: `${baseTitle} - ${q.title}`, 
+        subject: subject, 
+        grade: grade, 
+        html: q.html 
+      });
+    });
+  }
+  
+  try {
+    const res = await fetch('/api/teacher/upload-questions-batch', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ 
+        teacherId: teacherId, 
+        questions: questionsToUpload 
+      }) 
+    });
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      resDiv.className = 'result success';
+      resDiv.textContent = `✅ ${data.uploadedCount || questionsToUpload.length} سوال با موفقیت آپلود شد`;
+      
+      this.reset(); 
+      parsedQuestions = []; 
+      selectedQuestions.clear();
+      document.getElementById('questionsPreview').style.display = 'none';
+      document.getElementById('fileName').textContent = 'فرمت‌های مجاز: .html, .htm';
+    } else {
+      resDiv.className = 'result error';
+      resDiv.textContent = ' ' + (data.message || 'خطا در آپلود');
+    }
+  } catch (err) { 
+    resDiv.className = 'result error'; 
+    resDiv.textContent = '❌ خطا: ' + err.message; 
+  }
+  
+  btn.disabled = false; 
+  btn.textContent = 'آپلود در بانک';
+  setTimeout(() => { progressBar.style.display = 'none'; }, 1000);
+};
+</script>
+</body>
+            </html>
