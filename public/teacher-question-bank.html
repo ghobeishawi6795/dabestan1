@@ -1,81 +1,376 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بانک سوالات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .screen { padding: 24px; min-height: 100%; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .back-btn svg { width: 20px; height: 20px; color: var(--text-2); }
+  .page-title { flex: 1; }
+  .page-title h1 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
+  .page-title p { margin: 0; font-size: 12px; color: var(--muted); }
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab { flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: 12px; background: var(--card); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .card { background: var(--card); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+  .field input, .field select { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg); font-family: inherit; font-size: 14px; box-sizing: border-box; }
+  .mode-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+  .mode-btn { flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: 10px; background: var(--card); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; }
+  .mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .file-upload-area { border: 2px dashed var(--primary); border-radius: 12px; padding: 40px 20px; text-align: center; background: var(--primary-soft); transition: all .2s; cursor: pointer; }
+  .file-upload-area:hover { background: #eef0ff; }
+  .file-icon { font-size: 48px; margin-bottom: 8px; }
+  .file-name { font-size: 14px; color: var(--muted); margin-top: 8px; }
+  .submit-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+  .result { margin-top: 16px; padding: 12px; border-radius: 10px; font-size: 14px; }
+  .result.success { background: var(--success-soft); color: #15803D; }
+  .result.error { background: var(--danger-soft); color: var(--danger); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .preview-container { max-height: 500px; overflow-y: auto; border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 16px; background: var(--bg); }
+  .question-preview { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; position: relative; }
+  .question-preview.selected { border-color: var(--primary); background: var(--primary-soft); }
+  .question-checkbox-wrap { position: absolute; top: 14px; right: 14px; z-index: 10; }
+  .question-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary); }
+  .question-content { flex: 1; margin-right: 36px; }
+  .question-number { font-size: 13px; color: var(--primary); font-weight: 700; margin-bottom: 8px; }
+  .question-text { font-size: 14px; line-height: 1.6; max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: white; }
+  .question-text * { max-width: 100% !important; box-sizing: border-box !important; }
+  .question-text script, .question-text style { display: none !important; }
+  .select-all-btn { padding: 10px 20px; border: 2px solid var(--primary); border-radius: 10px; background: white; color: var(--primary); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
+  .selected-count { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .question-item { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; }
+  .question-item.selectable { padding-right: 50px; }
+  .question-item.selected { border-color: var(--primary); background: var(--primary-soft); }
+  .question-item-checkbox { position: absolute; top: 16px; right: 16px; width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary); }
+  .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .question-title { font-size: 15px; font-weight: 700; margin: 0; }
+  .question-meta { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+  .btn-small { padding: 8px 16px; border: none; border-radius: 8px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; margin-left: 8px; }
+  .btn-preview { background: var(--primary-soft); color: var(--primary); }
+  .empty-state { text-align: center; padding: 40px 16px; color: var(--muted); }
+  .selection-summary { background: var(--primary-soft); border: 2px solid var(--primary); border-radius: 12px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+  .selection-summary .count { font-size: 14px; font-weight: 700; color: var(--primary); }
+  .list-toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar-btn { padding: 10px 16px; border: 2px solid var(--border); border-radius: 10px; background: var(--card); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .toolbar-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .toolbar-btn.success { background: var(--success-soft); color: #15803D; border-color: #15803D; }
+  .toolbar-btn.danger { border-color: var(--danger); color: var(--danger); }
+  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal.active { display: flex; }
+  .modal-content { background: var(--card); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
+  .preview-box { background: white; border: 2px solid var(--border); border-radius: 12px; padding: 16px; }
+  .preview-box * { max-width: 100% !important; box-sizing: border-box !important; }
+  .preview-box script, .preview-box style { display: none !important; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="header">
+      <div class="back-btn" onclick="window.location.href='teacher-home.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      </div>
+      <div class="page-title">
+        <h1>📚 بانک سوالات</h1>
+        <p>مدیریت و آپلود سوالات</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('upload', this)">آپلود سوال جدید</button>
+      <button class="tab" onclick="showTab('list', this)">لیست سوالات</button>
+    </div>
+
+    <div id="uploadTab" class="card">
+      <form id="uploadForm">
+        <div class="field">
+          <label>عنوان مجموعه سوالات</label>
+          <input type="text" id="title" placeholder="مثلاً: سوالات فصل اول ریاضی" required>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>درس</label>
+            <select id="subject"><option value="">-</option><option>ریاضی</option><option>فارسی</option><option>علوم</option><option>مطالعات</option><option>هدیه‌های آسمانی</option><option>قرآن</option></select>
+          </div>
+          <div class="field">
+            <label>پایه</label>
+            <select id="grade"><option value="">-</option><option value="1">اول</option><option value="2">دوم</option><option value="3">سوم</option><option value="4">چهارم</option><option value="5">پنجم</option><option value="6">ششم</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>روش آپلود:</label>
+          <div class="mode-btns">
+            <button type="button" class="mode-btn active" id="manualBtn" onclick="setMode('manual')">نوشتن دستی</button>
+            <button type="button" class="mode-btn" id="fileBtn" onclick="setMode('file')">آپلود فایل HTML</button>
+          </div>
+        </div>
+        <div id="manualMode">
+          <div class="field">
+            <label>محتوای سوال (HTML)</label>
+            <textarea id="html" rows="6" placeholder="<p>سوال خود را اینجا بنویسید...</p>" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;box-sizing:border-box;"></textarea>
+          </div>
+        </div>
+        <div id="fileMode" style="display:none">
+          <div class="field">
+            <label for="htmlFile" class="file-upload-area" style="cursor:pointer;display:block;">
+              <div class="file-icon">📄</div>
+              <div>برای انتخاب فایل HTML کلیک کنید</div>
+              <div class="file-name" id="fileName">فرمت‌های مجاز: .html, .htm</div>
+            </label>
+            <input type="file" id="htmlFile" accept=".html,.htm" style="display:none" onchange="handleFileSelect(this)">
+          </div>
+          <div id="questionsPreview" style="display:none">
+            <h3 style="margin:20px 0 12px;font-size:16px;">پیش‌نمایش سوالات</h3>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">سوالاتی که می‌خواهید به بانک اضافه شوند را تیک بزنید:</p>
+            <button type="button" class="select-all-btn" onclick="toggleSelectAll()">انتخاب همه</button>
+            <div class="selected-count" id="selectedCount">۰ سوال انتخاب شده</div>
+            <div class="preview-container" id="previewContainer"></div>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">آپلود در بانک</button>
+      </form>
+      <div id="result"></div>
+    </div>
+
+    <div id="listTab" class="card" style="display:none">
+      <div class="list-toolbar">
+        <button class="toolbar-btn" id="selectModeBtn" onclick="toggleSelectMode()">✏️ حالت انتخاب</button>
+        <button class="toolbar-btn" id="selectAllBtn" onclick="toggleSelectAllList()" style="display:none">انتخاب همه</button>
+        <button class="toolbar-btn success" id="createTaskBtn" onclick="createTaskFromSelected()" style="display:none"> ایجاد تکلیف</button>
+      </div>
+      <div id="selectionSummary" class="selection-summary" style="display:none">
+        <span class="count" id="selectionCount"> سوال انتخاب شده</span>
+        <button class="toolbar-btn" onclick="clearSelection()">پاک کردن</button>
+      </div>
+      <div class="row" style="margin-bottom:16px">
+        <div class="field">
+          <label>فیلتر درس</label>
+          <select id="filterSubject" onchange="loadQuestions()"><option value="all">همه دروس</option><option>ریاضی</option><option>فارسی</option><option>علوم</option><option>مطالعات</option><option>هدیه‌های آسمانی</option><option>قرآن</option></select>
+        </div>
+        <div class="field">
+          <label>فیلتر پایه</label>
+          <select id="filterGrade" onchange="loadQuestions()"><option value="all">همه پایه‌ها</option><option value="1">اول</option><option value="2">دوم</option><option value="3">سوم</option><option value="4">چهارم</option><option value="5">پنجم</option><option value="6">ششم</option></select>
+        </div>
+      </div>
+      <div id="questionsList"></div>
+    </div>
+  </div>
+</div>
+
+<div id="previewModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="previewTitle">پیش‌نمایش سوال</h3>
+      <button class="close-btn" onclick="closePreviewModal()">&times;</button>
+    </div>
+    <div id="previewContent" class="preview-box"></div>
+  </div>
+</div>
+
+<script>
+  </head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="header">
+      <div class="back-btn" onclick="window.location.href='teacher-home.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      </div>
+      <div class="page-title">
+        <h1>📚 بانک سوالات</h1>
+        <p>مدیریت و آپلود سوالات</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('upload', this)">آپلود سوال جدید</button>
+      <button class="tab" onclick="showTab('list', this)">لیست سوالات</button>
+    </div>
+
+    <div id="uploadTab" class="card">
+      <form id="uploadForm">
+        <div class="field">
+          <label>عنوان مجموعه سوالات</label>
+          <input type="text" id="title" placeholder="مثلاً: سوالات فصل اول ریاضی" required>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>درس</label>
+            <select id="subject"><option value="">-</option><option>ریاضی</option><option>فارسی</option><option>علوم</option><option>مطالعات</option><option>هدیه‌های آسمانی</option><option>قرآن</option></select>
+          </div>
+          <div class="field">
+            <label>پایه</label>
+            <select id="grade"><option value="">-</option><option value="1">اول</option><option value="2">دوم</option><option value="3">سوم</option><option value="4">چهارم</option><option value="5">پنجم</option><option value="6">ششم</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>روش آپلود:</label>
+          <div class="mode-btns">
+            <button type="button" class="mode-btn active" id="manualBtn" onclick="setMode('manual')">نوشتن دستی</button>
+            <button type="button" class="mode-btn" id="fileBtn" onclick="setMode('file')">آپلود فایل HTML</button>
+          </div>
+        </div>
+        <div id="manualMode">
+          <div class="field">
+            <label>محتوای سوال (HTML)</label>
+            <textarea id="html" rows="6" placeholder="<p>سوال خود را اینجا بنویسید...</p>" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;box-sizing:border-box;"></textarea>
+          </div>
+        </div>
+        <div id="fileMode" style="display:none">
+          <div class="field">
+            <label for="htmlFile" class="file-upload-area" style="cursor:pointer;display:block;">
+              <div class="file-icon">📄</div>
+              <div>برای انتخاب فایل HTML کلیک کنید</div>
+              <div class="file-name" id="fileName">فرمت‌های مجاز: .html, .htm</div>
+            </label>
+            <input type="file" id="htmlFile" accept=".html,.htm" style="display:none" onchange="handleFileSelect(this)">
+          </div>
+          <div id="questionsPreview" style="display:none">
+            <h3 style="margin:20px 0 12px;font-size:16px;">پیش‌نمایش سوالات</h3>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">سوالاتی که می‌خواهید به بانک اضافه شوند را تیک بزنید:</p>
+            <button type="button" class="select-all-btn" onclick="toggleSelectAll()">انتخاب همه</button>
+            <div class="selected-count" id="selectedCount">۰ سوال انتخاب شده</div>
+            <div class="preview-container" id="previewContainer"></div>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">آپلود در بانک</button>
+      </form>
+      <div id="result"></div>
+    </div>
+
+    <div id="listTab" class="card" style="display:none">
+      <div class="list-toolbar">
+        <button class="toolbar-btn" id="selectModeBtn" onclick="toggleSelectMode()">✏️ حالت انتخاب</button>
+        <button class="toolbar-btn" id="selectAllBtn" onclick="toggleSelectAllList()" style="display:none">انتخاب همه</button>
+        <button class="toolbar-btn success" id="createTaskBtn" onclick="createTaskFromSelected()" style="display:none">📝 ایجاد تکلیف</button>
+      </div>
+      <div id="selectionSummary" class="selection-summary" style="display:none">
+        <span class="count" id="selectionCount">۰ سوال انتخاب شده</span>
+        <button class="toolbar-btn" onclick="clearSelection()">پاک کردن</button>
+      </div>
+      <div class="row" style="margin-bottom:16px">
+        <div class="field">
+          <label>فیلتر درس</label>
+          <select id="filterSubject" onchange="loadQuestions()"><option value="all">همه دروس</option><option>ریاضی</option><option>فارسی</option><option>علوم</option><option>مطالعات</option><option>هدیه‌های آسمانی</option><option>قرآن</option></select>
+        </div>
+        <div class="field">
+          <label>فیلتر پایه</label>
+          <select id="filterGrade" onchange="loadQuestions()"><option value="all">همه پایه‌ها</option><option value="1">اول</option><option value="2">دوم</option><option value="3">سوم</option><option value="4">چهارم</option><option value="5">پنجم</option><option value="6">ششم</option></select>
+        </div>
+      </div>
+      <div id="questionsList"></div>
+    </div>
+  </div>
+</div>
+
+<div id="previewModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="previewTitle">پیش‌نمایش سوال</h3>
+      <button class="close-btn" onclick="closePreviewModal()">&times;</button>
+    </div>
+    <div id="previewContent" class="preview-box"></div>
+  </div>
+</div>
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+const teacherId = user.id || 1;
+let currentMode = 'manual';
+let parsedQuestions = [];
+let selectedQuestions = new Set();
+let selectMode = false;
+let selectedListQuestions = new Set();
+let allQuestions = [];
+
+function showTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('uploadTab').style.display = tab === 'upload' ? 'block' : 'none';
+  document.getElementById('listTab').style.display = tab === 'list' ? 'block' : 'none';
+  if (tab === 'list') { selectMode = false; selectedListQuestions.clear(); loadQuestions(); }
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('manualBtn').classList.toggle('active', mode === 'manual');
+  document.getElementById('fileBtn').classList.toggle('active', mode === 'file');
+  document.getElementById('manualMode').style.display = mode === 'manual' ? 'block' : 'none';
+  document.getElementById('fileMode').style.display = mode === 'file' ? 'block' : 'none';
+  if (mode === 'manual') document.getElementById('questionsPreview').style.display = 'none';
+}
+
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (file) {
+    document.getElementById('fileName').textContent = '✅ فایل انتخاب شد: ' + file.name;
+    const reader = new FileReader();
+    reader.onload = function(e) { parseQuestions(e.target.result); };
+    reader.readAsText(file, 'UTF-8');
+  }
+}
+
 function parseQuestions(htmlContent) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, 'text/html');
   parsedQuestions = [];
   selectedQuestions.clear();
   
-  // حذف تمام script و style ها
   doc.querySelectorAll('script, noscript, style').forEach(s => s.remove());
   
   const body = doc.body;
   const html = body.innerHTML;
   
-  // روش ۱: جستجوی div با کلاس question
+  // روش : div با کلاس question
   let standardQuestions = doc.querySelectorAll('.question');
   if (standardQuestions.length > 1) {
     standardQuestions.forEach((elem, index) => {
       elem.querySelectorAll('script, noscript, style').forEach(s => s.remove());
       const title = elem.querySelector('.question-title')?.textContent || `سوال ${index + 1}`;
-      parsedQuestions.push({ 
-        id: index + 1, 
-        title: title.trim(), 
-        content: elem.innerHTML, 
-        html: elem.outerHTML 
-      });
+      parsedQuestions.push({ id: index + 1, title: title.trim(), content: elem.innerHTML, html: elem.outerHTML });
       selectedQuestions.add(index);
     });
     displayQuestionsPreview();
     return;
   }
   
-  // روش ۲: تقسیم بر اساس "مرحله X" (برای فایل‌های تعاملی فارسی)
-  // الگو: "مرحله ۱" یا "مرحله 1" با emoji بعدش
-  const stagePattern = /(مرحله\s*\d+\s*[^\n]*)/gi;
-  const stageMatches = [...html.matchAll(stagePattern)];
+  // روش : الگوی "مرحله X" (برای فایل‌های تعاملی فارسی)
+  const stageRegex = /مرحله\s*[۰-۹0-9]+/g;
+  const stageMatches = [...html.matchAll(stageRegex)];
   
   if (stageMatches.length > 1) {
-    let lastIndex = 0;
     stageMatches.forEach((match, i) => {
       const startIndex = match.index;
-      const title = match[1].trim();
+      const endIndex = i < stageMatches.length - 1 ? stageMatches[i + 1].index : html.length;
+      const title = match[0].trim();
+      const content = html.substring(startIndex, endIndex);
       
-      if (i > 0) {
-        // محتوای بین آخرین مرحله و این مرحله
-        const content = html.substring(lastIndex, startIndex);
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content;
-        
-        parsedQuestions.push({ 
-          id: i, 
-          title: title, 
-          content: tempDiv.innerHTML, 
-          html: tempDiv.outerHTML 
-        });
-        selectedQuestions.add(i - 1);
-      }
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = content;
       
-      lastIndex = startIndex;
+      parsedQuestions.push({ 
+        id: i + 1, 
+        title: title, 
+        content: tempDiv.innerHTML, 
+        html: tempDiv.outerHTML 
+      });
+      selectedQuestions.add(i);
     });
-    
-    // آخرین مرحله
-    const lastContent = html.substring(lastIndex);
-    const lastTempDiv = document.createElement('div');
-    lastTempDiv.innerHTML = lastContent;
-    
-    parsedQuestions.push({ 
-      id: stageMatches.length, 
-      title: stageMatches[stageMatches.length - 1][1].trim(), 
-      content: lastTempDiv.innerHTML, 
-      html: lastTempDiv.outerHTML 
-    });
-    selectedQuestions.add(stageMatches.length - 1);
-    
     displayQuestionsPreview();
     return;
   }
   
-  // روش ۳: تقسیم بر اساس emoji‌های خاص
-  const emojiPattern = /(|🟢|🔀||🧱|📍||🔎|🔐||🏆)/g;
+  // روش ۳: تقسیم بر اساس emoji
+  const emojiPattern = /(🎯||🔀|🧠||📍|💰|🔎|🔐|🚀|🏆)/g;
   const emojiSections = html.split(emojiPattern);
   
   if (emojiSections.length > 10) {
@@ -106,7 +401,7 @@ function parseQuestions(htmlContent) {
     }
   }
   
-  // روش ۴: تقسیم بر اساس headingها (h1-h6)
+  // روش ۴: تقسیم بر اساس headingها
   const headings = body.querySelectorAll('h1, h2, h3, h4, h5, h6');
   if (headings.length > 1) {
     headings.forEach((heading, index) => {
@@ -155,7 +450,7 @@ function parseQuestions(htmlContent) {
     return;
   }
   
-  // روش : کل محتوا یک سوال
+  // روش ۶: کل محتوا یک سوال
   parsedQuestions.push({ 
     id: 1, 
     title: 'سوال', 
@@ -165,3 +460,150 @@ function parseQuestions(htmlContent) {
   selectedQuestions.add(0);
   displayQuestionsPreview();
 }
+
+function displayQuestionsPreview() {
+  const container = document.getElementById('previewContainer');
+  container.innerHTML = parsedQuestions.map((q, index) => `
+    <div class="question-preview ${selectedQuestions.has(index) ? 'selected' : ''}">
+      <div class="question-checkbox-wrap"><input type="checkbox" class="question-checkbox" ${selectedQuestions.has(index) ? 'checked' : ''} onchange="toggleQuestion(${index})"></div>
+      <div class="question-content">
+        <div class="question-number">${q.title}</div>
+        <div class="question-text">${q.content}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('questionsPreview').style.display = 'block';
+  document.getElementById('selectedCount').textContent = `${selectedQuestions.size} سوال انتخاب شده از ${parsedQuestions.length}`;
+}
+
+function toggleQuestion(index) {
+  if (selectedQuestions.has(index)) selectedQuestions.delete(index);
+  else selectedQuestions.add(index);
+  displayQuestionsPreview();
+}
+
+function toggleSelectAll() {
+  if (selectedQuestions.size === parsedQuestions.length) selectedQuestions.clear();
+  else parsedQuestions.forEach((_, index) => selectedQuestions.add(index));
+  displayQuestionsPreview();
+}
+
+document.getElementById('uploadForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const resDiv = document.getElementById('result');
+  btn.disabled = true; btn.textContent = 'در حال آپلود...'; resDiv.innerHTML = '';
+  
+  let questionsToUpload = [];
+  if (currentMode === 'manual') {
+    const htmlContent = document.getElementById('html').value;
+    if (!htmlContent) { resDiv.className = 'result error'; resDiv.textContent = '❌ لطفاً محتوای سوال را وارد کنید'; btn.disabled = false; btn.textContent = 'آپلود در بانک'; return; }
+    questionsToUpload = [{ title: document.getElementById('title').value, subject: document.getElementById('subject').value || null, grade: document.getElementById('grade').value || null, html: htmlContent }];
+  } else {
+    if (parsedQuestions.length === 0) { resDiv.className = 'result error'; resDiv.textContent = '❌ لطفاً ابتدا فایل HTML را انتخاب کنید'; btn.disabled = false; btn.textContent = 'آپلود در بانک'; return; }
+    const baseTitle = document.getElementById('title').value;
+    const subject = document.getElementById('subject').value || null;
+    const grade = document.getElementById('grade').value || null;
+    selectedQuestions.forEach(index => {
+      const q = parsedQuestions[index];
+      questionsToUpload.push({ title: `${baseTitle} - ${q.title}`, subject: subject, grade: grade, html: q.html });
+    });
+  }
+  
+  try {
+    let successCount = 0, errorCount = 0;
+    for (const q of questionsToUpload) {
+      const res = await fetch('/api/teacher/upload-question', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ teacherId: teacherId, title: q.title, subject: q.subject, grade: q.grade, questionHtml: q.html, questionType: 'html' }) });
+      const data = await res.json();
+      if (data.success) successCount++; else errorCount++;
+    }
+    if (successCount > 0) {
+      resDiv.className = 'result success';
+      resDiv.textContent = `✅ ${successCount} سوال با موفقیت به بانک اضافه شد`;
+      this.reset(); parsedQuestions = []; selectedQuestions.clear();
+      document.getElementById('questionsPreview').style.display = 'none';
+      document.getElementById('fileName').textContent = 'فرمت‌های مجاز: .html, .htm';
+    } else { resDiv.className = 'result error'; resDiv.textContent = '❌ خطا در آپلود سوالات'; }
+  } catch (err) { resDiv.className = 'result error'; resDiv.textContent = '❌ خطا: ' + err.message; }
+  btn.disabled = false; btn.textContent = 'آپلود در بانک';
+};
+
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  const btn = document.getElementById('selectModeBtn');
+  btn.classList.toggle('active', selectMode);
+  btn.textContent = selectMode ? '✅ حالت انتخاب فعال' : '✏️ حالت انتخاب';
+  document.getElementById('selectAllBtn').style.display = selectMode ? 'inline-block' : 'none';
+  document.getElementById('createTaskBtn').style.display = selectMode ? 'inline-block' : 'none';
+  document.getElementById('selectionSummary').style.display = selectMode ? 'flex' : 'none';
+  if (!selectMode) { selectedListQuestions.clear(); }
+  loadQuestions();
+}
+
+function toggleSelectAllList() {
+  if (selectedListQuestions.size === allQuestions.length) selectedListQuestions.clear();
+  else allQuestions.forEach(q => selectedListQuestions.add(q.id));
+  updateListSelection();
+}
+
+function clearSelection() { selectedListQuestions.clear(); updateListSelection(); }
+
+function updateListSelection() {
+  document.querySelectorAll('.question-item').forEach(item => {
+    const id = parseInt(item.dataset.id);
+    const checkbox = item.querySelector('.question-item-checkbox');
+    if (selectedListQuestions.has(id)) { item.classList.add('selected'); if (checkbox) checkbox.checked = true; }
+    else { item.classList.remove('selected'); if (checkbox) checkbox.checked = false; }
+  });
+  document.getElementById('selectionCount').textContent = `${selectedListQuestions.size} سوال انتخاب شده`;
+}
+
+async function loadQuestions() {
+  const list = document.getElementById('questionsList');
+  const subject = document.getElementById('filterSubject').value;
+  const grade = document.getElementById('filterGrade').value;
+  try {
+    let url = `/api/teacher/get-questions?teacherId=${teacherId}`;
+    if (subject !== 'all') url += `&subject=${subject}`;
+    if (grade !== 'all') url += `&grade=${grade}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    allQuestions = data.success ? (data.questions || []) : [];
+    if (allQuestions.length > 0) {
+      list.innerHTML = allQuestions.map(q => `
+        <div class="question-item ${selectMode ? 'selectable' : ''} ${selectedListQuestions.has(q.id) ? 'selected' : ''}" data-id="${q.id}">
+          ${selectMode ? `<input type="checkbox" class="question-item-checkbox" ${selectedListQuestions.has(q.id) ? 'checked' : ''} onchange="toggleListQuestion(${q.id})">` : ''}
+          <div class="question-header"><h4 class="question-title">${q.title}</h4></div>
+          <div class="question-meta">${q.subject || '-'} | پایه ${q.grade || '-'}</div>
+          <div><button class="btn-small btn-preview" onclick='showQuestionPreview(${JSON.stringify(q.title)}, ${JSON.stringify(q.question_html)})'>پیش‌نمایش</button></div>
+        </div>
+      `).join('');
+    } else { list.innerHTML = '<div class="empty-state"><p>سوالی یافت نشد</p></div>'; }
+    if (selectMode) updateListSelection();
+  } catch (err) { list.innerHTML = '<div class="empty-state"><p>خطا در دریافت سوالات</p></div>'; }
+}
+
+function toggleListQuestion(id) {
+  if (selectedListQuestions.has(id)) selectedListQuestions.delete(id);
+  else selectedListQuestions.add(id);
+  updateListSelection();
+}
+
+function showQuestionPreview(title, htmlContent) {
+  document.getElementById('previewTitle').textContent = title;
+  document.getElementById('previewContent').innerHTML = htmlContent;
+  document.getElementById('previewModal').classList.add('active');
+}
+
+function closePreviewModal() { document.getElementById('previewModal').classList.remove('active'); }
+document.getElementById('previewModal').addEventListener('click', function(e) { if (e.target === this) closePreviewModal(); });
+
+function createTaskFromSelected() {
+  if (selectedListQuestions.size === 0) { alert('لطفاً حداقل یک سوال انتخاب کنید'); return; }
+  const selectedQuestionsData = allQuestions.filter(q => selectedListQuestions.has(q.id));
+  localStorage.setItem('selectedQuestionsForTask', JSON.stringify(selectedQuestionsData));
+  window.location.href = 'teacher-create.html?fromBank=true';
+}
+</script>
+</body>
+</html>
