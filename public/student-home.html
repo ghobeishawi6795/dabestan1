@@ -6,52 +6,53 @@
 <title>داشبورد دانش‌آموز</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css">
 <style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Vazirmatn', sans-serif; background: #F5F3FF; color: #1F2937; direction: rtl; }
+  
+  .phone { max-width: 480px; margin: 0 auto; min-height: 100vh; background: #F5F3FF; }
   .screen { padding: 24px; min-height: 100%; }
+  
   .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-  .user-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+  .user-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #6C5CE7, #8B7CF6); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
   .user-info { flex: 1; }
-  .user-name { font-size: 16px; font-weight: 700; margin: 0 0 2px; }
-  .user-role { font-size: 12px; color: var(--muted); margin: 0; }
-  .logout-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-  .logout-btn:hover { border-color: var(--danger); }
-  .logout-btn svg { width: 20px; height: 20px; color: var(--danger); }
+  .user-name { font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 2px; }
+  .user-role { font-size: 12px; color: #6B7280; margin: 0; }
+  .logout-btn { width: 40px; height: 40px; border-radius: 12px; background: white; border: 2px solid #E5E7EB; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .logout-btn svg { width: 20px; height: 20px; color: #EF4444; }
   
-  .stats-card { background: linear-gradient(135deg, var(--primary), #8B7CF6); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; color: white; }
-  .stats-title { font-size: 18px; font-weight: 800; margin: 0 0 8px; }
-  .stats-subtitle { font-size: 13px; opacity: .9; margin: 0 0 20px; }
+  .stats-card { background: linear-gradient(135deg, #6C5CE7, #8B7CF6); border-radius: 20px; padding: 24px; margin-bottom: 20px; color: white; }
+  .stats-title { font-size: 18px; font-weight: 800; margin: 0 0 8px; color: white; }
+  .stats-subtitle { font-size: 13px; opacity: .9; margin: 0 0 20px; color: rgba(255,255,255,0.9); }
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .stat-item { background: rgba(255,255,255,.15); border-radius: 12px; padding: 14px; backdrop-filter: blur(10px); }
-  .stat-value { font-size: 24px; font-weight: 800; margin: 0 0 4px; }
-  .stat-label { font-size: 12px; opacity: .9; margin: 0; }
+  .stat-item { background: rgba(255,255,255,0.2); border-radius: 12px; padding: 14px; }
+  .stat-value { font-size: 24px; font-weight: 800; margin: 0 0 4px; color: white; }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,0.9); margin: 0; }
   
-  .section-title { font-size: 16px; font-weight: 700; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+  .section-title { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #1F2937; display: flex; align-items: center; gap: 8px; }
   
-  .task-card { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all .2s; }
-  .task-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(108,92,231,.15); }
-  .task-card.completed { opacity: .7; border-color: var(--success); }
+  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .action-btn { background: white; border: 2px solid #E5E7EB; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all .2s; text-decoration: none; color: #1F2937; }
+  .action-btn:hover { border-color: #6C5CE7; transform: translateY(-2px); }
+  .action-icon { font-size: 28px; margin-bottom: 8px; }
+  .action-label { font-size: 12px; font-weight: 600; color: #1F2937; }
+  
+  .task-card { background: white; border: 2px solid #E5E7EB; border-radius: 16px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all .2s; }
+  .task-card:hover { border-color: #6C5CE7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(108,92,231,0.15); }
   .task-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .task-title { font-size: 15px; font-weight: 700; margin: 0; flex: 1; }
+  .task-title { font-size: 15px; font-weight: 700; margin: 0; flex: 1; color: #1F2937; }
   .task-badge { padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 700; margin-right: 8px; }
   .task-badge.new { background: #DCFCE7; color: #15803D; }
   .task-badge.urgent { background: #FEE2E2; color: #DC2626; }
-  .task-badge.done { background: #E0E7FF; color: #4F46E5; }
-  .task-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+  .task-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 11px; color: #6B7280; margin-bottom: 12px; }
   .task-meta-item { display: flex; align-items: center; gap: 4px; }
-  .task-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
-  .task-teacher { font-size: 12px; color: var(--muted); }
-  .task-action { font-size: 12px; font-weight: 700; color: var(--primary); }
+  .task-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #E5E7EB; }
+  .task-teacher { font-size: 12px; color: #6B7280; }
+  .task-action { font-size: 12px; font-weight: 700; color: #6C5CE7; }
   
-  .empty-state { text-align: center; padding: 40px 16px; color: var(--muted); }
+  .empty-state { text-align: center; padding: 40px 16px; color: #6B7280; }
   .empty-state .emoji { font-size: 48px; margin-bottom: 8px; }
-  .loading { text-align: center; padding: 40px; color: var(--muted); }
-  
-  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .action-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all .2s; text-decoration: none; color: inherit; }
-  .action-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
-  .action-icon { font-size: 28px; margin-bottom: 8px; }
-  .action-label { font-size: 12px; font-weight: 600; }
+  .loading { text-align: center; padding: 40px; color: #6B7280; }
 </style>
 </head>
 <body>
@@ -85,7 +86,7 @@
 
     <div class="quick-actions">
       <a href="student-task.html" class="action-btn">
-        <div class="action-icon">📋</div>
+        <div class="action-icon"></div>
         <div class="action-label">همه تکالیف</div>
       </a>
       <a href="#" class="action-btn">
@@ -108,7 +109,6 @@ if (!user || user.role !== 'student') {
   window.location.href = 'login.html?role=student';
 }
 
-// نمایش اطلاعات کاربر
 document.getElementById('userName').textContent = user.name || 'دانش‌آموز';
 document.getElementById('userAvatar').textContent = (user.name || 'د')[0];
 document.getElementById('userClass').textContent = `پایه ${user.grade || '-'} | کلاس ${user.class || '-'}`;
@@ -148,7 +148,7 @@ async function loadTasks() {
               <div class="task-meta-item">⏰ ${deadline}</div>
             </div>
             <div class="task-footer">
-              <div class="task-teacher">👨🏫 ${task.teacher_name || 'معلم'}</div>
+              <div class="task-teacher">‍🏫 ${task.teacher_name || 'معلم'}</div>
               <div class="task-action">مشاهده و انجام ←</div>
             </div>
           </div>
@@ -172,6 +172,7 @@ async function loadTasks() {
 }
 
 function openTask(id) {
+  console.log('Opening task:', id);
   window.location.href = `student-task-detail.html?id=${id}`;
 }
 
