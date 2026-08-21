@@ -55,7 +55,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
       </div>
       <div class="page-title">
-        <h1>📚 بانک سوالات</h1>
+        <h1> بانک سوالات</h1>
         <p>مدیریت و آپلود سوالات</p>
       </div>
     </div>
@@ -129,8 +129,6 @@ let currentMode = 'manual';
 let parsedQuestions = [];
 let selectedQuestions = new Set();
 
-console.log('Teacher ID:', teacherId);
-
 function showTab(tab, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
@@ -152,10 +150,7 @@ function handleFileSelect(input) {
   if (file) {
     document.getElementById('fileName').textContent = '✅ فایل انتخاب شد: ' + file.name;
     const reader = new FileReader();
-    reader.onload = function(e) { 
-      console.log('File loaded, length:', e.target.result.length);
-      parseQuestions(e.target.result); 
-    };
+    reader.onload = function(e) { parseQuestions(e.target.result); };
     reader.readAsText(file, 'UTF-8');
   }
 }
@@ -166,10 +161,10 @@ function parseQuestions(htmlContent) {
   parsedQuestions = [];
   selectedQuestions.clear();
   
-  // حذف script و style
   doc.querySelectorAll('script, noscript, style').forEach(s => s.remove());
   
   const body = doc.body;
+  const html = body.innerHTML;
   
   // روش 1: div با کلاس question
   let standardQuestions = doc.querySelectorAll('.question');
@@ -184,29 +179,11 @@ function parseQuestions(htmlContent) {
     return;
   }
   
-  // روش 2: الگوی "مرحله X" - چند الگوی مختلف
-  const html = body.innerHTML;
+  // روش 2: الگوی "مرحله X" - فقط این الگو
+  const stageRegex = /مرحله\s+[۰-0-9]+/g;
+  const stageMatches = [...html.matchAll(stageRegex)];
   
-  // الگوی 1: مرحله ۱، مرحله ۲ (با اعداد فارسی)
-  let stageRegex = /مرحله\s*[-۹۱۲۳۴۵۶۷۸۹0-9]+/g;
-  let stageMatches = [...html.matchAll(stageRegex)];
-  
-  // الگوی 2: اگر الگوی 1 کار نکرد، emoji + مرحله
-  if (stageMatches.length <= 1) {
-    stageRegex = /(🎯||🔀|🧠||📍|💰||🔐|🚀|)\s*مرحله\s*\d+/g;
-    stageMatches = [...html.matchAll(stageRegex)];
-  }
-  
-  // الگوی 3: فقط emoji
-  if (stageMatches.length <= 1) {
-    const emojiPattern = /(🎯|🟢|🔀|🧠|🧱|📍|💰|🔎||🚀|🏆)/g;
-    const emojiMatches = [...html.matchAll(emojiPattern)];
-    if (emojiMatches.length > 1) {
-      stageMatches = emojiMatches;
-    }
-  }
-  
-  console.log('Stage matches found:', stageMatches.length);
+  console.log('Found stages:', stageMatches.length);
   
   if (stageMatches.length > 1) {
     stageMatches.forEach((match, i) => {
@@ -230,30 +207,7 @@ function parseQuestions(htmlContent) {
     return;
   }
   
-  // روش 3: تقسیم بر اساس خطوط خالی یا hr
-  const hrSections = html.split(/<hr\s*\/?>/gi);
-  if (hrSections.length > 1) {
-    hrSections.forEach((chunk, index) => {
-      if (chunk.trim()) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = chunk;
-        const text = tempDiv.textContent || '';
-        const title = text.split('\n')[0]?.trim() || `بخش ${index + 1}`;
-        
-        parsedQuestions.push({ 
-          id: index + 1, 
-          title: title.substring(0, 50), 
-          content: chunk, 
-          html: chunk 
-        });
-        selectedQuestions.add(index);
-      }
-    });
-    displayQuestionsPreview();
-    return;
-  }
-  
-  // روش 4: کل محتوا یک سوال
+  // روش 3: کل محتوا یک سوال
   parsedQuestions.push({ 
     id: 1, 
     title: 'سوال', 
