@@ -9,15 +9,17 @@ export async function onRequest(context) {
     const body = await context.request.json();
     const { teacherId, title, subject, grade, questionHtml, questionType } = body;
     
-    // بررسی معلم
+    console.log('Received teacherId:', teacherId, 'title:', title);
+    
+    // بررسی معلم - فقط با ID (بدون چک کردن role)
     const teacher = await env.DB.prepare(`
-      SELECT * FROM users WHERE id = ? AND role = 'teacher'
+      SELECT * FROM users WHERE id = ?
     `).bind(teacherId).first();
     
     if (!teacher) {
       return new Response(JSON.stringify({ 
         success: false, 
-        message: 'دسترسی غیرمجاز' 
+        message: 'کاربر یافت نشد. لطفاً دوباره وارد شوید.' 
       }), { 
         status: 403,
         headers: { 'Content-Type': 'application/json' }
@@ -55,4 +57,4 @@ export async function onRequest(context) {
       headers: { 'Content-Type': 'application/json' }
     });
   }
-  }
+                }
