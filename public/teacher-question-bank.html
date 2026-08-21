@@ -386,11 +386,12 @@
     displayQuestionsPreview();
   }
 
-  // ====== تابع onsubmit اصلاح‌شده ======
+  // ====== تابع onsubmit اصلاح‌شده (جایگزین شده) ======
   document.getElementById('uploadForm').onsubmit = async function(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     const resDiv = document.getElementById('result');
+    
     btn.disabled = true; 
     btn.textContent = 'در حال آپلود...'; 
     resDiv.innerHTML = '';
@@ -434,45 +435,21 @@
     }
     
     try {
-      let successCount = 0;
-      let errorMessages = [];
+      // ارسال BATCH - همه سوالات یک‌جا
+      const res = await fetch('/api/teacher/upload-questions-batch', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ 
+          teacherId: teacherId, 
+          questions: questionsToUpload 
+        }) 
+      });
       
-      for (let i = 0; i < questionsToUpload.length; i++) {
-        const q = questionsToUpload[i];
-        
-        try {
-          const res = await fetch('/api/teacher/upload-question', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ 
-              teacherId: teacherId, 
-              title: q.title, 
-              subject: q.subject, 
-              grade: q.grade, 
-              questionHtml: q.html, 
-              questionType: 'html' 
-            }) 
-          });
-          
-          const data = await res.json();
-          
-          if (data.success) {
-            successCount++;
-          } else {
-            errorMessages.push(`سوال ${i + 1}: ${data.message || 'خطای ناشناخته'}`);
-          }
-        } catch (fetchError) {
-          errorMessages.push(`سوال ${i + 1}: ${fetchError.message}`);
-        }
-      }
+      const data = await res.json();
       
-      if (successCount > 0) {
+      if (data.success) {
         resDiv.className = 'result success';
-        resDiv.textContent = `✅ ${successCount} سوال با موفقیت به بانک اضافه شد`;
-        
-        if (errorMessages.length > 0) {
-          resDiv.textContent += `\n⚠️ ${errorMessages.length} خطا: ${errorMessages.join(', ')}`;
-        }
+        resDiv.textContent = `✅ ${data.uploadedCount || questionsToUpload.length} سوال با موفقیت آپلود شد`;
         
         this.reset(); 
         parsedQuestions = []; 
@@ -481,7 +458,7 @@
         document.getElementById('fileName').textContent = 'فرمت‌های مجاز: .html, .htm';
       } else {
         resDiv.className = 'result error';
-        resDiv.textContent = '❌ خطا در آپلود سوالات\n' + errorMessages.join('\n');
+        resDiv.textContent = '❌ ' + (data.message || 'خطا در آپلود');
       }
     } catch (err) { 
       resDiv.className = 'result error'; 
@@ -571,4 +548,4 @@
   }
 </script>
 </body>
-                                                                                                                                                                                                                               </html>
+  </html>
