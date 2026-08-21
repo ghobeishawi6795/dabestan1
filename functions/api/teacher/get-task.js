@@ -7,35 +7,25 @@ export async function onRequest(context) {
   
   try {
     const url = new URL(context.request.url);
-    const studentId = url.searchParams.get('studentId');
+    const taskId = url.searchParams.get('taskId');
     
-    if (!studentId) {
-      return new Response(JSON.stringify({ success: false, message: 'شناسه دانش‌آموز الزامی است' }), { status: 400 });
+    if (!taskId) {
+      return new Response(JSON.stringify({ success: false, message: 'شناسه تکلیف الزامی است' }), { status: 400 });
     }
     
-    // دریافت اطلاعات دانش‌آموز
-    const student = await env.DB.prepare(`
-      SELECT * FROM users WHERE id = ? AND role = 'student'
-    `).bind(studentId).first();
-    
-    if (!student) {
-      return new Response(JSON.stringify({ success: false, message: 'دانش‌آموز یافت نشد' }), { status: 404 });
-    }
-    
-    // دریافت تکالیف بر اساس کلاس و پایه
-    const tasks = await env.DB.prepare(`
-      SELECT t.*, c.name as class_name, c.grade as class_grade,
-             u.name as teacher_name
+    const task = await env.DB.prepare(`
+      SELECT t.*, c.name as class_name, c.grade as class_grade, u.name as teacher_name
       FROM tasks t
       LEFT JOIN classes c ON t.class_id = c.id
       LEFT JOIN users u ON t.teacher_id = u.id
-      WHERE (c.id = ? OR t.grade = ?) 
-        AND t.is_active = 1
-        AND (t.deadline IS NULL OR t.deadline > datetime('now'))
-      ORDER BY t.created_at DESC
-    `).bind(student.class || null, student.grade || null).all();
+      WHERE t.id = ?
+    `).bind(taskId).first();
     
-    return new Response(JSON.stringify({ success: true, tasks: tasks.results || [] }));
+    if (!task) {
+      return new Response(JSON.stringify({ success: false, message: 'تکلیف یافت نشد' }), { status: 404 });
+    }
+    
+    return new Response(JSON.stringify({ success: true, task: task }));
     
   } catch (error) {
     return new Response(JSON.stringify({ success: false, message: error.message }), { status: 500 });
