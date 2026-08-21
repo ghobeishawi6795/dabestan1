@@ -45,6 +45,7 @@
   .question-text script, .question-text style { display: none !important; }
   .select-all-btn { padding: 10px 20px; border: 2px solid var(--primary); border-radius: 10px; background: white; color: var(--primary); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
   .selected-count { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .pattern-info { font-size: 12px; color: var(--muted); margin-bottom: 12px; padding: 8px; background: var(--bg); border-radius: 8px; }
 </style>
 </head>
 <body>
@@ -55,7 +56,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
       </div>
       <div class="page-title">
-        <h1>📚 بانک سوالات</h1>
+        <h1> بانک سوالات</h1>
         <p>مدیریت و آپلود سوالات</p>
       </div>
     </div>
@@ -105,6 +106,7 @@
           </div>
           <div id="questionsPreview" style="display:none">
             <h3 style="margin:20px 0 12px;font-size:16px;">پیش‌نمایش سوالات</h3>
+            <div class="pattern-info" id="patternInfo"></div>
             <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">روی هر سوال کلیک کنید یا تیک بزنید:</p>
             <button type="button" class="select-all-btn" onclick="toggleSelectAll()">انتخاب همه</button>
             <div class="selected-count" id="selectedCount">۰ سوال انتخاب شده</div>
@@ -171,24 +173,40 @@ function parseQuestions(htmlContent) {
   if (standardQuestions.length > 1) {
     standardQuestions.forEach((elem, index) => {
       elem.querySelectorAll('script, noscript, style').forEach(s => s.remove());
-      const title = elem.querySelector('.question-title')?.textContent || `سوال ${index + 1}`;
+      const title = elem.querySelector('h3')?.textContent || `سوال ${index + 1}`;
       parsedQuestions.push({ id: index + 1, title: title.trim(), content: elem.innerHTML, html: elem.outerHTML });
       selectedQuestions.add(index);
     });
-    displayQuestionsPreview();
+    displayQuestionsPreview('div.question');
     return;
   }
   
-  // روش 2: الگوی "مرحله X"
-  const stageRegex = /مرحله\s+[۰-۹0-9]+/g;
-  const stageMatches = [...html.matchAll(stageRegex)];
+  // تعریف الگوهای مختلف
+  const patterns = [
+    { name: 'مرحله X', regex: /مرحله\s+[۰-۹0-9]+/g },
+    { name: 'سوال X', regex: /سوال\s+[۰-۹0-9]+/g },
+    { name: 'سؤال X', regex: /سؤال\s+[۰-۹0-9]+/g },
+    { name: 'emoji X.', regex: /[🎯🧙🏗️🚂🎈🐝🌳🌊🧩🛒🗺️🔍🤖‍🏫🎧🎙️✍️🧠🟢🔀🧱📍💰🔐🚀🏆🍫🕵️🗺️🍉🌱🚂🔧🥣✂️🎨⚡🐸🎰🤖🏆]\s*[۰-0-9]+\./g }
+  ];
   
-  console.log('Found stages:', stageMatches.length);
+  // پیدا کردن بهترین الگو
+  let bestPattern = null;
+  let bestMatches = [];
   
-  if (stageMatches.length > 1) {
-    stageMatches.forEach((match, i) => {
+  for (const pattern of patterns) {
+    const matches = [...html.matchAll(pattern.regex)];
+    if (matches.length > bestMatches.length) {
+      bestMatches = matches;
+      bestPattern = pattern;
+    }
+  }
+  
+  console.log('Best pattern:', bestPattern?.name, 'Matches:', bestMatches.length);
+  
+  if (bestMatches.length > 1) {
+    bestMatches.forEach((match, i) => {
       const startIndex = match.index;
-      const endIndex = i < stageMatches.length - 1 ? stageMatches[i + 1].index : html.length;
+      const endIndex = i < bestMatches.length - 1 ? bestMatches[i + 1].index : html.length;
       const title = match[0].trim();
       const content = html.substring(startIndex, endIndex);
       
@@ -203,11 +221,11 @@ function parseQuestions(htmlContent) {
       });
       selectedQuestions.add(i);
     });
-    displayQuestionsPreview();
+    displayQuestionsPreview(bestPattern.name);
     return;
   }
   
-  // روش 3: کل محتوا یک سوال
+  // اگر هیچ الگویی کار نکرد، کل محتوا یک سوال
   parsedQuestions.push({ 
     id: 1, 
     title: 'سوال', 
@@ -215,15 +233,15 @@ function parseQuestions(htmlContent) {
     html: html 
   });
   selectedQuestions.add(0);
-  displayQuestionsPreview();
+  displayQuestionsPreview('کل محتوا');
 }
 
-function displayQuestionsPreview() {
+function displayQuestionsPreview(patternName) {
   const container = document.getElementById('previewContainer');
   container.innerHTML = parsedQuestions.map((q, index) => `
     <div class="question-preview ${selectedQuestions.has(index) ? 'selected' : ''}" onclick="toggleQuestion(${index})">
       <div class="question-checkbox-wrap">
-        <input type="checkbox" class="question-checkbox" ${selectedQuestions.has(index) ? 'checked' : ''} onchange="event.stopPropagation(); toggleQuestion(${index})">
+        <input type="checkbox" class="question-checkbox" ${selectedQuestions.has(index) ? 'checked' : ''} onclick="event.stopPropagation(); toggleQuestion(${index})">
       </div>
       <div class="question-content">
         <div class="question-number">${q.title}</div>
@@ -231,6 +249,8 @@ function displayQuestionsPreview() {
       </div>
     </div>
   `).join('');
+  
+  document.getElementById('patternInfo').textContent = `الگوی تشخیص: ${patternName} | تعداد سوالات: ${parsedQuestions.length}`;
   document.getElementById('questionsPreview').style.display = 'block';
   document.getElementById('selectedCount').textContent = `${selectedQuestions.size} سوال انتخاب شده از ${parsedQuestions.length}`;
 }
@@ -238,13 +258,13 @@ function displayQuestionsPreview() {
 function toggleQuestion(index) {
   if (selectedQuestions.has(index)) selectedQuestions.delete(index);
   else selectedQuestions.add(index);
-  displayQuestionsPreview();
+  displayQuestionsPreview(document.getElementById('patternInfo').textContent.split('|')[0].replace('الگوی تشخیص: ', ''));
 }
 
 function toggleSelectAll() {
   if (selectedQuestions.size === parsedQuestions.length) selectedQuestions.clear();
   else parsedQuestions.forEach((_, index) => selectedQuestions.add(index));
-  displayQuestionsPreview();
+  displayQuestionsPreview(document.getElementById('patternInfo').textContent.split('|')[0].replace('الگوی تشخیص: ', ''));
 }
 
 document.getElementById('uploadForm').onsubmit = async function(e) {
@@ -329,4 +349,4 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
 };
 </script>
 </body>
-</html>
+  </html>
