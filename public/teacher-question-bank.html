@@ -228,14 +228,14 @@
           </div>
         </div>
         <div id="fileMode" style="display:none">
-          <div class="field">
-            <label for="htmlFile" class="file-upload-area" style="cursor:pointer;display:block;">
-              <div class="file-icon">📄</div>
-              <div>برای انتخاب فایل HTML کلیک کنید</div>
-              <div class="file-name" id="fileName">فرمت‌های مجاز: .html, .htm</div>
-            </label>
-            <input type="file" id="htmlFile" accept=".html,.htm" style="display:none" onchange="handleFileSelect(this)">
-          </div>
+  <div class="field">
+    <div class="file-upload-area" onclick="document.getElementById('htmlFile').click()" style="cursor:pointer;">
+      <div class="file-icon">📄</div>
+      <div>برای انتخاب فایل HTML کلیک کنید</div>
+      <div class="file-name" id="fileName">فرمت‌های مجاز: .html, .htm</div>
+    </div>
+    <input type="file" id="htmlFile" accept=".html,.htm" style="display:none" onchange="handleFileSelect(this)">
+  </div>
           <div id="questionsPreview" style="display:none">
             <h3 style="margin:20px 0 12px;font-size:16px;">پیش‌نمایش سوالات</h3>
             <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">سوالاتی که می‌خواهید به بانک اضافه شوند را تیک بزنید:</p>
