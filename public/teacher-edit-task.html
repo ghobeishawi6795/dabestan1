@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ویرایش تکلیف - دبستان</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .screen { padding: 24px; min-height: 100%; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .back-btn:hover { border-color: var(--primary); transform: translateX(4px); }
+  .back-btn svg { width: 20px; height: 20px; color: var(--text-2); }
+  .page-title { flex: 1; }
+  .page-title h1 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
+  .page-title p { margin: 0; font-size: 12px; color: var(--muted); }
+  .card { background: var(--card); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg); font-family: inherit; font-size: 14px; box-sizing: border-box; }
+  .field textarea { min-height: 100px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .submit-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+  .result { margin-top: 16px; padding: 12px; border-radius: 10px; font-size: 14px; text-align: center; }
+  .result.success { background: var(--success-soft); color: #15803D; }
+  .result.error { background: var(--danger-soft); color: var(--danger); }
+  .loading { text-align: center; padding: 40px; color: var(--muted); }
+  .task-questions-container { margin-top: 16px; padding: 12px; background: var(--bg); border-radius: 10px; }
+  .task-question { padding: 12px; margin-bottom: 12px; background: var(--card); border-radius: 8px; border: 1px solid var(--border); }
+  .task-question:last-child { margin-bottom: 0; }
+  .task-question strong { color: var(--primary); display: block; margin-bottom: 8px; }
+  .task-question * { max-width: 100% !important; box-sizing: border-box !important; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="header">
+      <div class="back-btn" onclick="window.location.href='teacher-manage-tasks.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      </div>
+      <div class="page-title">
+        <h1>✏️ ویرایش تکلیف</h1>
+        <p>اطلاعات تکلیف را تغییر دهید</p>
+      </div>
+    </div>
+
+    <div id="loading" class="loading">
+      <p>در حال بارگذاری اطلاعات تکلیف...</p>
+    </div>
+
+    <div id="editFormContainer" class="card" style="display:none">
+      <form id="editTaskForm">
+        <input type="hidden" id="taskId">
+        
+        <div class="field">
+          <label>عنوان تکلیف</label>
+          <input type="text" id="title" required>
+        </div>
+        
+        <div class="row">
+          <div class="field">
+            <label>درس</label>
+            <select id="subject" required>
+              <option value="">انتخاب کنید</option>
+              <option value="ریاضی">ریاضی</option>
+              <option value="فارسی">فارسی</option>
+              <option value="علوم">علوم</option>
+              <option value="مطالعات اجتماعی">مطالعات اجتماعی</option>
+              <option value="هدیه‌های آسمانی">هدیه‌های آسمانی</option>
+              <option value="قرآن">قرآن</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>پایه تحصیلی</label>
+            <select id="grade" required>
+              <option value="">انتخاب کنید</option>
+              <option value="1">اول ابتدایی</option>
+              <option value="2">دوم ابتدایی</option>
+              <option value="3">سوم ابتدایی</option>
+              <option value="4">چهارم ابتدایی</option>
+              <option value="5">پنجم ابتدایی</option>
+              <option value="6">ششم ابتدایی</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="field">
+          <label>نام کلاس</label>
+          <input type="text" id="className" required>
+        </div>
+        
+        <div class="field">
+          <label>توضیحات تکلیف</label>
+          <textarea id="description"></textarea>
+        </div>
+        
+        <div id="questionsContainer"></div>
+        
+        <div class="row">
+          <div class="field">
+            <label>مهلت ارسال <span style="font-size:11px;color:var(--muted)">(اختیاری)</span></label>
+            <input type="datetime-local" id="deadline">
+          </div>
+          <div class="field">
+            <label>نوع پاسخ</label>
+            <select id="answerType">
+              <option value="text">متنی</option>
+              <option value="voice">صوتی</option>
+              <option value="image">تصویری</option>
+              <option value="file">فایل</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="field">
+            <label>نمره کامل</label>
+            <input type="number" id="maxScore" value="20" min="1" max="100">
+          </div>
+          <div class="field">
+            <label>وضعیت</label>
+            <select id="isActive">
+              <option value="1">فعال</option>
+              <option value="0">غیرفعال</option>
+            </select>
+          </div>
+        </div>
+        
+        <button type="submit" class="submit-btn" id="submitBtn">ذخیره تغییرات</button>
+      </form>
+      <div id="result"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const taskId = urlParams.get('id');
+
+if (!taskId) {
+  alert('شناسه تکلیف مشخص نیست!');
+  window.location.href = 'teacher-manage-tasks.html';
+}
+
+// بارگذاری اطلاعات تکلیف
+async function loadTask() {
+  try {
+    const res = await fetch(`/api/teacher/get-task?taskId=${taskId}`);
+    const data = await res.json();
+    
+    if (data.success && data.task) {
+      const task = data.task;
+      
+      // پر کردن فرم
+      document.getElementById('taskId').value = task.id;
+      document.getElementById('title').value = task.title;
+      document.getElementById('subject').value = task.subject || '';
+      document.getElementById('grade').value = task.grade || '';
+      document.getElementById('className').value = task.class_name || '';
+      document.getElementById('description').value = task.description || '';
+      document.getElementById('deadline').value = task.deadline || '';
+      document.getElementById('answerType').value = task.answer_type || 'text';
+      document.getElementById('maxScore').value = task.max_score || 20;
+      document.getElementById('isActive').value = task.is_active || 1;
+      
+      // نمایش سوالات (اگر وجود دارن)
+      if (task.description && task.description.includes('task-questions-container')) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = task.description;
+        const questionsContainer = tempDiv.querySelector('.task-questions-container');
+        if (questionsContainer) {
+          document.getElementById('questionsContainer').innerHTML = `
+            <div class="task-questions-container">
+              <h4 style="margin:0 0 12px;color:var(--primary);font-size:14px">📋 سوالات این تکلیف:</h4>
+              ${questionsContainer.innerHTML}
+            </div>
+          `;
+        }
+      }
+      
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('editFormContainer').style.display = 'block';
+    } else {
+      alert('تکلیف یافت نشد!');
+      window.location.href = 'teacher-manage-tasks.html';
+    }
+  } catch (err) {
+    document.getElementById('loading').innerHTML = '<p style="color:var(--danger)">خطا در بارگذاری اطلاعات</p>';
+    console.error('Error loading task:', err);
+  }
+}
+
+// ارسال فرم
+document.getElementById('editTaskForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const resDiv = document.getElementById('result');
+  
+  btn.disabled = true;
+  btn.textContent = 'در حال ذخیره...';
+  resDiv.innerHTML = '';
+  
+  try {
+    const res = await fetch('/api/teacher/update-task', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        taskId: parseInt(document.getElementById('taskId').value),
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        subject: document.getElementById('subject').value,
+        grade: document.getElementById('grade').value,
+        className: document.getElementById('className').value,
+        deadline: document.getElementById('deadline').value || null,
+        answerType: document.getElementById('answerType').value,
+        maxScore: parseInt(document.getElementById('maxScore').value),
+        isActive: parseInt(document.getElementById('isActive').value)
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      resDiv.className = 'result success';
+      resDiv.textContent = '✅ تغییرات با موفقیت ذخیره شد!';
+      setTimeout(() => {
+        window.location.href = 'teacher-manage-tasks.html';
+      }, 1500);
+    } else {
+      resDiv.className = 'result error';
+      resDiv.textContent = '❌ ' + (data.message || 'خطا در ذخیره تغییرات');
+    }
+  } catch (err) {
+    resDiv.className = 'result error';
+    resDiv.textContent = ' خطا: ' + err.message;
+  }
+  
+  btn.disabled = false;
+  btn.textContent = 'ذخیره تغییرات';
+};
+
+// بارگذاری هنگام ورود به صفحه
+loadTask();
+</script>
+</body>
+</html>
