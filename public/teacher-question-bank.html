@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-  /* تمام استایل‌های قبلی بدون تغییر باقی می‌مانند */
+  /* تمام استایل‌های قبلی بدون تغییر */
   .screen { padding: 24px; min-height: 100%; }
   .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
   .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -32,7 +32,7 @@
   .file-name { font-size: 14px; color: var(--muted); margin-top: 8px; }
   .submit-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--primary), #8B7CF6); color: #fff; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
   .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
-  .result { margin-top: 16px; padding: 12px; border-radius: 10px; font-size: 14px; }
+  .result { margin-top: 16px; padding: 12px; border-radius: 10px; font-size: 14px; white-space: pre-wrap; }
   .result.success { background: var(--success-soft); color: #15803D; }
   .result.error { background: var(--danger-soft); color: var(--danger); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -122,7 +122,7 @@
             <textarea id="html" rows="6" placeholder="<p>سوال خود را اینجا بنویسید...</p>" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;box-sizing:border-box;"></textarea>
           </div>
         </div>
-        <!-- بخش fileMode با کد جدید جایگزین شد -->
+        <!-- بخش fileMode با کد جدید -->
         <div id="fileMode" style="display:none">
           <div class="field">
             <div class="file-upload-area" onclick="document.getElementById('htmlFile').click()" style="cursor:pointer;">
@@ -241,7 +241,7 @@
       return;
     }
     
-    // روش : الگوی "مرحله X" (برای فایل‌های تعاملی فارسی)
+    // روش : الگوی "مرحله X"
     const stageRegex = /مرحله\s*[۰-۹0-9]+/g;
     const stageMatches = [...html.matchAll(stageRegex)];
     
@@ -386,45 +386,112 @@
     displayQuestionsPreview();
   }
 
+  // ====== تابع onsubmit اصلاح‌شده ======
   document.getElementById('uploadForm').onsubmit = async function(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     const resDiv = document.getElementById('result');
-    btn.disabled = true; btn.textContent = 'در حال آپلود...'; resDiv.innerHTML = '';
+    btn.disabled = true; 
+    btn.textContent = 'در حال آپلود...'; 
+    resDiv.innerHTML = '';
     
     let questionsToUpload = [];
     if (currentMode === 'manual') {
       const htmlContent = document.getElementById('html').value;
-      if (!htmlContent) { resDiv.className = 'result error'; resDiv.textContent = '❌ لطفاً محتوای سوال را وارد کنید'; btn.disabled = false; btn.textContent = 'آپلود در بانک'; return; }
-      questionsToUpload = [{ title: document.getElementById('title').value, subject: document.getElementById('subject').value || null, grade: document.getElementById('grade').value || null, html: htmlContent }];
+      if (!htmlContent) { 
+        resDiv.className = 'result error'; 
+        resDiv.textContent = '❌ لطفاً محتوای سوال را وارد کنید'; 
+        btn.disabled = false; 
+        btn.textContent = 'آپلود در بانک'; 
+        return; 
+      }
+      questionsToUpload = [{ 
+        title: document.getElementById('title').value, 
+        subject: document.getElementById('subject').value || null, 
+        grade: document.getElementById('grade').value || null, 
+        html: htmlContent 
+      }];
     } else {
-      if (parsedQuestions.length === 0) { resDiv.className = 'result error'; resDiv.textContent = '❌ لطفاً ابتدا فایل HTML را انتخاب کنید'; btn.disabled = false; btn.textContent = 'آپلود در بانک'; return; }
+      if (parsedQuestions.length === 0) { 
+        resDiv.className = 'result error'; 
+        resDiv.textContent = '❌ لطفاً ابتدا فایل HTML را انتخاب کنید'; 
+        btn.disabled = false; 
+        btn.textContent = 'آپلود در بانک'; 
+        return; 
+      }
       const baseTitle = document.getElementById('title').value;
       const subject = document.getElementById('subject').value || null;
       const grade = document.getElementById('grade').value || null;
       selectedQuestions.forEach(index => {
         const q = parsedQuestions[index];
-        questionsToUpload.push({ title: `${baseTitle} - ${q.title}`, subject: subject, grade: grade, html: q.html });
+        questionsToUpload.push({ 
+          title: `${baseTitle} - ${q.title}`, 
+          subject: subject, 
+          grade: grade, 
+          html: q.html 
+        });
       });
     }
     
     try {
-      let successCount = 0, errorCount = 0;
-      for (const q of questionsToUpload) {
-        const res = await fetch('/api/teacher/upload-question', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ teacherId: teacherId, title: q.title, subject: q.subject, grade: q.grade, questionHtml: q.html, questionType: 'html' }) });
-        const data = await res.json();
-        if (data.success) successCount++; else errorCount++;
+      let successCount = 0;
+      let errorMessages = [];
+      
+      for (let i = 0; i < questionsToUpload.length; i++) {
+        const q = questionsToUpload[i];
+        
+        try {
+          const res = await fetch('/api/teacher/upload-question', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ 
+              teacherId: teacherId, 
+              title: q.title, 
+              subject: q.subject, 
+              grade: q.grade, 
+              questionHtml: q.html, 
+              questionType: 'html' 
+            }) 
+          });
+          
+          const data = await res.json();
+          
+          if (data.success) {
+            successCount++;
+          } else {
+            errorMessages.push(`سوال ${i + 1}: ${data.message || 'خطای ناشناخته'}`);
+          }
+        } catch (fetchError) {
+          errorMessages.push(`سوال ${i + 1}: ${fetchError.message}`);
+        }
       }
+      
       if (successCount > 0) {
         resDiv.className = 'result success';
         resDiv.textContent = `✅ ${successCount} سوال با موفقیت به بانک اضافه شد`;
-        this.reset(); parsedQuestions = []; selectedQuestions.clear();
+        
+        if (errorMessages.length > 0) {
+          resDiv.textContent += `\n⚠️ ${errorMessages.length} خطا: ${errorMessages.join(', ')}`;
+        }
+        
+        this.reset(); 
+        parsedQuestions = []; 
+        selectedQuestions.clear();
         document.getElementById('questionsPreview').style.display = 'none';
         document.getElementById('fileName').textContent = 'فرمت‌های مجاز: .html, .htm';
-      } else { resDiv.className = 'result error'; resDiv.textContent = '❌ خطا در آپلود سوالات'; }
-    } catch (err) { resDiv.className = 'result error'; resDiv.textContent = '❌ خطا: ' + err.message; }
-    btn.disabled = false; btn.textContent = 'آپلود در بانک';
+      } else {
+        resDiv.className = 'result error';
+        resDiv.textContent = '❌ خطا در آپلود سوالات\n' + errorMessages.join('\n');
+      }
+    } catch (err) { 
+      resDiv.className = 'result error'; 
+      resDiv.textContent = '❌ خطا: ' + err.message; 
+    }
+    
+    btn.disabled = false; 
+    btn.textContent = 'آپلود در بانک';
   };
+  // ====== پایان تابع onsubmit ======
 
   function toggleSelectMode() {
     selectMode = !selectMode;
@@ -504,4 +571,4 @@
   }
 </script>
 </body>
-  </html>
+                                                                                                                                                                                                                               </html>
