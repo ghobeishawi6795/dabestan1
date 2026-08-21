@@ -45,6 +45,7 @@
   .question-number { font-size: 13px; color: var(--primary); font-weight: 700; margin-bottom: 8px; }
   .question-text { font-size: 14px; line-height: 1.6; max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: white; }
   .question-text * { max-width: 100% !important; box-sizing: border-box !important; }
+  .question-text script { display: none !important; }
   .select-all-btn { padding: 10px 20px; border: 2px solid var(--primary); border-radius: 10px; background: white; color: var(--primary); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
   .selected-count { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
   
@@ -73,6 +74,7 @@
   .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
   .preview-box { background: white; border: 2px solid var(--border); border-radius: 12px; padding: 16px; }
   .preview-box * { max-width: 100% !important; box-sizing: border-box !important; }
+  .preview-box script { display: none !important; }
 </style>
 </head>
 <body>
@@ -125,7 +127,7 @@
         <div id="fileMode" style="display:none">
           <div class="field">
             <label for="htmlFile" class="file-upload-area" style="cursor:pointer;display:block;">
-              <div class="file-icon"></div>
+              <div class="file-icon">📄</div>
               <div>برای انتخاب فایل HTML کلیک کنید</div>
               <div class="file-name" id="fileName">فرمت‌های مجاز: .html, .htm</div>
             </label>
@@ -148,7 +150,7 @@
       <div class="list-toolbar">
         <button class="toolbar-btn" id="selectModeBtn" onclick="toggleSelectMode()">✏️ حالت انتخاب</button>
         <button class="toolbar-btn" id="selectAllBtn" onclick="toggleSelectAllList()" style="display:none">انتخاب همه</button>
-        <button class="toolbar-btn success" id="createTaskBtn" onclick="createTaskFromSelected()" style="display:none"> ایجاد تکلیف</button>
+        <button class="toolbar-btn success" id="createTaskBtn" onclick="createTaskFromSelected()" style="display:none">📝 ایجاد تکلیف</button>
       </div>
       <div id="selectionSummary" class="selection-summary" style="display:none">
         <span class="count" id="selectionCount">۰ سوال انتخاب شده</span>
@@ -216,16 +218,32 @@ function handleFileSelect(input) {
   }
 }
 
+// حذف تمام script ها از HTML
+function removeScripts(html) {
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  temp.querySelectorAll('script, noscript, style').forEach(el => el.remove());
+  return temp.innerHTML;
+}
+
 function parseQuestions(htmlContent) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, 'text/html');
   parsedQuestions = [];
   selectedQuestions.clear();
   
+  // حذف تمام script ها از کل سند
+  doc.querySelectorAll('script, noscript, style').forEach(s => s.remove());
+  
   const standardQuestions = doc.querySelectorAll('.question');
   if (standardQuestions.length > 1) {
     standardQuestions.forEach((elem, index) => {
-      parsedQuestions.push({ id: index + 1, title: elem.querySelector('.question-title')?.textContent || `سوال ${index + 1}`, content: elem.innerHTML, html: elem.outerHTML });
+      // حذف script از هر سوال
+      elem.querySelectorAll('script, noscript, style').forEach(s => s.remove());
+      const title = elem.querySelector('.question-title')?.textContent || `سوال ${index + 1}`;
+      const content = elem.innerHTML;
+      const html = elem.outerHTML;
+      parsedQuestions.push({ id: index + 1, title: title, content: content, html: html });
       selectedQuestions.add(index);
     });
     displayQuestionsPreview();
@@ -241,12 +259,13 @@ function parseQuestions(htmlContent) {
     matches.forEach((match, i) => {
       if (i > 0) {
         const htmlChunk = body.substring(lastIndex, match.index);
-        parsedQuestions.push({ id: i, title: match[2].trim(), content: htmlChunk, html: htmlChunk });
+        const cleanChunk = removeScripts(htmlChunk);
+        parsedQuestions.push({ id: i, title: match[2].trim(), content: cleanChunk, html: cleanChunk });
         selectedQuestions.add(i - 1);
       }
       lastIndex = match.index;
     });
-    const lastChunk = body.substring(lastIndex);
+    const lastChunk = removeScripts(body.substring(lastIndex));
     parsedQuestions.push({ id: matches.length, title: matches[matches.length - 1][2].trim(), content: lastChunk, html: lastChunk });
     selectedQuestions.add(matches.length - 1);
     displayQuestionsPreview();
@@ -257,7 +276,8 @@ function parseQuestions(htmlContent) {
   if (hrChunks.length > 1) {
     hrChunks.forEach((chunk, index) => {
       if (chunk.trim()) {
-        parsedQuestions.push({ id: index + 1, title: `سوال ${index + 1}`, content: chunk, html: chunk });
+        const cleanChunk = removeScripts(chunk);
+        parsedQuestions.push({ id: index + 1, title: `سوال ${index + 1}`, content: cleanChunk, html: cleanChunk });
         selectedQuestions.add(index);
       }
     });
@@ -265,7 +285,8 @@ function parseQuestions(htmlContent) {
     return;
   }
 
-  parsedQuestions.push({ id: 1, title: 'سوال', content: body, html: body });
+  const cleanBody = removeScripts(body);
+  parsedQuestions.push({ id: 1, title: 'سوال', content: cleanBody, html: cleanBody });
   selectedQuestions.add(0);
   displayQuestionsPreview();
 }
@@ -333,7 +354,7 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
       document.getElementById('questionsPreview').style.display = 'none';
       document.getElementById('fileName').textContent = 'فرمت‌های مجاز: .html, .htm';
     } else { resDiv.className = 'result error'; resDiv.textContent = '❌ خطا در آپلود سوالات'; }
-  } catch (err) { resDiv.className = 'result error'; resDiv.textContent = '❌ خطا در اتصال به سرور'; }
+  } catch (err) { resDiv.className = 'result error'; resDiv.textContent = '❌ خطا: ' + err.message; }
   btn.disabled = false; btn.textContent = 'آپلود در بانک';
 };
 
@@ -415,4 +436,4 @@ function createTaskFromSelected() {
 }
 </script>
 </body>
-                                                                                                                                                                                                                                           </html>
+              </html>
