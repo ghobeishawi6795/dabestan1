@@ -7,18 +7,19 @@ function parseQuestions(htmlContent) {
   // حذف تمام script و style ها
   doc.querySelectorAll('script, noscript, style').forEach(s => s.remove());
   
+  const body = doc.body;
+  const html = body.innerHTML;
+  
   // روش ۱: جستجوی div با کلاس question
   let standardQuestions = doc.querySelectorAll('.question');
-  
   if (standardQuestions.length > 1) {
     standardQuestions.forEach((elem, index) => {
       elem.querySelectorAll('script, noscript, style').forEach(s => s.remove());
       const title = elem.querySelector('.question-title')?.textContent || `سوال ${index + 1}`;
-      const content = elem.innerHTML;
       parsedQuestions.push({ 
         id: index + 1, 
         title: title.trim(), 
-        content: content, 
+        content: elem.innerHTML, 
         html: elem.outerHTML 
       });
       selectedQuestions.add(index);
@@ -27,51 +28,61 @@ function parseQuestions(htmlContent) {
     return;
   }
   
-  // روش ۲: جستجوی مراحل (برای فایل‌های تعاملی)
-  const body = doc.body;
-  const allElements = body.querySelectorAll('*');
-  const stageElements = [];
+  // روش ۲: تقسیم بر اساس "مرحله X" (برای فایل‌های تعاملی فارسی)
+  // الگو: "مرحله ۱" یا "مرحله 1" با emoji بعدش
+  const stagePattern = /(مرحله\s*\d+\s*[^\n]*)/gi;
+  const stageMatches = [...html.matchAll(stagePattern)];
   
-  allElements.forEach(elem => {
-    const text = elem.textContent || '';
-    if (text.includes('مرحله') || text.match(/مرحله\s*\d+/)) {
-      const parent = elem.closest('div, section, article') || elem;
-      if (!stageElements.includes(parent)) {
-        stageElements.push(parent);
-      }
-    }
-  });
-  
-  if (stageElements.length > 1) {
-    stageElements.forEach((elem, index) => {
-      elem.querySelectorAll('script, noscript, style').forEach(s => s.remove());
-      const text = elem.textContent || '';
-      const match = text.match(/مرحله\s*(\d+)/);
-      const title = match ? `مرحله ${match[1]}` : `مرحله ${index + 1}`;
-      const content = elem.innerHTML;
+  if (stageMatches.length > 1) {
+    let lastIndex = 0;
+    stageMatches.forEach((match, i) => {
+      const startIndex = match.index;
+      const title = match[1].trim();
       
-      parsedQuestions.push({ 
-        id: index + 1, 
-        title: title, 
-        content: content, 
-        html: elem.outerHTML 
-      });
-      selectedQuestions.add(index);
+      if (i > 0) {
+        // محتوای بین آخرین مرحله و این مرحله
+        const content = html.substring(lastIndex, startIndex);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content;
+        
+        parsedQuestions.push({ 
+          id: i, 
+          title: title, 
+          content: tempDiv.innerHTML, 
+          html: tempDiv.outerHTML 
+        });
+        selectedQuestions.add(i - 1);
+      }
+      
+      lastIndex = startIndex;
     });
+    
+    // آخرین مرحله
+    const lastContent = html.substring(lastIndex);
+    const lastTempDiv = document.createElement('div');
+    lastTempDiv.innerHTML = lastContent;
+    
+    parsedQuestions.push({ 
+      id: stageMatches.length, 
+      title: stageMatches[stageMatches.length - 1][1].trim(), 
+      content: lastTempDiv.innerHTML, 
+      html: lastTempDiv.outerHTML 
+    });
+    selectedQuestions.add(stageMatches.length - 1);
+    
     displayQuestionsPreview();
     return;
   }
   
   // روش ۳: تقسیم بر اساس emoji‌های خاص
-  const html = body.innerHTML;
-  const emojiPattern = /(🎯|🟢||🧠|🧱||💰|🔎||🚀|🏆)/g;
-  const sections = html.split(emojiPattern);
+  const emojiPattern = /(|🟢|🔀||🧱|📍||🔎|🔐||🏆)/g;
+  const emojiSections = html.split(emojiPattern);
   
-  if (sections.length > 10) {
-    for (let i = 1; i < sections.length; i += 2) {
-      if (sections[i] && sections[i + 1]) {
-        const emoji = sections[i];
-        const content = sections[i + 1];
+  if (emojiSections.length > 10) {
+    for (let i = 1; i < emojiSections.length; i += 2) {
+      if (emojiSections[i] && emojiSections[i + 1]) {
+        const emoji = emojiSections[i];
+        const content = emojiSections[i + 1];
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = `<span>${emoji}</span>${content}`;
         
@@ -95,27 +106,24 @@ function parseQuestions(htmlContent) {
     }
   }
   
-  // روش ۴: تقسیم بر اساس headingها (h1-h6) - اصلاح شده
+  // روش ۴: تقسیم بر اساس headingها (h1-h6)
   const headings = body.querySelectorAll('h1, h2, h3, h4, h5, h6');
   if (headings.length > 1) {
     headings.forEach((heading, index) => {
       let content = '';
       let sibling = heading.nextElementSibling;
-      
-      // جمع‌آوری تمام sibling ها تا heading بعدی
       while (sibling && !sibling.matches('h1, h2, h3, h4, h5, h6')) {
         content += sibling.outerHTML;
         sibling = sibling.nextElementSibling;
       }
       
-      // ساخت یک div کامل با heading و content
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = heading.outerHTML + content;
       
       parsedQuestions.push({ 
         id: index + 1, 
         title: heading.textContent.trim(), 
-        content: tempDiv.innerHTML,  // شامل heading + تمام محتوا
+        content: tempDiv.innerHTML, 
         html: tempDiv.outerHTML 
       });
       selectedQuestions.add(index);
@@ -147,7 +155,7 @@ function parseQuestions(htmlContent) {
     return;
   }
   
-  // روش ۶: کل محتوا یک سوال
+  // روش : کل محتوا یک سوال
   parsedQuestions.push({ 
     id: 1, 
     title: 'سوال', 
