@@ -33,17 +33,15 @@
   .result { margin-top: 16px; padding: 12px; border-radius: 10px; font-size: 14px; white-space: pre-wrap; }
   .result.success { background: var(--success-soft); color: #15803D; }
   .result.error { background: var(--danger-soft); color: var(--danger); }
-  .progress-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; margin-top: 12px; overflow: hidden; display: none; }
-  .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .preview-container { max-height: 500px; overflow-y: auto; border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 16px; background: var(--bg); }
-  .question-preview { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; position: relative; }
+  .question-preview { background: var(--card); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; position: relative; cursor: pointer; }
   .question-preview.selected { border-color: var(--primary); background: var(--primary-soft); }
-  .question-checkbox-wrap { position: absolute; top: 14px; right: 14px; }
-  .question-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary); }
-  .question-content { flex: 1; margin-right: 36px; }
+  .question-checkbox-wrap { position: absolute; top: 14px; right: 14px; z-index: 10; }
+  .question-checkbox { width: 24px; height: 24px; cursor: pointer; accent-color: var(--primary); }
+  .question-content { flex: 1; margin-right: 40px; }
   .question-number { font-size: 13px; color: var(--primary); font-weight: 700; margin-bottom: 8px; }
-  .question-text { font-size: 14px; line-height: 1.6; max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: white; }
+  .question-text { font-size: 14px; line-height: 1.6; max-height: 150px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: white; }
   .question-text script, .question-text style { display: none !important; }
   .select-all-btn { padding: 10px 20px; border: 2px solid var(--primary); border-radius: 10px; background: white; color: var(--primary); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
   .selected-count { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
@@ -99,7 +97,7 @@
         <div id="fileMode" style="display:none">
           <div class="field">
             <div class="file-upload-area" onclick="document.getElementById('htmlFile').click()">
-              <div class="file-icon"></div>
+              <div class="file-icon">📄</div>
               <div>برای انتخاب فایل HTML کلیک کنید</div>
               <div class="file-name" id="fileName">فرمت‌های مجاز: .html, .htm</div>
             </div>
@@ -107,14 +105,13 @@
           </div>
           <div id="questionsPreview" style="display:none">
             <h3 style="margin:20px 0 12px;font-size:16px;">پیش‌نمایش سوالات</h3>
-            <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">سوالاتی که می‌خواهید به بانک اضافه شوند را تیک بزنید:</p>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">روی هر سوال کلیک کنید یا تیک بزنید:</p>
             <button type="button" class="select-all-btn" onclick="toggleSelectAll()">انتخاب همه</button>
             <div class="selected-count" id="selectedCount">۰ سوال انتخاب شده</div>
             <div class="preview-container" id="previewContainer"></div>
           </div>
         </div>
         <button type="submit" class="submit-btn" id="submitBtn">آپلود در بانک</button>
-        <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
       </form>
       <div id="result"></div>
     </div>
@@ -155,7 +152,10 @@ function handleFileSelect(input) {
   if (file) {
     document.getElementById('fileName').textContent = '✅ فایل انتخاب شد: ' + file.name;
     const reader = new FileReader();
-    reader.onload = function(e) { parseQuestions(e.target.result); };
+    reader.onload = function(e) { 
+      console.log('File loaded, length:', e.target.result.length);
+      parseQuestions(e.target.result); 
+    };
     reader.readAsText(file, 'UTF-8');
   }
 }
@@ -166,10 +166,10 @@ function parseQuestions(htmlContent) {
   parsedQuestions = [];
   selectedQuestions.clear();
   
+  // حذف script و style
   doc.querySelectorAll('script, noscript, style').forEach(s => s.remove());
   
   const body = doc.body;
-  const html = body.innerHTML;
   
   // روش 1: div با کلاس question
   let standardQuestions = doc.querySelectorAll('.question');
@@ -184,9 +184,29 @@ function parseQuestions(htmlContent) {
     return;
   }
   
-  // روش 2: الگوی "مرحله X"
-  const stageRegex = /مرحله\s*[۰-۹0-9]+/g;
-  const stageMatches = [...html.matchAll(stageRegex)];
+  // روش 2: الگوی "مرحله X" - چند الگوی مختلف
+  const html = body.innerHTML;
+  
+  // الگوی 1: مرحله ۱، مرحله ۲ (با اعداد فارسی)
+  let stageRegex = /مرحله\s*[-۹۱۲۳۴۵۶۷۸۹0-9]+/g;
+  let stageMatches = [...html.matchAll(stageRegex)];
+  
+  // الگوی 2: اگر الگوی 1 کار نکرد، emoji + مرحله
+  if (stageMatches.length <= 1) {
+    stageRegex = /(🎯||🔀|🧠||📍|💰||🔐|🚀|)\s*مرحله\s*\d+/g;
+    stageMatches = [...html.matchAll(stageRegex)];
+  }
+  
+  // الگوی 3: فقط emoji
+  if (stageMatches.length <= 1) {
+    const emojiPattern = /(🎯|🟢|🔀|🧠|🧱|📍|💰|🔎||🚀|🏆)/g;
+    const emojiMatches = [...html.matchAll(emojiPattern)];
+    if (emojiMatches.length > 1) {
+      stageMatches = emojiMatches;
+    }
+  }
+  
+  console.log('Stage matches found:', stageMatches.length);
   
   if (stageMatches.length > 1) {
     stageMatches.forEach((match, i) => {
@@ -210,7 +230,30 @@ function parseQuestions(htmlContent) {
     return;
   }
   
-  // روش 3: کل محتوا یک سوال
+  // روش 3: تقسیم بر اساس خطوط خالی یا hr
+  const hrSections = html.split(/<hr\s*\/?>/gi);
+  if (hrSections.length > 1) {
+    hrSections.forEach((chunk, index) => {
+      if (chunk.trim()) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = chunk;
+        const text = tempDiv.textContent || '';
+        const title = text.split('\n')[0]?.trim() || `بخش ${index + 1}`;
+        
+        parsedQuestions.push({ 
+          id: index + 1, 
+          title: title.substring(0, 50), 
+          content: chunk, 
+          html: chunk 
+        });
+        selectedQuestions.add(index);
+      }
+    });
+    displayQuestionsPreview();
+    return;
+  }
+  
+  // روش 4: کل محتوا یک سوال
   parsedQuestions.push({ 
     id: 1, 
     title: 'سوال', 
@@ -224,8 +267,10 @@ function parseQuestions(htmlContent) {
 function displayQuestionsPreview() {
   const container = document.getElementById('previewContainer');
   container.innerHTML = parsedQuestions.map((q, index) => `
-    <div class="question-preview ${selectedQuestions.has(index) ? 'selected' : ''}">
-      <div class="question-checkbox-wrap"><input type="checkbox" class="question-checkbox" ${selectedQuestions.has(index) ? 'checked' : ''} onchange="toggleQuestion(${index})"></div>
+    <div class="question-preview ${selectedQuestions.has(index) ? 'selected' : ''}" onclick="toggleQuestion(${index})">
+      <div class="question-checkbox-wrap">
+        <input type="checkbox" class="question-checkbox" ${selectedQuestions.has(index) ? 'checked' : ''} onchange="event.stopPropagation(); toggleQuestion(${index})">
+      </div>
       <div class="question-content">
         <div class="question-number">${q.title}</div>
         <div class="question-text">${q.content}</div>
@@ -252,14 +297,10 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
   e.preventDefault();
   const btn = document.getElementById('submitBtn');
   const resDiv = document.getElementById('result');
-  const progressBar = document.getElementById('progressBar');
-  const progressFill = document.getElementById('progressFill');
   
   btn.disabled = true; 
   btn.textContent = 'در حال آپلود...'; 
   resDiv.innerHTML = '';
-  progressBar.style.display = 'block';
-  progressFill.style.width = '0%';
   
   let questionsToUpload = [];
   if (currentMode === 'manual') {
@@ -269,7 +310,6 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
       resDiv.textContent = '❌ لطفاً محتوای سوال را وارد کنید'; 
       btn.disabled = false; 
       btn.textContent = 'آپلود در بانک'; 
-      progressBar.style.display = 'none';
       return; 
     }
     questionsToUpload = [{ 
@@ -284,7 +324,6 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
       resDiv.textContent = '❌ لطفاً ابتدا فایل HTML را انتخاب کنید'; 
       btn.disabled = false; 
       btn.textContent = 'آپلود در بانک'; 
-      progressBar.style.display = 'none';
       return; 
     }
     const baseTitle = document.getElementById('title').value;
@@ -324,7 +363,7 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
       document.getElementById('fileName').textContent = 'فرمت‌های مجاز: .html, .htm';
     } else {
       resDiv.className = 'result error';
-      resDiv.textContent = ' ' + (data.message || 'خطا در آپلود');
+      resDiv.textContent = '❌ ' + (data.message || 'خطا در آپلود');
     }
   } catch (err) { 
     resDiv.className = 'result error'; 
@@ -333,8 +372,7 @@ document.getElementById('uploadForm').onsubmit = async function(e) {
   
   btn.disabled = false; 
   btn.textContent = 'آپلود در بانک';
-  setTimeout(() => { progressBar.style.display = 'none'; }, 1000);
 };
 </script>
 </body>
-            </html>
+  </html>
