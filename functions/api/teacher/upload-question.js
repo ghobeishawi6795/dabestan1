@@ -19,23 +19,31 @@ export async function onRequest(context) {
       return jsonResponse({ success: false, message: 'عنوان و محتوای سوال الزامی است' }, 400);
     }
 
+    // گرفتن school_id از جدول users
+    const userRecord = await env.DB.prepare(`
+      SELECT school_id FROM users WHERE id = ?
+    `).bind(teacher.id).first();
+
+    if (!userRecord) {
+      return jsonResponse({ success: false, message: 'کاربر یافت نشد' }, 404);
+    }
+
     await env.DB.prepare(`
       INSERT INTO question_bank
-      (school_id, teacher_id, title, subject, grade, question_html, question_type, is_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+      (teacher_id, title, subject, grade, html_content)
+      VALUES (?, ?, ?, ?, ?)
     `).bind(
-      teacher.schoolId,
       teacher.id,
       title,
       subject || null,
       grade || null,
-      questionHtml,
-      questionType || 'html'
+      questionHtml
     ).run();
 
     return jsonResponse({ success: true, message: 'سوال با موفقیت به بانک اضافه شد' });
 
   } catch (error) {
+    console.error('Upload question error:', error);
     return jsonResponse({ success: false, message: 'خطا در آپلود سوال: ' + error.message }, 500);
   }
 }
