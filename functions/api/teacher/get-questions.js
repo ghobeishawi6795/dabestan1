@@ -7,30 +7,34 @@ export async function onRequest(context) {
     return jsonResponse({ error: 'Method not allowed' }, 405);
   }
 
-  const auth = await requireAuth(context, ['teacher']);
+  const auth = await requireAuth(context, ['teacher', 'admin']);
   if (auth.error) return auth.error;
-  const teacher = auth.user;
+  const user = auth.user;
 
   try {
     const url = new URL(request.url);
     const subject = url.searchParams.get('subject');
     const grade = url.searchParams.get('grade');
 
-    // ساخت کوئری پویا
     let query = `
       SELECT id, teacher_id, title, subject, grade, html_content, created_at
       FROM question_bank
-      WHERE teacher_id = ?
     `;
-    const params = [teacher.id];
+    const params = [];
+
+    // اگر کاربر معلم است، فقط سوالات خودش را ببیند (برای امنیت)
+    if (user.role === 'teacher' && user.id) {
+      query += ` WHERE teacher_id = ?`;
+      params.push(user.id);
+    }
 
     if (subject && subject !== 'all') {
-      query += ` AND subject = ?`;
+      query += (params.length > 0) ? ` AND subject = ?` : ` WHERE subject = ?`;
       params.push(subject);
     }
 
     if (grade && grade !== 'all') {
-      query += ` AND grade = ?`;
+      query += (params.length > 0) ? ` AND grade = ?` : ` WHERE grade = ?`;
       params.push(grade);
     }
 
@@ -47,4 +51,4 @@ export async function onRequest(context) {
     console.error('Get questions error:', error);
     return jsonResponse({ success: false, message: 'خطا در دریافت سوالات: ' + error.message }, 500);
   }
-      }
+}
