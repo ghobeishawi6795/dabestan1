@@ -1,12 +1,12 @@
-name = "dabestan"
+name = "dabestan1"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = "public"
 
 # D1 Database
 [[d1_databases]]
   binding = "DB"
-  database_name = "dabestan2"
-  database_id = "36c8e057-4856-41c8-97c0-60f9cd6b9243"
+  database_name = "dabestan_db"
+  database_id = "96946536-e768-477f-b44a-7fe4a47e4cc1"
 
 # متغیر رمزنگاری توکن ورود - حتماً قبل از دیپلوی واقعی مقدارش رو با یک رشته‌ی تصادفی و طولانی عوض کن:
 # wrangler pages secret put AUTH_SECRET
