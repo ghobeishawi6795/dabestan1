@@ -13,37 +13,46 @@ export async function onRequest(context) {
 
   try {
     const body = await request.json();
-    const { title, subject, grade, questionHtml, questionType } = body;
+    
+    // پشتیبانی از هر دو حالت: تک سوال یا آرایه‌ای از سوالات
+    const questions = body.questions || [{
+      title: body.title,
+      subject: body.subject,
+      grade: body.grade,
+      html: body.questionHtml
+    }];
 
-    if (!title || !questionHtml) {
-      return jsonResponse({ success: false, message: 'عنوان و محتوای سوال الزامی است' }, 400);
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+      return jsonResponse({ success: false, message: 'لیست سوالات نامعتبر است' }, 400);
     }
 
-    // گرفتن school_id از جدول users
-    const userRecord = await env.DB.prepare(`
-      SELECT school_id FROM users WHERE id = ?
-    `).bind(teacher.id).first();
-
-    if (!userRecord) {
-      return jsonResponse({ success: false, message: 'کاربر یافت نشد' }, 404);
-    }
-
-    await env.DB.prepare(`
-      INSERT INTO question_bank
-      (teacher_id, title, subject, grade, html_content)
+    // آماده‌سازی دستور Insert
+    const stmt = env.DB.prepare(`
+      INSERT INTO question_bank (teacher_id, title, subject, grade, html_content)
       VALUES (?, ?, ?, ?, ?)
-    `).bind(
-      teacher.id,
-      title,
-      subject || null,
-      grade || null,
-      questionHtml
-    ).run();
+    `);
 
-    return jsonResponse({ success: true, message: 'سوال با موفقیت به بانک اضافه شد' });
+    // ساخت آرایه‌ای از دستورات برای اجرای دسته‌ای (Batch)
+    const batch = questions.map(q => 
+      stmt.bind(
+        teacher.id, 
+        q.title || 'بدون عنوان', 
+        q.subject || null, 
+        q.grade || null, 
+        q.html || ''
+      )
+    );
+
+    // اجرای دسته‌ای در دیتابیس (بسیار سریع‌تر از حلقه‌ی تکی)
+    await env.DB.batch(batch);
+
+    return jsonResponse({ 
+      success: true, 
+      message: `✅ ${questions.length} سوال با موفقیت و به صورت دسته‌ای به بانک اضافه شد` 
+    });
 
   } catch (error) {
-    console.error('Upload question error:', error);
-    return jsonResponse({ success: false, message: 'خطا در آپلود سوال: ' + error.message }, 500);
+    console.error('Batch upload error:', error);
+    return jsonResponse({ success: false, message: 'خطا در آپلود دسته‌ای: ' + error.message }, 500);
   }
-}
+                                }
