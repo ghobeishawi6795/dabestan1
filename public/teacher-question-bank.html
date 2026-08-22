@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-  /* تمام استایل‌های قبلی بدون تغییر باقی می‌مانند */
   .screen { padding: 24px; min-height: 100%; }
   .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
   .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -122,7 +121,6 @@
             <textarea id="html" rows="6" placeholder="<p>سوال خود را اینجا بنویسید...</p>" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;box-sizing:border-box;"></textarea>
           </div>
         </div>
-        <!-- بخش fileMode با کد جدید جایگزین شد -->
         <div id="fileMode" style="display:none">
           <div class="field">
             <div class="file-upload-area" onclick="document.getElementById('htmlFile').click()" style="cursor:pointer;">
@@ -229,7 +227,6 @@
     const body = doc.body;
     const html = body.innerHTML;
     
-    // روش : div با کلاس question
     let standardQuestions = doc.querySelectorAll('.question');
     if (standardQuestions.length > 1) {
       standardQuestions.forEach((elem, index) => {
@@ -242,7 +239,6 @@
       return;
     }
     
-    // روش : الگوی "مرحله X" (برای فایل‌های تعاملی فارسی)
     const stageRegex = /مرحله\s*[۰-۹0-9]+/g;
     const stageMatches = [...html.matchAll(stageRegex)];
     
@@ -252,24 +248,16 @@
         const endIndex = i < stageMatches.length - 1 ? stageMatches[i + 1].index : html.length;
         const title = match[0].trim();
         const content = html.substring(startIndex, endIndex);
-        
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = content;
-        
-        parsedQuestions.push({ 
-          id: i + 1, 
-          title: title, 
-          content: tempDiv.innerHTML, 
-          html: tempDiv.outerHTML 
-        });
+        parsedQuestions.push({ id: i + 1, title: title, content: tempDiv.innerHTML, html: tempDiv.outerHTML });
         selectedQuestions.add(i);
       });
       displayQuestionsPreview();
       return;
     }
     
-    // روش ۳: تقسیم بر اساس emoji
-    const emojiPattern = /(🎯||🔀|🧠||📍|💰|🔎|🔐|🚀|🏆)/g;
+    const emojiPattern = /(🎯|🔀|🧠|📍|💰|🔎|🔐|🚀|🏆)/g;
     const emojiSections = html.split(emojiPattern);
     
     if (emojiSections.length > 10) {
@@ -279,28 +267,16 @@
           const content = emojiSections[i + 1];
           const tempDiv = document.createElement('div');
           tempDiv.innerHTML = `<span>${emoji}</span>${content}`;
-          
           const text = tempDiv.textContent || '';
           const lines = text.split('\n').filter(line => line.trim());
           const title = lines[0]?.trim() || `بخش ${Math.floor(i / 2) + 1}`;
-          
-          parsedQuestions.push({ 
-            id: Math.floor(i / 2) + 1, 
-            title: title.substring(0, 50), 
-            content: tempDiv.innerHTML, 
-            html: tempDiv.outerHTML 
-          });
+          parsedQuestions.push({ id: Math.floor(i / 2) + 1, title: title.substring(0, 50), content: tempDiv.innerHTML, html: tempDiv.outerHTML });
           selectedQuestions.add(Math.floor(i / 2));
         }
       }
-      
-      if (parsedQuestions.length > 1) {
-        displayQuestionsPreview();
-        return;
-      }
+      if (parsedQuestions.length > 1) { displayQuestionsPreview(); return; }
     }
     
-    // روش ۴: تقسیم بر اساس headingها
     const headings = body.querySelectorAll('h1, h2, h3, h4, h5, h6');
     if (headings.length > 1) {
       headings.forEach((heading, index) => {
@@ -310,23 +286,15 @@
           content += sibling.outerHTML;
           sibling = sibling.nextElementSibling;
         }
-        
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = heading.outerHTML + content;
-        
-        parsedQuestions.push({ 
-          id: index + 1, 
-          title: heading.textContent.trim(), 
-          content: tempDiv.innerHTML, 
-          html: tempDiv.outerHTML 
-        });
+        parsedQuestions.push({ id: index + 1, title: heading.textContent.trim(), content: tempDiv.innerHTML, html: tempDiv.outerHTML });
         selectedQuestions.add(index);
       });
       displayQuestionsPreview();
       return;
     }
     
-    // روش ۵: تقسیم بر اساس hr
     const hrSections = html.split(/<hr\s*\/?>/gi);
     if (hrSections.length > 1) {
       hrSections.forEach((chunk, index) => {
@@ -335,13 +303,7 @@
           tempDiv.innerHTML = chunk;
           const text = tempDiv.textContent || '';
           const title = text.split('\n')[0]?.trim() || `بخش ${index + 1}`;
-          
-          parsedQuestions.push({ 
-            id: index + 1, 
-            title: title.substring(0, 50), 
-            content: chunk, 
-            html: chunk 
-          });
+          parsedQuestions.push({ id: index + 1, title: title.substring(0, 50), content: chunk, html: chunk });
           selectedQuestions.add(index);
         }
       });
@@ -349,13 +311,7 @@
       return;
     }
     
-    // روش ۶: کل محتوا یک سوال
-    parsedQuestions.push({ 
-      id: 1, 
-      title: 'سوال', 
-      content: html, 
-      html: html 
-    });
+    parsedQuestions.push({ id: 1, title: 'سوال', content: html, html: html });
     selectedQuestions.add(0);
     displayQuestionsPreview();
   }
@@ -391,7 +347,9 @@
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     const resDiv = document.getElementById('result');
-    btn.disabled = true; btn.textContent = 'در حال آپلود...'; resDiv.innerHTML = '';
+    btn.disabled = true; 
+    btn.textContent = 'در حال آماده‌سازی...'; 
+    resDiv.innerHTML = '';
     
     let questionsToUpload = [];
     if (currentMode === 'manual') {
@@ -410,52 +368,66 @@
     }
     
     try {
-      let successCount = 0, errorCount = 0;
+      let successCount = 0;
+      let errorCount = 0;
       const total = questionsToUpload.length;
-      const concurrency = 5;
-      let cursor = 0;
 
-      async function uploadOne(q) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000);
+      // ✅ آپلود ترتیبی (یکی‌یکی) برای جلوگیری از قفل شدن دیتابیس D1 (SQLite)
+      for (let i = 0; i < total; i++) {
+        const q = questionsToUpload[i];
+        btn.textContent = `در حال آپلود... (${i + 1} از ${total})`;
+        
         try {
           const res = await fetch('/api/teacher/upload-question', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ title: q.title, subject: q.subject, grade: q.grade, questionHtml: q.html, questionType: 'html' }),
-            signal: controller.signal
+            headers: { 
+              'Content-Type': 'application/json', 
+              'Authorization': 'Bearer ' + token 
+            },
+            body: JSON.stringify({ 
+              title: q.title, 
+              subject: q.subject, 
+              grade: q.grade, 
+              questionHtml: q.html, 
+              questionType: 'html' 
+            })
           });
+          
           const data = await res.json();
-          return !!data.success;
+          if (data.success) {
+            successCount++;
+          } else {
+            errorCount++;
+            console.error('API Error:', data.message);
+          }
         } catch (e) {
-          return false;
-        } finally {
-          clearTimeout(timeoutId);
+          errorCount++;
+          console.error('Network Error for question', i, e);
         }
       }
-
-      async function worker() {
-        while (cursor < total) {
-          const i = cursor++;
-          const ok = await uploadOne(questionsToUpload[i]);
-          if (ok) successCount++; else errorCount++;
-          btn.textContent = `در حال آپلود... (${successCount + errorCount} از ${total})`;
-        }
-      }
-
-      await Promise.all(Array.from({ length: Math.min(concurrency, total) }, worker));
 
       if (successCount > 0) {
         resDiv.className = 'result success';
         resDiv.textContent = errorCount > 0
           ? `✅ ${successCount} سوال اضافه شد، ${errorCount} مورد خطا داشت`
           : `✅ ${successCount} سوال با موفقیت به بانک اضافه شد`;
-        this.reset(); parsedQuestions = []; selectedQuestions.clear();
+        
+        this.reset(); 
+        parsedQuestions = []; 
+        selectedQuestions.clear();
         document.getElementById('questionsPreview').style.display = 'none';
         document.getElementById('fileName').textContent = 'فرمت‌های مجاز: .html, .htm';
-      } else { resDiv.className = 'result error'; resDiv.textContent = '❌ خطا در آپلود سوالات'; }
-    } catch (err) { resDiv.className = 'result error'; resDiv.textContent = '❌ خطا: ' + err.message; }
-    btn.disabled = false; btn.textContent = 'آپلود در بانک';
+      } else { 
+        resDiv.className = 'result error'; 
+        resDiv.textContent = '❌ خطا در آپلود سوالات'; 
+      }
+    } catch (err) { 
+      resDiv.className = 'result error'; 
+      resDiv.textContent = '❌ خطا: ' + err.message; 
+    }
+    
+    btn.disabled = false; 
+    btn.textContent = 'آپلود در بانک';
   };
 
   function toggleSelectMode() {
@@ -505,7 +477,7 @@
             ${selectMode ? `<input type="checkbox" class="question-item-checkbox" ${selectedListQuestions.has(q.id) ? 'checked' : ''} onchange="toggleListQuestion(${q.id})">` : ''}
             <div class="question-header"><h4 class="question-title">${q.title}</h4></div>
             <div class="question-meta">${q.subject || '-'} | پایه ${q.grade || '-'}</div>
-            <div><button class="btn-small btn-preview" onclick='showQuestionPreview(${JSON.stringify(q.title)}, ${JSON.stringify(q.question_html)})'>پیش‌نمایش</button></div>
+            <div><button class="btn-small btn-preview" onclick='showQuestionPreview(${JSON.stringify(q.title)}, ${JSON.stringify(q.html_content)})'>پیش‌نمایش</button></div>
           </div>
         `).join('');
       } else { list.innerHTML = '<div class="empty-state"><p>سوالی یافت نشد</p></div>'; }
@@ -536,4 +508,4 @@
   }
 </script>
 </body>
-  </html>
+</html>
