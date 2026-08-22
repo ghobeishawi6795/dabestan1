@@ -16,24 +16,35 @@ export async function onRequest(context) {
     const subject = url.searchParams.get('subject');
     const grade = url.searchParams.get('grade');
 
-    let query = `SELECT * FROM question_bank WHERE teacher_id = ? AND is_active = 1`;
+    // ساخت کوئری پویا
+    let query = `
+      SELECT id, teacher_id, title, subject, grade, html_content, created_at
+      FROM question_bank
+      WHERE teacher_id = ?
+    `;
     const params = [teacher.id];
 
     if (subject && subject !== 'all') {
-      query += ' AND subject = ?';
+      query += ` AND subject = ?`;
       params.push(subject);
     }
+
     if (grade && grade !== 'all') {
-      query += ' AND grade = ?';
+      query += ` AND grade = ?`;
       params.push(grade);
     }
-    query += ' ORDER BY created_at DESC';
+
+    query += ` ORDER BY created_at DESC`;
 
     const questions = await env.DB.prepare(query).bind(...params).all();
 
-    return jsonResponse({ success: true, questions: questions.results || [] });
+    return jsonResponse({ 
+      success: true, 
+      questions: questions.results || [] 
+    });
 
   } catch (error) {
+    console.error('Get questions error:', error);
     return jsonResponse({ success: false, message: 'خطا در دریافت سوالات: ' + error.message }, 500);
   }
-}
+      }
