@@ -1,7 +1,5 @@
 import { jsonResponse, requireAuth } from '../_lib/auth.js';
 
-const ALLOWED_RESPONSE_TYPES = ['text', 'image', 'voice', 'file'];
-
 export async function onRequest(context) {
   const { env, request } = context;
 
@@ -15,55 +13,54 @@ export async function onRequest(context) {
 
   try {
     const body = await request.json();
-    const { title, description, subject, grade, className, deadline, answerType, maxScore } = body;
+    const { title, subject, grade, classId, description, questionIds } = body;
 
     if (!title) {
       return jsonResponse({ success: false, message: 'عنوان تکلیف الزامی است' }, 400);
     }
 
-    let classId = null;
-    if (className && grade) {
-      const existingClass = await env.DB.prepare(`
-        SELECT id FROM classes WHERE school_id = ? AND name = ? AND grade = ?
-      `).bind(teacher.schoolId, className, grade).first();
+    let finalDescription = description || '';
 
-      if (existingClass) {
-        classId = existingClass.id;
-      } else {
-        const res = await env.DB.prepare(`
-          INSERT INTO classes (school_id, name, grade, teacher_id) VALUES (?, ?, ?, ?)
-        `).bind(teacher.schoolId, className, grade, teacher.id).run();
-        classId = res.meta?.last_row_id || null;
+    // اگر معلم سوالاتی را از بانک انتخاب کرده باشد، محتوای HTML آن‌ها را بگیر و به توضیحات اضافه کن
+    if (questionIds && Array.isArray(questionIds) && questionIds.length > 0) {
+      const placeholders = questionIds.map(() => '?').join(',');
+      const questions = await env.DB.prepare(`
+        SELECT title, html_content FROM question_bank 
+        WHERE id IN (${placeholders}) AND teacher_id = ?
+      `).bind(...questionIds, teacher.id).all();
+
+      if (questions.results && questions.results.length > 0) {
+        // ترکیب سوالات انتخاب‌شده به صورت HTML
+        const questionsHtml = questions.results.map((q, index) => `
+          <div class="task-question-block" style="margin-bottom: 24px; padding: 16px; background: #f9f9f9; border-radius: 12px; border: 1px solid #e0e0e0;">
+            <h4 style="margin-bottom: 12px; color: #6C5CE7;">سوال ${index + 1}: ${q.title}</h4>
+            <div class="interactive-content">
+              ${q.html_content}
+            </div>
+          </div>
+        `).join('');
+        
+        finalDescription = finalDescription ? `${finalDescription}<hr>${questionsHtml}` : questionsHtml;
       }
     }
 
-    const finalResponseType = ALLOWED_RESPONSE_TYPES.includes(answerType) ? answerType : 'text';
-    const finalMaxScore = maxScore || 20;
-
-    const result = await env.DB.prepare(`
-      INSERT INTO tasks
-      (school_id, teacher_id, class_id, title, description, subject, grade, deadline, response_type, max_score, is_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+    await env.DB.prepare(`
+      INSERT INTO tasks (teacher_id, class_id, grade, school_id, title, subject, description, response_type, max_score, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'html', 20, 1)
     `).bind(
-      teacher.schoolId,
       teacher.id,
-      classId,
-      title,
-      description || '',
-      subject || '',
+      classId || null,
       grade || null,
-      deadline || null,
-      finalResponseType,
-      finalMaxScore
+      teacher.schoolId || 1,
+      title,
+      subject || null,
+      finalDescription,
     ).run();
 
-    return jsonResponse({
-      success: true,
-      message: 'تکلیف با موفقیت ایجاد شد',
-      taskId: result.meta?.last_row_id || null
-    });
+    return jsonResponse({ success: true, message: 'تکلیف با موفقیت ایجاد و ارسال شد' });
 
   } catch (error) {
+    console.error('Create task error:', error);
     return jsonResponse({ success: false, message: 'خطا در ایجاد تکلیف: ' + error.message }, 500);
   }
-}
+  }
