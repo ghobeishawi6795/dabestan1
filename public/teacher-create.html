@@ -30,7 +30,6 @@
   .result.success { background: var(--success-soft); color: #15803D; }
   .result.error { background: var(--danger-soft); color: var(--danger); }
   
-  /* سوالات انتخاب‌شده */
   .selected-questions-box { background: var(--primary-soft); border: 2px solid var(--primary); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
   .selected-questions-box h3 { margin: 0 0 12px; font-size: 15px; color: var(--primary); }
   .selected-question-item { background: var(--card); border-radius: 10px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
@@ -41,9 +40,7 @@
   .sq-content { font-size: 13px; line-height: 1.6; max-height: 150px; overflow-y: auto; }
   .sq-content * { max-width: 100% !important; box-sizing: border-box !important; }
   .sq-content script, .sq-content style { display: none !important; }
-  .no-questions { text-align: center; color: var(--muted); font-size: 13px; padding: 12px; }
   
-  /* مودال بانک سوالات */
   .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
   .modal.active { display: flex; }
   .modal-content { background: var(--card); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
@@ -122,7 +119,6 @@
         
         <button type="button" class="bank-btn" onclick="openBankModal()">📚 انتخاب از بانک سوالات</button>
         
-        <!-- نمایش سوالات انتخاب‌شده -->
         <div id="selectedQuestionsBox" class="selected-questions-box" style="display:none">
           <h3>📋 سوالات انتخاب‌شده (<span id="sqCount">0</span>)</h3>
           <div id="selectedQuestionsList"></div>
@@ -156,7 +152,6 @@
   </div>
 </div>
 
-<!-- مودال بانک سوالات -->
 <div id="bankModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -209,7 +204,6 @@ let currentSelectedQuestions = [];
 let bankQuestions = [];
 let tempBankSelection = new Set();
 
-// بررسی سوالات انتخاب‌شده از localStorage هنگام لود صفحه
 window.addEventListener('load', function() {
   const saved = localStorage.getItem('selectedQuestionsForTask');
   if (saved) {
@@ -242,7 +236,7 @@ function displaySelectedQuestions() {
         <span class="sq-title">${q.title || 'سوال ' + (index + 1)}</span>
         <button type="button" class="sq-remove" onclick="removeQuestion(${index})">حذف</button>
       </div>
-      <div class="sq-content">${q.question_html || q.content || ''}</div>
+      <div class="sq-content">${q.html_content || q.content || ''}</div>
     </div>
   `).join('');
 }
@@ -252,7 +246,6 @@ function removeQuestion(index) {
   displaySelectedQuestions();
 }
 
-// مودال بانک سوالات
 function openBankModal() {
   document.getElementById('bankModal').classList.add('active');
   tempBankSelection = new Set(currentSelectedQuestions.map(q => q.id));
@@ -293,7 +286,7 @@ async function loadBankQuestions() {
         <input type="checkbox" class="bank-checkbox" ${tempBankSelection.has(q.id) ? 'checked' : ''} onclick="event.stopPropagation(); toggleBankQuestion(${q.id})">
         <div class="bank-q-content">
           <div class="bank-q-title">${q.title}</div>
-          <div class="bank-q-text">${q.question_html || ''}</div>
+          <div class="bank-q-text">${q.html_content || ''}</div>
           <div class="bank-q-meta">${q.subject || '-'} | پایه ${q.grade || '-'}</div>
         </div>
       </div>
@@ -318,7 +311,6 @@ function confirmBankSelection() {
   closeBankModal();
 }
 
-// ارسال فرم
 document.getElementById('createTaskForm').onsubmit = async function(e) {
   e.preventDefault();
   const btn = document.getElementById('submitBtn');
@@ -336,13 +328,12 @@ document.getElementById('createTaskForm').onsubmit = async function(e) {
   const deadline = document.getElementById('deadline').value;
   const answerType = document.getElementById('answerType').value;
   
-  // اضافه کردن سوالات به توضیحات
   let finalDescription = description;
   if (currentSelectedQuestions.length > 0) {
     const questionsHtml = currentSelectedQuestions.map((q, i) => 
-      `<div class="task-question"><strong>سوال ${i + 1}:</strong> ${q.question_html || q.content || q.title}</div>`
+      `<div class="task-question" style="margin-bottom:16px; padding:12px; background:#f9f9f9; border-radius:8px;"><strong>سوال ${i + 1}:</strong><br>${q.html_content || q.content || q.title}</div>`
     ).join('');
-    finalDescription = description + '\n\n<div class="task-questions-container">' + questionsHtml + '</div>';
+    finalDescription = (description ? description + '<br><br>' : '') + '<div class="task-questions-container">' + questionsHtml + '</div>';
   }
   
   try {
@@ -385,10 +376,9 @@ document.getElementById('createTaskForm').onsubmit = async function(e) {
   btn.textContent = 'ایجاد تکلیف';
 };
 
-// بستن مودال با کلیک بیرون
 document.getElementById('bankModal').addEventListener('click', function(e) {
   if (e.target === this) closeBankModal();
 });
 </script>
 </body>
-    </html>
+</html>
