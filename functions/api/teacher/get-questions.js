@@ -1,4 +1,4 @@
-import { jsonResponse, requireAuth } from '../_lib/auth.js';
+import { jsonResponse } from '../_lib/auth.js';
 
 export async function onRequest(context) {
   const { env, request } = context;
@@ -7,29 +7,20 @@ export async function onRequest(context) {
     return jsonResponse({ error: 'Method not allowed' }, 405);
   }
 
-  const auth = await requireAuth(context, ['teacher', 'admin']);
-  if (auth.error) return auth.error;
-  const user = auth.user;
-
   try {
     const url = new URL(request.url);
     const subject = url.searchParams.get('subject');
     const grade = url.searchParams.get('grade');
 
+    // این کوئری همه سوالات را می‌آورد (بدون بررسی لاگین برای تست)
     let query = `
       SELECT id, teacher_id, title, subject, grade, html_content, created_at
       FROM question_bank
     `;
     const params = [];
 
-    // اگر کاربر معلم است، فقط سوالات خودش را ببیند (برای امنیت)
-    if (user.role === 'teacher' && user.id) {
-      query += ` WHERE teacher_id = ?`;
-      params.push(user.id);
-    }
-
     if (subject && subject !== 'all') {
-      query += (params.length > 0) ? ` AND subject = ?` : ` WHERE subject = ?`;
+      query += ` WHERE subject = ?`;
       params.push(subject);
     }
 
@@ -44,11 +35,11 @@ export async function onRequest(context) {
 
     return jsonResponse({ 
       success: true, 
-      questions: questions.results || [] 
+      questions: questions.results || [],
+      debug_message: "این نسخه تست است و لاگین را چک نمی‌کند"
     });
 
   } catch (error) {
-    console.error('Get questions error:', error);
-    return jsonResponse({ success: false, message: 'خطا در دریافت سوالات: ' + error.message }, 500);
+    return jsonResponse({ success: false, message: 'خطا: ' + error.message }, 500);
   }
 }
