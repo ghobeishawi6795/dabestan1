@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مدیریت تکالیف - دبستان</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .screen { padding: 24px; min-height: 100%; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .back-btn:hover { border-color: var(--primary); transform: translateX(4px); }
+  .back-btn svg { width: 20px; height: 20px; color: var(--text-2); }
+  .page-title { flex: 1; }
+  .page-title h1 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
+  .page-title p { margin: 0; font-size: 12px; color: var(--muted); }
+  .card { background: var(--card); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+  .field select { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg); font-family: inherit; font-size: 14px; box-sizing: border-box; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  
+  .task-card { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; transition: all .2s; }
+  .task-card:hover { border-color: var(--primary); }
+  .task-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .task-title { font-size: 16px; font-weight: 700; margin: 0; flex: 1; }
+  .task-status { padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-right: 8px; }
+  .task-status.active { background: #DCFCE7; color: #15803D; }
+  .task-status.inactive { background: #fee2e2; color: #dc2626; }
+  .task-id { font-size: 11px; color: var(--muted); margin-right: 8px; }
+  .task-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .task-meta-item { display: flex; align-items: center; gap: 4px; }
+  .task-actions { display: flex; gap: 8px; }
+  .btn-action { flex: 1; padding: 10px; border: none; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .btn-view { background: var(--primary-soft); color: var(--primary); }
+  .btn-view:hover { background: var(--primary); color: white; }
+  .btn-edit { background: #FEF3C7; color: #B45309; }
+  .btn-edit:hover { background: #F59E0B; color: white; }
+  .btn-delete { background: var(--danger-soft); color: var(--danger); }
+  .btn-delete:hover { background: var(--danger); color: white; }
+  
+  .empty-state { text-align: center; padding: 40px 16px; color: var(--muted); }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 8px; }
+  .loading { text-align: center; padding: 40px; color: var(--muted); }
+  
+  /* مودال مشاهده جزئیات */
+  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal.active { display: flex; }
+  .modal-content { background: var(--card); border-radius: var(--radius-lg); padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .modal-header h3 { margin: 0; font-size: 18px; }
+  .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
+  .detail-row { margin-bottom: 12px; }
+  .detail-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .detail-value { font-size: 14px; font-weight: 600; }
+  .task-questions-container { margin-top: 16px; padding: 12px; background: var(--bg); border-radius: 10px; }
+  .task-question { padding: 12px; margin-bottom: 12px; background: var(--card); border-radius: 8px; border: 1px solid var(--border); }
+  .task-question:last-child { margin-bottom: 0; }
+  .task-question strong { color: var(--primary); display: block; margin-bottom: 8px; }
+  .task-question * { max-width: 100% !important; box-sizing: border-box !important; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="header">
+      <div class="back-btn" onclick="window.location.href='teacher-home.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      </div>
+      <div class="page-title">
+        <h1>📋 مدیریت تکالیف</h1>
+        <p>مشاهده و مدیریت تکالیف ارسال شده</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="field">
+          <label>فیلتر بر اساس درس</label>
+          <select id="filterSubject" onchange="loadTasks()">
+            <option value="all">همه دروس</option>
+            <option value="ریاضی">ریاضی</option>
+            <option value="فارسی">فارسی</option>
+            <option value="علوم">علوم</option>
+            <option value="مطالعات اجتماعی">مطالعات اجتماعی</option>
+            <option value="هدیه‌های آسمانی">هدیه‌های آسمانی</option>
+            <option value="قرآن">قرآن</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>فیلتر بر اساس پایه</label>
+          <select id="filterGrade" onchange="loadTasks()">
+            <option value="all">همه پایه‌ها</option>
+            <option value="1">اول ابتدایی</option>
+            <option value="2">دوم ابتدایی</option>
+            <option value="3">سوم ابتدایی</option>
+            <option value="4">چهارم ابتدایی</option>
+            <option value="5">پنجم ابتدایی</option>
+            <option value="6">ششم ابتدایی</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="tasksList">
+      <div class="loading">در حال بارگذاری...</div>
+    </div>
+  </div>
+</div>
+
+<!-- مودال مشاهده جزئیات -->
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="detailTitle">جزئیات تکلیف</h3>
+      <button class="close-btn" onclick="closeDetailModal()">&times;</button>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+const token = localStorage.getItem('token');
+const teacherId = user.id || 1;
+
+async function loadTasks() {
+  const list = document.getElementById('tasksList');
+  const subject = document.getElementById('filterSubject').value;
+  const grade = document.getElementById('filterGrade').value;
+  
+  list.innerHTML = '<div class="loading">در حال بارگذاری...</div>';
+  
+  try {
+    let url = `/api/teacher/get-tasks?teacherId=${teacherId}&limit=100`;
+    if (subject !== 'all') url += `&subject=${subject}`;
+    if (grade !== 'all') url += `&grade=${grade}`;
+    
+    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    
+    if (data.success && data.tasks.length > 0) {
+      list.innerHTML = data.tasks.map(task => {
+        const deadline = task.deadline ? new Date(task.deadline).toLocaleString('fa-IR') : 'ندارد';
+        return `
+          <div class="task-card">
+            <div class="task-header">
+              <span class="task-id">#${task.id}</span>
+              <h4 class="task-title">${task.title}</h4>
+              <span class="task-status ${task.is_active ? 'active' : 'inactive'}">${task.is_active ? 'فعال' : 'غیرفعال'}</span>
+            </div>
+            <div class="task-meta">
+              <div class="task-meta-item">📚 ${task.subject || '-'}</div>
+              <div class="task-meta-item">🎓 پایه ${task.grade || '-'}</div>
+              <div class="task-meta-item">🏫 ${task.class_name || task.class_id || '-'}</div>
+              <div class="task-meta-item">⏰ مهلت: ${deadline}</div>
+              <div class="task-meta-item">📝 نوع: ${task.answer_type || 'متنی'}</div>
+              <div class="task-meta-item">⭐ نمره: ${task.max_score || 20}</div>
+            </div>
+            <div class="task-actions">
+              <button class="btn-action btn-view" onclick="viewTask(${task.id})">مشاهده</button>
+              <button class="btn-action btn-edit" onclick="editTask(${task.id})">ویرایش</button>
+              <button class="btn-action btn-view" onclick="window.location.href='teacher-review.html?taskId=${task.id}'">بررسی پاسخ‌ها</button>
+              <button class="btn-action btn-delete" onclick="deleteTask(${task.id})">حذف</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="emoji">📭</div>
+          <p>تکلیفی یافت نشد</p>
+        </div>
+      `;
+    }
+  } catch (err) {
+    list.innerHTML = '<div class="empty-state"><p>خطا در بارگذاری تکالیف</p></div>';
+  }
+}
+
+function viewTask(id) {
+  // نمایش جزئیات تکلیف در مودال
+  fetch(`/api/teacher/get-task?taskId=${id}`, { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.task) {
+        const task = data.task;
+        const deadline = task.deadline ? new Date(task.deadline).toLocaleString('fa-IR') : 'ندارد';
+        
+        let questionsHtml = '';
+        if (task.description && task.description.includes('task-questions-container')) {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = task.description;
+          const qContainer = tempDiv.querySelector('.task-questions-container');
+          if (qContainer) {
+            questionsHtml = `
+              <div class="task-questions-container">
+                <h4 style="margin:0 0 12px;color:var(--primary);font-size:14px">📋 سوالات این تکلیف:</h4>
+                ${qContainer.innerHTML}
+              </div>
+            `;
+          }
+        }
+        
+        document.getElementById('detailTitle').textContent = task.title;
+        document.getElementById('detailContent').innerHTML = `
+          <div class="detail-row">
+            <div class="detail-label">شناسه تکلیف</div>
+            <div class="detail-value">#${task.id}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">درس</div>
+            <div class="detail-value">${task.subject || '-'}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">پایه تحصیلی</div>
+            <div class="detail-value">${task.grade || '-'}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">کلاس</div>
+            <div class="detail-value">${task.class_name || task.class_id || '-'}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">مهلت ارسال</div>
+            <div class="detail-value">${deadline}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">نوع پاسخ</div>
+            <div class="detail-value">${task.answer_type || 'متنی'}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">نمره کامل</div>
+            <div class="detail-value">${task.max_score || 20}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">وضعیت</div>
+            <div class="detail-value">${task.is_active ? '✅ فعال' : '❌ غیرفعال'}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">توضیحات</div>
+            <div class="detail-value" style="font-weight:400;line-height:1.6">${task.description || '-'}</div>
+          </div>
+          ${questionsHtml}
+        `;
+        document.getElementById('detailModal').classList.add('active');
+      }
+    })
+    .catch(err => {
+      alert('خطا در دریافت اطلاعات تکلیف');
+    });
+}
+
+function editTask(id) {
+  window.location.href = `teacher-edit-task.html?id=${id}`;
+}
+
+function deleteTask(id) {
+  if (confirm('آیا از حذف این تکلیف اطمینان دارید؟ این عمل قابل بازگشت نیست.')) {
+    fetch(`/api/teacher/delete-task`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ taskId: id })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('✅ تکلیف با موفقیت حذف شد');
+        loadTasks();
+      } else {
+        alert(' ' + (data.message || 'خطا در حذف تکلیف'));
+      }
+    })
+    .catch(err => {
+      alert('❌ خطا در اتصال به سرور');
+    });
+  }
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('active');
+}
+
+// بستن مودال با کلیک بیرون
+document.getElementById('detailModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDetailModal();
+});
+
+// بارگذاری اولیه
+loadTasks();
+</script>
+</body>
+  </html>
