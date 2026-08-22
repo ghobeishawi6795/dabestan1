@@ -1,71 +1,64 @@
+import { hashPassword, jsonResponse, makeInviteCode, requireAuth } from '../_lib/auth.js';
+
 export async function onRequest(context) {
-  const { env } = context;
-  
-  if (context.request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  const { env, request } = context;
+
+  if (request.method !== 'POST') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
   }
-  
+
+  const auth = await requireAuth(context, ['admin']);
+  if (auth.error) return auth.error;
+  const admin = auth.user;
+
   try {
-    const body = await context.request.json();
-    const { schoolId, teacherName, phone, className, grade } = body;
-    
-    // بررسی اینکه مدیر هست یا نه
-    const admin = await env.DB.prepare(`
-      SELECT * FROM users WHERE id = ? AND role = 'admin'
-    `).bind(schoolId).first();
-    
-    if (!admin) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'دسترسی غیرمجاز' 
-      }), { 
-        status: 403,
-        headers: { 'Content-Type': 'application/json' }
-      });
+    const body = await request.json();
+    const { teacherName, phone, className, grade } = body;
+
+    if (!teacherName) {
+      return jsonResponse({ success: false, message: 'نام معلم الزامی است' }, 400);
     }
-    
-    // ساخت کد دعوت برای معلم
-    const inviteCode = 'T' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    
-    // ساخت کلاس (اگه داده شده)
+
+    const inviteCode = makeInviteCode('T');
+
     let classId = null;
     if (className && grade) {
-      await env.DB.prepare(`
-        INSERT INTO classes (school_id, name, grade) VALUES (?, ?, ?)
-      `).bind(admin.school_id, className, grade).run();
-      
-      const classResult = await env.DB.prepare(`
-        SELECT id FROM classes WHERE school_id = ? AND name = ?
-      `).bind(admin.school_id, className).first();
-      
-      classId = classResult.id;
+      const existingClass = await env.DB.prepare(`
+        SELECT id FROM classes WHERE school_id = ? AND name = ? AND grade = ?
+      `).bind(admin.schoolId, className, grade).first();
+
+      if (existingClass) {
+        classId = existingClass.id;
+      } else {
+        const res = await env.DB.prepare(`
+          INSERT INTO classes (school_id, name, grade) VALUES (?, ?, ?)
+        `).bind(admin.schoolId, className, grade).run();
+        classId = res.meta?.last_row_id || null;
+      }
     }
-    
-    // ثبت معلم
-    const passwordHash = btoa('teacher123'); // رمز پیش‌فرض
-    
+
+    const defaultPassword = 'teacher123';
+    const passwordHash = await hashPassword(defaultPassword);
+
     await env.DB.prepare(`
       INSERT INTO users (school_id, name, phone, password_hash, role, class_id, invite_code, is_active)
       VALUES (?, ?, ?, ?, 'teacher', ?, ?, 0)
-    `).bind(admin.school_id, teacherName, phone, passwordHash, classId, inviteCode).run();
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
+    `).bind(admin.schoolId, teacherName, phone || null, passwordHash, classId, inviteCode).run();
+
+    // اگه کلاس تازه ساخته شده، معلمش رو ست کن (بعد از ساخت کاربر معلم)
+    if (classId) {
+      const teacher = await env.DB.prepare(`SELECT id FROM users WHERE invite_code = ?`).bind(inviteCode).first();
+      await env.DB.prepare(`UPDATE classes SET teacher_id = ? WHERE id = ?`).bind(teacher.id, classId).run();
+    }
+
+    return jsonResponse({
+      success: true,
       message: 'معلم با موفقیت اضافه شد',
-      inviteCode: inviteCode,
-      defaultPassword: 'teacher123'
-    }), { 
-      headers: { 'Content-Type': 'application/json' }
+      inviteCode,
+      defaultPassword
     });
-    
+
   } catch (error) {
-    return new Response(JSON.stringify({ 
-      success: false, 
-      message: 'خطا در اضافه کردن معلم',
-      error: error.message 
-    }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ success: false, message: 'خطا در اضافه کردن معلم: ' + error.message }, 500);
   }
 }

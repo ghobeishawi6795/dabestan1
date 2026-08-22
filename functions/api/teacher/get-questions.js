@@ -1,61 +1,39 @@
+import { jsonResponse, requireAuth } from '../_lib/auth.js';
+
 export async function onRequest(context) {
-  const { env } = context;
-  
-  if (context.request.method !== 'GET') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  const { env, request } = context;
+
+  if (request.method !== 'GET') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
   }
-  
+
+  const auth = await requireAuth(context, ['teacher']);
+  if (auth.error) return auth.error;
+  const teacher = auth.user;
+
   try {
-    const url = new URL(context.request.url);
-    const teacherId = url.searchParams.get('teacherId');
+    const url = new URL(request.url);
     const subject = url.searchParams.get('subject');
     const grade = url.searchParams.get('grade');
-    
-    if (!teacherId) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'شناسه معلم الزامی است' 
-      }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-    
-    // ساخت کوئری پویا
-    let query = `
-      SELECT * FROM question_bank 
-      WHERE teacher_id = ? AND is_active = 1
-    `;
-    const params = [teacherId];
-    
+
+    let query = `SELECT * FROM question_bank WHERE teacher_id = ? AND is_active = 1`;
+    const params = [teacher.id];
+
     if (subject && subject !== 'all') {
       query += ' AND subject = ?';
       params.push(subject);
     }
-    
     if (grade && grade !== 'all') {
       query += ' AND grade = ?';
       params.push(grade);
     }
-    
     query += ' ORDER BY created_at DESC';
-    
+
     const questions = await env.DB.prepare(query).bind(...params).all();
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      questions: questions.results || []
-    }), { 
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
+
+    return jsonResponse({ success: true, questions: questions.results || [] });
+
   } catch (error) {
-    return new Response(JSON.stringify({ 
-      success: false, 
-      message: 'خطا در دریافت سوالات: ' + error.message 
-    }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ success: false, message: 'خطا در دریافت سوالات: ' + error.message }, 500);
   }
-  }
+}

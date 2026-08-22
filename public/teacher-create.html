@@ -203,6 +203,7 @@
 
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+const token = localStorage.getItem('token');
 const teacherId = user.id || 1;
 let currentSelectedQuestions = [];
 let bankQuestions = [];
@@ -275,7 +276,7 @@ async function loadBankQuestions() {
     if (subject !== 'all') url += `&subject=${subject}`;
     if (grade !== 'all') url += `&grade=${grade}`;
     
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
     const data = await res.json();
     bankQuestions = data.success ? (data.questions || []) : [];
     
@@ -347,9 +348,8 @@ document.getElementById('createTaskForm').onsubmit = async function(e) {
   try {
     const res = await fetch('/api/teacher/create-task', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({
-        teacherId: teacherId,
         title: title,
         description: finalDescription,
         subject: subject,

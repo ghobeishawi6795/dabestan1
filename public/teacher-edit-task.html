@@ -227,6 +227,7 @@
 
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+const token = localStorage.getItem('token');
 const teacherId = user.id || 1;
 const urlParams = new URLSearchParams(window.location.search);
 const taskId = urlParams.get('id');
@@ -250,7 +251,7 @@ function htmlToText(html) {
 // بارگذاری اطلاعات تکلیف
 async function loadTask() {
   try {
-    const res = await fetch(`/api/teacher/get-task?taskId=${taskId}`);
+    const res = await fetch(`/api/teacher/get-task?taskId=${taskId}`, { headers: { 'Authorization': 'Bearer ' + token } });
     const data = await res.json();
     
     if (data.success && data.task) {
@@ -361,7 +362,7 @@ async function loadBankQuestions() {
     if (subject !== 'all') url += `&subject=${subject}`;
     if (grade !== 'all') url += `&grade=${grade}`;
     
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
     const data = await res.json();
     bankQuestions = data.success ? (data.questions || []) : [];
     
@@ -442,7 +443,7 @@ document.getElementById('editTaskForm').onsubmit = async function(e) {
   try {
     const res = await fetch('/api/teacher/update-task', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({
         taskId: parseInt(document.getElementById('taskId').value),
         title: title,

@@ -1,63 +1,52 @@
+import { verifyPassword, signToken, jsonResponse, getSecret } from '../_lib/auth.js';
+
 export async function onRequest(context) {
-  const { env } = context;
-  
-  if (context.request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  const { env, request } = context;
+
+  if (request.method !== 'POST') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
   }
-  
+
   try {
-    const body = await context.request.json();
+    const body = await request.json();
     const { inviteCode, password } = body;
-    
-    // جستجو فقط با username (که همان کد ورود است)
-    const user = await env.DB.prepare(`
-      SELECT * FROM users WHERE username = ?
-    `).bind(inviteCode).first();
-    
+
+    if (!inviteCode || !password) {
+      return jsonResponse({ success: false, message: 'کد ورود و رمز عبور الزامی است' }, 400);
+    }
+
+    const user = await env.DB.prepare(`SELECT * FROM users WHERE invite_code = ?`).bind(inviteCode).first();
+
     if (!user) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'کد ورود نامعتبر است' 
-      }), { 
-        status: 404,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return jsonResponse({ success: false, message: 'کد ورود نامعتبر است' }, 404);
     }
-    
-    // بررسی رمز عبور (هم plain text و هم hash شده)
-    const passwordHash = btoa(password);
-    const isPasswordCorrect = (user.password === password) || (user.password === passwordHash);
-    
-    if (!isPasswordCorrect) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'رمز عبور اشتباه است' 
-      }), { 
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      });
+
+    const isCorrect = await verifyPassword(password, user.password_hash);
+    if (!isCorrect) {
+      return jsonResponse({ success: false, message: 'رمز عبور اشتباه است' }, 401);
     }
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
+
+    await env.DB.prepare(`UPDATE users SET is_active = 1 WHERE id = ?`).bind(user.id).run();
+
+    const token = await signToken(
+      { sub: user.id, role: user.role, schoolId: user.school_id },
+      getSecret(env)
+    );
+
+    return jsonResponse({
+      success: true,
       message: 'ورود موفق',
+      token,
       user: {
         id: user.id,
         name: user.name,
         role: user.role,
-        schoolId: user.school_id
+        schoolId: user.school_id,
+        classId: user.class_id
       }
-    }), { 
-      headers: { 'Content-Type': 'application/json' }
     });
-    
+
   } catch (error) {
-    return new Response(JSON.stringify({ 
-      success: false, 
-      message: 'خطا در ورود: ' + error.message 
-    }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ success: false, message: 'خطا در ورود: ' + error.message }, 500);
   }
-      }
+}

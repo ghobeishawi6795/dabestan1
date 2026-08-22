@@ -123,6 +123,7 @@
 
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+const token = localStorage.getItem('token');
 const teacherId = user.id || 1;
 
 async function loadTasks() {
@@ -137,7 +138,7 @@ async function loadTasks() {
     if (subject !== 'all') url += `&subject=${subject}`;
     if (grade !== 'all') url += `&grade=${grade}`;
     
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
     const data = await res.json();
     
     if (data.success && data.tasks.length > 0) {
@@ -161,6 +162,7 @@ async function loadTasks() {
             <div class="task-actions">
               <button class="btn-action btn-view" onclick="viewTask(${task.id})">مشاهده</button>
               <button class="btn-action btn-edit" onclick="editTask(${task.id})">ویرایش</button>
+              <button class="btn-action btn-view" onclick="window.location.href='teacher-review.html?taskId=${task.id}'">بررسی پاسخ‌ها</button>
               <button class="btn-action btn-delete" onclick="deleteTask(${task.id})">حذف</button>
             </div>
           </div>
@@ -181,7 +183,7 @@ async function loadTasks() {
 
 function viewTask(id) {
   // نمایش جزئیات تکلیف در مودال
-  fetch(`/api/teacher/get-task?taskId=${id}`)
+  fetch(`/api/teacher/get-task?taskId=${id}`, { headers: { 'Authorization': 'Bearer ' + token } })
     .then(res => res.json())
     .then(data => {
       if (data.success && data.task) {
@@ -259,7 +261,7 @@ function deleteTask(id) {
   if (confirm('آیا از حذف این تکلیف اطمینان دارید؟ این عمل قابل بازگشت نیست.')) {
     fetch(`/api/teacher/delete-task`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ taskId: id })
     })
     .then(res => res.json())

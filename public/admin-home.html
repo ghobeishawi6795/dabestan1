@@ -259,28 +259,28 @@
         <div class="stat-item">
           <div class="stat-icon"></div>
           <div>
-            <p class="stat-value">۱۲</p>
+            <p class="stat-value" id="statClasses">۰</p>
             <p class="stat-label">کلاس فعال</p>
           </div>
         </div>
         <div class="stat-item">
           <div class="stat-icon">👩🏫</div>
           <div>
-            <p class="stat-value">۸</p>
+            <p class="stat-value" id="statTeachers">۰</p>
             <p class="stat-label">معلم فعال</p>
           </div>
         </div>
         <div class="stat-item">
           <div class="stat-icon"></div>
           <div>
-            <p class="stat-value">۲۸۵</p>
+            <p class="stat-value" id="statStudents">۰</p>
             <p class="stat-label">دانش‌آموز</p>
           </div>
         </div>
         <div class="stat-item">
           <div class="stat-icon">📝</div>
           <div>
-            <p class="stat-value">۱۴۲</p>
+            <p class="stat-value" id="statTasksMonth">۰</p>
             <p class="stat-label">تکلیف این ماه</p>
           </div>
         </div>
@@ -298,13 +298,13 @@
       <a href="#" class="menu-item">
         <div class="menu-icon">🏫</div>
         <p class="menu-title">کلاس‌ها</p>
-        <p class="menu-desc">۱۲ کلاس فعال</p>
+        <p class="menu-desc" id="menuClassesDesc">۰ کلاس فعال</p>
       </a>
       
       <a href="#" class="menu-item">
         <div class="menu-icon">🎒</div>
         <p class="menu-title">دانش‌آموزان</p>
-        <p class="menu-desc">۲۸۵ دانش‌آموز</p>
+        <p class="menu-desc" id="menuStudentsDesc">۰ دانش‌آموز</p>
       </a>
       
       <a href="#" class="menu-item">
@@ -317,12 +317,14 @@
     <!-- تکالیف اخیر -->
     <div class="recent-section">
       <div class="section-header">
-        <h3>تکالیف ارسال شده</h3>
-        <span class="badge">هفته اخیر</span>
+        <h3>تکالیف اخیر</h3>
+        <span class="badge">جدیدترین‌ها</span>
       </div>
-      <div class="empty-state">
-        <div class="emoji"></div>
-        <p>هنوز تکلیفی ارسال نشده</p>
+      <div id="recentTasksContainer">
+        <div class="empty-state">
+          <div class="emoji"></div>
+          <p>هنوز تکلیفی ارسال نشده</p>
+        </div>
       </div>
     </div>
 
@@ -332,15 +334,51 @@
 <script>
 // نمایش اطلاعات کاربر
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+const token = localStorage.getItem('token');
 if (user.name) {
   document.getElementById('userName').textContent = user.name;
   document.getElementById('userAvatar').textContent = user.name.charAt(0);
 }
 
+function toFa(n) {
+  return (n ?? 0).toLocaleString('fa-IR');
+}
+
+async function loadOverview() {
+  try {
+    const res = await fetch('/api/admin/get-overview', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    if (!data.success) return;
+
+    document.getElementById('statClasses').textContent = toFa(data.stats.classes);
+    document.getElementById('statTeachers').textContent = toFa(data.stats.teachers);
+    document.getElementById('statStudents').textContent = toFa(data.stats.students);
+    document.getElementById('statTasksMonth').textContent = toFa(data.stats.tasksThisMonth);
+    document.getElementById('menuClassesDesc').textContent = `${toFa(data.stats.classes)} کلاس فعال`;
+    document.getElementById('menuStudentsDesc').textContent = `${toFa(data.stats.students)} دانش‌آموز`;
+
+    const container = document.getElementById('recentTasksContainer');
+    if (data.recentTasks && data.recentTasks.length > 0) {
+      container.innerHTML = data.recentTasks.map(t => `
+        <div class="task-row" style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border);">
+          <div>
+            <p style="margin:0; font-weight:600;">${t.title}</p>
+            <p style="margin:0; font-size:12px; color:var(--muted);">${t.subject || ''} • ${t.teacher_name || ''}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+loadOverview();
+
 // خروج
 function logout() {
   if (confirm('آیا می‌خواهید خارج شوید؟')) {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     window.location.href = 'index.html';
   }
 }

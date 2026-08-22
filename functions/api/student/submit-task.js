@@ -1,67 +1,55 @@
+import { jsonResponse, requireAuth } from '../_lib/auth.js';
+
 export async function onRequest(context) {
-  const { env } = context;
-  
-  if (context.request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  const { env, request } = context;
+
+  if (request.method !== 'POST') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
   }
-  
+
+  const auth = await requireAuth(context, ['student']);
+  if (auth.error) return auth.error;
+  const studentAuth = auth.user;
+
   try {
-    const body = await context.request.json();
-    const { taskId, studentId, answers } = body;
-    
-    if (!taskId || !studentId) {
-      return new Response(JSON.stringify({ success: false, message: 'شناسه تکلیف و دانش‌آموز الزامی است' }), { status: 400 });
+    const body = await request.json();
+    const { taskId, answers } = body;
+
+    if (!taskId) {
+      return jsonResponse({ success: false, message: 'شناسه تکلیف الزامی است' }, 400);
     }
-    
-    // بررسی دانش‌آموز
-    const student = await env.DB.prepare(`
-      SELECT * FROM users WHERE id = ? AND role = 'student'
-    `).bind(studentId).first();
-    
-    if (!student) {
-      return new Response(JSON.stringify({ success: false, message: 'دانش‌آموز یافت نشد' }), { status: 404 });
-    }
-    
-    // بررسی تکلیف
-    const task = await env.DB.prepare(`
-      SELECT * FROM tasks WHERE id = ?
-    `).bind(taskId).first();
-    
+
+    const task = await env.DB.prepare(`SELECT * FROM tasks WHERE id = ?`).bind(taskId).first();
     if (!task) {
-      return new Response(JSON.stringify({ success: false, message: 'تکلیف یافت نشد' }), { status: 404 });
+      return jsonResponse({ success: false, message: 'تکلیف یافت نشد' }, 404);
     }
-    
-    // بررسی مهلت
+
     if (task.deadline && new Date(task.deadline) < new Date()) {
-      return new Response(JSON.stringify({ success: false, message: 'مهلت ارسال به پایان رسیده است' }), { status: 400 });
+      return jsonResponse({ success: false, message: 'مهلت ارسال به پایان رسیده است' }, 400);
     }
-    
-    // تبدیل پاسخ‌ها به JSON
-    const answerText = JSON.stringify(answers);
-    
-    // بررسی ارسال قبلی
+
+    const answerText = JSON.stringify(answers || []);
+
     const existing = await env.DB.prepare(`
       SELECT id FROM submissions WHERE task_id = ? AND student_id = ?
-    `).bind(taskId, studentId).first();
-    
+    `).bind(taskId, studentAuth.id).first();
+
     if (existing) {
-      // به‌روزرسانی ارسال قبلی
       await env.DB.prepare(`
-        UPDATE submissions 
-        SET answer_text = ?, status = 'pending', submitted_at = datetime('now')
+        UPDATE submissions
+        SET answer_text = ?, status = 'submitted', submitted_at = datetime('now'), updated_at = datetime('now')
         WHERE id = ?
       `).bind(answerText, existing.id).run();
     } else {
-      // ثبت ارسال جدید
       await env.DB.prepare(`
         INSERT INTO submissions (task_id, student_id, answer_text, status, submitted_at)
-        VALUES (?, ?, ?, 'pending', datetime('now'))
-      `).bind(taskId, studentId, answerText).run();
+        VALUES (?, ?, ?, 'submitted', datetime('now'))
+      `).bind(taskId, studentAuth.id, answerText).run();
     }
-    
-    return new Response(JSON.stringify({ success: true, message: 'پاسخ با موفقیت ثبت شد' }));
-    
+
+    return jsonResponse({ success: true, message: 'پاسخ با موفقیت ثبت شد' });
+
   } catch (error) {
-    return new Response(JSON.stringify({ success: false, message: error.message }), { status: 500 });
+    return jsonResponse({ success: false, message: 'خطا در ثبت پاسخ: ' + error.message }, 500);
   }
-        }
+}

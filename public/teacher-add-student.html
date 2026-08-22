@@ -80,6 +80,7 @@
 </div>
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+const token = localStorage.getItem('token');
 const teacherId = user.id || 1;
 document.getElementById('addStudentForm').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -91,9 +92,8 @@ document.getElementById('addStudentForm').addEventListener('submit', async funct
   try {
     const res = await fetch('/api/teacher/add-student', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({
-        teacherId: teacherId,
         studentName: document.getElementById('studentName').value,
         phone: document.getElementById('phone').value,
         className: document.getElementById('className').value || null,

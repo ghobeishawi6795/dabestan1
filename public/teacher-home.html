@@ -138,6 +138,7 @@
 
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+const token = localStorage.getItem('token');
 if (user.name) {
   document.getElementById('userName').textContent = user.name;
   document.getElementById('userAvatar').textContent = user.name.charAt(0);
@@ -147,7 +148,7 @@ if (user.name) {
 async function loadRecentTasks() {
   const list = document.getElementById('recentTasksList');
   try {
-    const res = await fetch(`/api/teacher/get-tasks?teacherId=${user.id || 1}&limit=3`);
+    const res = await fetch(`/api/teacher/get-tasks?limit=3`, { headers: { 'Authorization': 'Bearer ' + token } });
     const data = await res.json();
     
     if (data.success && data.tasks.length > 0) {
@@ -185,6 +186,7 @@ async function loadRecentTasks() {
 function logout() {
   if (confirm('آیا می‌خواهید خارج شوید؟')) {
     localStorage.removeItem('user');
+  localStorage.removeItem('token');
     window.location.href = 'index.html';
   }
 }

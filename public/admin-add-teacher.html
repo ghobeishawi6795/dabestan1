@@ -216,6 +216,7 @@
 <script>
 // گرفتن اطلاعات کاربر از localStorage
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+const token = localStorage.getItem('token');
 const schoolId = user.schoolId || 1; // پیش‌فرض 1
 
 document.getElementById('addTeacherForm').addEventListener('submit', async function(e) {
@@ -231,9 +232,8 @@ document.getElementById('addTeacherForm').addEventListener('submit', async funct
   try {
     const res = await fetch('/api/admin/add-teacher', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({
-        schoolId: schoolId,
         teacherName: document.getElementById('teacherName').value,
         phone: document.getElementById('phone').value,
         className: document.getElementById('className').value || null,

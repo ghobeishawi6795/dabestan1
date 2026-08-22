@@ -1,49 +1,32 @@
+import { jsonResponse, requireAuth } from '../_lib/auth.js';
+
 export async function onRequest(context) {
-  const { env } = context;
-  
-  if (context.request.method !== 'GET') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  const { env, request } = context;
+
+  if (request.method !== 'GET') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
   }
-  
+
+  const auth = await requireAuth(context, ['teacher']);
+  if (auth.error) return auth.error;
+  const teacher = auth.user;
+
   try {
-    const url = new URL(context.request.url);
-    const teacherId = url.searchParams.get('teacherId');
+    const url = new URL(request.url);
     const limit = parseInt(url.searchParams.get('limit')) || 10;
-    
-    if (!teacherId) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'شناسه معلم الزامی است' 
-      }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-    
-    // گرفتن لیست تکالیف
+
     const tasks = await env.DB.prepare(`
-      SELECT t.*, c.name as class_name, c.grade as class_grade
+      SELECT t.*, t.response_type as answer_type, c.name as class_name, c.grade as class_grade
       FROM tasks t
       LEFT JOIN classes c ON t.class_id = c.id
       WHERE t.teacher_id = ? AND t.is_active = 1
       ORDER BY t.created_at DESC
       LIMIT ?
-    `).bind(teacherId, limit).all();
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      tasks: tasks.results || []
-    }), { 
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
+    `).bind(teacher.id, limit).all();
+
+    return jsonResponse({ success: true, tasks: tasks.results || [] });
+
   } catch (error) {
-    return new Response(JSON.stringify({ 
-      success: false, 
-      message: 'خطا در دریافت تکالیف: ' + error.message 
-    }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ success: false, message: 'خطا در دریافت تکالیف: ' + error.message }, 500);
   }
 }

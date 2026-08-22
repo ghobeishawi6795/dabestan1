@@ -1,56 +1,56 @@
+import { jsonResponse, requireAuth } from '../_lib/auth.js';
+
+const ALLOWED_RESPONSE_TYPES = ['text', 'image', 'voice', 'file'];
+
 export async function onRequest(context) {
-  const { env } = context;
-  
-  if (context.request.method !== 'PUT') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  const { env, request } = context;
+
+  if (request.method !== 'PUT') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
   }
-  
+
+  const auth = await requireAuth(context, ['teacher']);
+  if (auth.error) return auth.error;
+  const teacher = auth.user;
+
   try {
-    const body = await context.request.json();
-    const { taskId, title, description, subject, grade, className, deadline, answerType, maxScore, isActive } = body;
-    
+    const body = await request.json();
+    const { taskId, title, description, subject, grade, deadline, answerType, maxScore, isActive } = body;
+
     if (!taskId) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'شناسه تکلیف الزامی است' 
-      }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return jsonResponse({ success: false, message: 'شناسه تکلیف الزامی است' }, 400);
     }
-    
-    // به‌روزرسانی تکلیف
+
+    const existing = await env.DB.prepare(`SELECT teacher_id FROM tasks WHERE id = ?`).bind(taskId).first();
+    if (!existing) {
+      return jsonResponse({ success: false, message: 'تکلیف یافت نشد' }, 404);
+    }
+    if (existing.teacher_id !== teacher.id) {
+      return jsonResponse({ success: false, message: 'دسترسی غیرمجاز' }, 403);
+    }
+
+    const finalResponseType = ALLOWED_RESPONSE_TYPES.includes(answerType) ? answerType : 'text';
+
     await env.DB.prepare(`
-      UPDATE tasks 
-      SET title = ?, description = ?, subject = ?, grade = ?, 
-          deadline = ?, answer_type = ?, max_score = ?, is_active = ?
+      UPDATE tasks
+      SET title = ?, description = ?, subject = ?, grade = ?,
+          deadline = ?, response_type = ?, max_score = ?, is_active = ?
       WHERE id = ?
     `).bind(
       title,
       description,
       subject,
       grade,
-      deadline,
-      answerType,
-      maxScore,
+      deadline || null,
+      finalResponseType,
+      maxScore || 20,
       isActive !== undefined ? isActive : 1,
       taskId
     ).run();
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'تکلیف با موفقیت به‌روزرسانی شد'
-    }), { 
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
+
+    return jsonResponse({ success: true, message: 'تکلیف با موفقیت به‌روزرسانی شد' });
+
   } catch (error) {
-    return new Response(JSON.stringify({ 
-      success: false, 
-      message: 'خطا در به‌روزرسانی تکلیف: ' + error.message 
-    }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ success: false, message: 'خطا در به‌روزرسانی تکلیف: ' + error.message }, 500);
   }
 }

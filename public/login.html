@@ -199,6 +199,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     
     if (data.success) {
       localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
       result.className = 'result success';
       result.textContent = '✅ ورود موفق! در حال انتقال...';
       

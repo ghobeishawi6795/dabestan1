@@ -1,66 +1,46 @@
+import { jsonResponse, requireAuth } from '../_lib/auth.js';
+
 export async function onRequest(context) {
-  const { env } = context;
-  
-  if (context.request.method !== 'GET') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  const { env, request } = context;
+
+  if (request.method !== 'GET') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
   }
-  
+
+  const auth = await requireAuth(context, ['student']);
+  if (auth.error) return auth.error;
+  const studentAuth = auth.user;
+
   try {
-    const url = new URL(context.request.url);
-    const studentId = url.searchParams.get('studentId');
-    
-    if (!studentId) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'شناسه دانش‌آموز الزامی است' 
-      }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-    
-    // دریافت اطلاعات دانش‌آموز
-    const student = await env.DB.prepare(`
-      SELECT * FROM users WHERE id = ?
-    `).bind(studentId).first();
-    
+    const student = await env.DB.prepare(`SELECT * FROM users WHERE id = ?`).bind(studentAuth.id).first();
+
     if (!student || student.role !== 'student') {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        message: 'دانش‌آموز یافت نشد' 
-      }), { 
-        status: 404,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return jsonResponse({ success: false, message: 'دانش‌آموز یافت نشد' }, 404);
     }
-    
-    // دریافت تکالیف بر اساس پایه و کلاس
+
+    // گرفتن پایه‌ی دانش‌آموز از روی کلاسش (اگر عضو کلاسی باشد)
+    let studentGrade = null;
+    if (student.class_id) {
+      const cls = await env.DB.prepare(`SELECT grade FROM classes WHERE id = ?`).bind(student.class_id).first();
+      studentGrade = cls ? cls.grade : null;
+    }
+
     const tasks = await env.DB.prepare(`
-      SELECT t.*, c.name as class_name, c.grade as class_grade,
+      SELECT t.*, t.response_type as answer_type, c.name as class_name, c.grade as class_grade,
              u.name as teacher_name
       FROM tasks t
       LEFT JOIN classes c ON t.class_id = c.id
       LEFT JOIN users u ON t.teacher_id = u.id
-      WHERE (c.id = ? OR t.grade = ?) 
+      WHERE (t.class_id = ? OR (t.class_id IS NULL AND t.grade = ?))
+        AND t.school_id = ?
         AND t.is_active = 1
         AND (t.deadline IS NULL OR t.deadline > datetime('now'))
       ORDER BY t.created_at DESC
-    `).bind(student.class || null, student.grade || null).all();
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      tasks: tasks.results || []
-    }), { 
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
+    `).bind(student.class_id || null, studentGrade, student.school_id).all();
+
+    return jsonResponse({ success: true, tasks: tasks.results || [] });
+
   } catch (error) {
-    return new Response(JSON.stringify({ 
-      success: false, 
-      message: 'خطا در دریافت تکالیف: ' + error.message 
-    }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ success: false, message: 'خطا در دریافت تکالیف: ' + error.message }, 500);
   }
 }

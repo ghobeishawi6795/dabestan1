@@ -110,6 +110,7 @@
 
 <script>
 const user = JSON.parse(localStorage.getItem('user') || '{}');
+const token = localStorage.getItem('token');
 const urlParams = new URLSearchParams(window.location.search);
 const taskId = urlParams.get('id');
 let taskData = null;
@@ -128,7 +129,7 @@ const answerTypeLabels = {
 
 async function loadTask() {
   try {
-    const res = await fetch(`/api/teacher/get-task?taskId=${taskId}`);
+    const res = await fetch(`/api/teacher/get-task?taskId=${taskId}`, { headers: { 'Authorization': 'Bearer ' + token } });
     const data = await res.json();
     
     if (data.success && data.task) {
@@ -252,10 +253,9 @@ async function submitTask() {
   try {
     const res = await fetch('/api/student/submit-task', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({
         taskId: parseInt(taskId),
-        studentId: user.id,
         answers: answers
       })
     });
