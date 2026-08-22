@@ -3,62 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نمرات من - دبستان</title>
+<title>نمرات و بازخوردها</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
   .screen { padding: 24px; min-height: 100%; }
   .header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-  .header h2 { font-size: 18px; font-weight: 800; margin: 0; flex: 1; }
+  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: white; border: 2px solid #E5E7EB; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; }
+  .back-btn svg { width: 20px; height: 20px; color: #6B7280; }
+  .page-title h1 { font-size: 18px; font-weight: 800; color: #1F2937; margin: 0; }
+  
+  .stats-card { background: linear-gradient(135deg, #F59E0B, #F97316); border-radius: 20px; padding: 24px; margin-bottom: 24px; color: white; text-align: center; }
+  .stats-value { font-size: 36px; font-weight: 800; margin: 8px 0; }
+  .stats-label { font-size: 14px; opacity: 0.9; }
 
-  .summary-card { background: linear-gradient(135deg, var(--primary), #8B7CF6); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; color: white; }
-  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .summary-item { background: rgba(255,255,255,.15); border-radius: 12px; padding: 14px; backdrop-filter: blur(10px); text-align: center; }
-  .summary-value { font-size: 22px; font-weight: 800; margin: 0 0 4px; }
-  .summary-label { font-size: 11px; opacity: .9; margin: 0; }
+  .grade-card { background: white; border: 2px solid #E5E7EB; border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+  .grade-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .grade-title { font-size: 15px; font-weight: 700; color: #1F2937; margin: 0 0 4px; }
+  .grade-subject { font-size: 12px; color: #6B7280; }
+  
+  .stars { display: flex; gap: 2px; font-size: 18px; }
+  .star { color: #E5E7EB; }
+  .star.active { color: #F59E0B; }
 
-  .grade-card { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
-  .grade-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .grade-title { font-size: 15px; font-weight: 700; margin: 0; }
-  .grade-sub { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
-  .grade-score { font-size: 16px; font-weight: 800; color: var(--primary); }
-  .grade-status { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 700; margin-top: 8px; }
-  .grade-status.reviewed { background: #DCFCE7; color: #15803D; }
-  .grade-status.revision { background: #FEF3C7; color: #B45309; }
-  .grade-status.submitted { background: #E0E7FF; color: #4338CA; }
-  .grade-feedback { margin-top: 10px; padding: 10px 12px; background: var(--bg); border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .feedback-box { background: #F9FAFB; border-radius: 12px; padding: 12px; margin-top: 12px; border-right: 4px solid #6C5CE7; }
+  .feedback-label { font-size: 12px; font-weight: 700; color: #6C5CE7; margin-bottom: 4px; }
+  .feedback-text { font-size: 13px; color: #374151; line-height: 1.6; white-space: pre-wrap; }
 
-  .empty-state { text-align: center; padding: 40px 16px; color: var(--muted); }
-  .empty-state .emoji { font-size: 48px; margin-bottom: 8px; }
-  .loading { text-align: center; padding: 40px; color: var(--muted); }
+  .status-badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .status-reviewed { background: #DCFCE7; color: #15803D; }
+  .status-revision { background: #FEE2E2; color: #DC2626; }
+  .status-pending { background: #FEF3C7; color: #D97706; }
+
+  .empty-state { text-align: center; padding: 40px 16px; color: #6B7280; }
+  .loading { text-align: center; padding: 40px; color: #6B7280; }
 </style>
 </head>
 <body>
 <div class="phone">
   <div class="screen">
     <div class="header">
-      <div class="back-btn" onclick="window.location.href='student-home.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="15 18 9 12 15 6"/></svg>
-      </div>
-      <h2>📊 نمرات من</h2>
-    </div>
-
-    <div class="summary-card">
-      <div class="summary-grid">
-        <div class="summary-item">
-          <p class="summary-value" id="summaryReviewed">-</p>
-          <p class="summary-label">بررسی‌شده</p>
-        </div>
-        <div class="summary-item">
-          <p class="summary-value" id="summaryAvg">-</p>
-          <p class="summary-label">میانگین نمره</p>
-        </div>
+      <a href="student-home.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="page-title">
+        <h1>کارنامه و بازخوردها</h1>
       </div>
     </div>
 
-    <div id="gradesContainer" class="loading">در حال بارگذاری...</div>
+    <div class="stats-card">
+      <div class="stats-label">میانگین نمرات شما</div>
+      <div class="stats-value" id="averageScore">-</div>
+      <div class="stats-label">از ۲۰ <span id="gradedCount" style="margin-right: 8px; opacity: 0.8;">(۰ تکلیف بررسی‌شده)</span></div>
+    </div>
+
+    <div id="gradesList">
+      <div class="loading">در حال بارگذاری نمرات...</div>
+    </div>
   </div>
 </div>
 
@@ -66,59 +68,81 @@
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const token = localStorage.getItem('token');
 
-const statusLabels = {
-  reviewed: 'بررسی‌شده',
-  revision: 'نیاز به اصلاح',
-  submitted: 'منتظر بررسی'
-};
+if (!user || user.role !== 'student') {
+  window.location.href = 'login.html?role=student';
+}
 
 async function loadGrades() {
-  const container = document.getElementById('gradesContainer');
+  const list = document.getElementById('gradesList');
+  
   try {
-    const res = await fetch('/api/student/get-submissions', { headers: { 'Authorization': 'Bearer ' + token } });
+    const res = await fetch('/api/student/get-grades', { 
+      headers: { 'Authorization': 'Bearer ' + token } 
+    });
     const data = await res.json();
+    
+    if (data.success) {
+      // به‌روزرسانی آمار
+      document.getElementById('averageScore').textContent = data.stats.average;
+      document.getElementById('gradedCount').textContent = `(${data.stats.totalGraded} تکلیف بررسی‌شده)`;
 
-    if (!data.success) {
-      container.innerHTML = `<div class="empty-state"><p>${data.message || 'خطا در دریافت نمرات'}</p></div>`;
-      return;
-    }
+      if (data.grades.length > 0) {
+        list.innerHTML = data.grades.map(grade => {
+          // محاسبه ستاره‌ها (از ۵ ستاره)
+          const maxScore = grade.max_score || 20;
+          const starCount = grade.score !== null ? Math.round((grade.score / maxScore) * 5) : 0;
+          
+          let starsHtml = '';
+          for (let i = 1; i <= 5; i++) {
+            starsHtml += `<span class="star ${i <= starCount ? 'active' : ''}">★</span>`;
+          }
 
-    const submissions = data.submissions || [];
-    const reviewed = submissions.filter(s => s.status === 'reviewed' && s.score != null);
-    document.getElementById('summaryReviewed').textContent = reviewed.length.toLocaleString('fa-IR');
-    if (reviewed.length > 0) {
-      const avgPct = reviewed.reduce((sum, s) => sum + (s.score / (s.max_score || 20)) * 100, 0) / reviewed.length;
-      document.getElementById('summaryAvg').textContent = Math.round(avgPct).toLocaleString('fa-IR') + '%';
-    } else {
-      document.getElementById('summaryAvg').textContent = '-';
-    }
+          let statusClass = 'status-pending';
+          let statusText = 'در انتظار بررسی';
+          if (grade.status === 'reviewed') { statusClass = 'status-reviewed'; statusText = 'بررسی‌شده'; }
+          if (grade.status === 'revision') { statusClass = 'status-revision'; statusText = 'نیاز به اصلاح'; }
 
-    if (submissions.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="emoji">📭</div>
-          <p>هنوز تکلیفی ارسال نکرده‌ای</p>
-        </div>
-      `;
-      return;
-    }
+          const scoreText = grade.score !== null ? `نمره: ${grade.score} از ${maxScore}` : 'بدون نمره';
+          const date = new Date(grade.reviewed_at || grade.submitted_at).toLocaleDateString('fa-IR');
 
-    container.innerHTML = submissions.map(s => `
-      <div class="grade-card">
-        <div class="grade-head">
-          <div>
-            <p class="grade-title">${s.title || 'تکلیف'}</p>
-            <p class="grade-sub">${s.subject || ''}</p>
+          return `
+            <div class="grade-card">
+              <div class="grade-header">
+                <div>
+                  <h3 class="grade-title">${grade.task_title}</h3>
+                  <div class="grade-subject">${grade.subject || 'عمومی'} • ${grade.teacher_name || 'معلم'} • ${date}</div>
+                </div>
+                <span class="status-badge ${statusClass}">${statusText}</span>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div class="stars">${starsHtml}</div>
+                <div style="font-size: 14px; font-weight: 700; color: #1F2937;">${scoreText}</div>
+              </div>
+
+              ${grade.feedback ? `
+                <div class="feedback-box">
+                  <div class="feedback-label">💬 بازخورد معلم:</div>
+                  <div class="feedback-text">${grade.feedback}</div>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      } else {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size: 48px; margin-bottom: 8px;">📭</div>
+            <p>هنوز تکلیفی بررسی نشده است.</p>
           </div>
-          ${s.status === 'reviewed' && s.score != null ? `<div class="grade-score">${s.score} از ${s.max_score || 20}</div>` : ''}
-        </div>
-        <span class="grade-status ${s.status}">${statusLabels[s.status] || s.status}</span>
-        ${s.feedback ? `<div class="grade-feedback">💬 ${s.feedback}</div>` : ''}
-      </div>
-    `).join('');
-
+        `;
+      }
+    } else {
+      list.innerHTML = '<div class="empty-state"><p>خطا در دریافت اطلاعات</p></div>';
+    }
   } catch (err) {
-    container.innerHTML = '<div class="empty-state"><p>خطا در ارتباط با سرور</p></div>';
+    console.error(err);
+    list.innerHTML = '<div class="empty-state"><p>خطا در ارتباط با سرور</p></div>';
   }
 }
 
