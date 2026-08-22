@@ -147,7 +147,7 @@
       <div class="list-toolbar">
         <button class="toolbar-btn" id="selectModeBtn" onclick="toggleSelectMode()">✏️ حالت انتخاب</button>
         <button class="toolbar-btn" id="selectAllBtn" onclick="toggleSelectAllList()" style="display:none">انتخاب همه</button>
-        <button class="toolbar-btn success" id="createTaskBtn" onclick="createTaskFromSelected()" style="display:none">📝 ایجاد تکلیف</button>
+        <button class="toolbar-btn success" id="createTaskBtn" onclick="createTaskFromSelected()" style="display:none"> ایجاد تکلیف</button>
       </div>
       <div id="selectionSummary" class="selection-summary" style="display:none">
         <span class="count" id="selectionCount">۰ سوال انتخاب شده</span>
@@ -368,49 +368,26 @@
     }
     
     try {
-      let successCount = 0;
-      let errorCount = 0;
       const total = questionsToUpload.length;
-
-      // ✅ آپلود ترتیبی (یکی‌یکی) برای جلوگیری از قفل شدن دیتابیس D1 (SQLite)
-      for (let i = 0; i < total; i++) {
-        const q = questionsToUpload[i];
-        btn.textContent = `در حال آپلود... (${i + 1} از ${total})`;
-        
-        try {
-          const res = await fetch('/api/teacher/upload-question', {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json', 
-              'Authorization': 'Bearer ' + token 
-            },
-            body: JSON.stringify({ 
-              title: q.title, 
-              subject: q.subject, 
-              grade: q.grade, 
-              questionHtml: q.html, 
-              questionType: 'html' 
-            })
-          });
-          
-          const data = await res.json();
-          if (data.success) {
-            successCount++;
-          } else {
-            errorCount++;
-            console.error('API Error:', data.message);
-          }
-        } catch (e) {
-          errorCount++;
-          console.error('Network Error for question', i, e);
-        }
-      }
-
-      if (successCount > 0) {
+      btn.textContent = `در حال ارسال ${total} سوال به سرور...`;
+      
+      // ✅ ارسال تمام سوالات در یک درخواست واحد (Batch Upload)
+      const res = await fetch('/api/teacher/upload-question', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': 'Bearer ' + token 
+        },
+        body: JSON.stringify({ 
+          questions: questionsToUpload 
+        })
+      });
+      
+      const data = await res.json();
+      
+      if (data.success) {
         resDiv.className = 'result success';
-        resDiv.textContent = errorCount > 0
-          ? `✅ ${successCount} سوال اضافه شد، ${errorCount} مورد خطا داشت`
-          : `✅ ${successCount} سوال با موفقیت به بانک اضافه شد`;
+        resDiv.textContent = data.message;
         
         this.reset(); 
         parsedQuestions = []; 
@@ -419,11 +396,11 @@
         document.getElementById('fileName').textContent = 'فرمت‌های مجاز: .html, .htm';
       } else { 
         resDiv.className = 'result error'; 
-        resDiv.textContent = '❌ خطا در آپلود سوالات'; 
+        resDiv.textContent = '❌ ' + (data.message || 'خطا در آپلود سوالات'); 
       }
     } catch (err) { 
       resDiv.className = 'result error'; 
-      resDiv.textContent = '❌ خطا: ' + err.message; 
+      resDiv.textContent = '❌ خطای شبکه: ' + err.message; 
     }
     
     btn.disabled = false; 
@@ -508,4 +485,4 @@
   }
 </script>
 </body>
-</html>
+  </html>
