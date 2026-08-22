@@ -1,10 +1,11 @@
-import { jsonResponse } from '../_lib/auth.js';
-
 export async function onRequest(context) {
   const { env, request } = context;
 
   if (request.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405);
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { 
+      status: 405,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 
   try {
@@ -12,20 +13,25 @@ export async function onRequest(context) {
     const { title, subject, grade, className, description, deadline, answerType, maxScore } = body;
 
     if (!title) {
-      return jsonResponse({ success: false, message: 'عنوان تکلیف الزامی است' }, 400);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        message: 'عنوان تکلیف الزامی است' 
+      }), { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    // برای تست: استفاده از teacher_id پیش‌فرض
-    // در نسخه اصلی باید از توکن گرفته شود
-    const teacherId = 1; // یا ID معلم واقعی‌ات را اینجا بگذار
+    // برای تست: ID ثابت
+    const teacherId = 1;
     const schoolId = 1;
 
-    await env.DB.prepare(`
+    const result = await env.DB.prepare(`
       INSERT INTO tasks (teacher_id, class_id, grade, school_id, title, subject, description, response_type, max_score, is_active, deadline)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
     `).bind(
       teacherId,
-      null, // class_id
+      null,
       grade || null,
       schoolId,
       title,
@@ -36,10 +42,22 @@ export async function onRequest(context) {
       deadline || null
     ).run();
 
-    return jsonResponse({ success: true, message: 'تکلیف با موفقیت ایجاد شد' });
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: 'تکلیف با موفقیت ایجاد شد',
+      taskId: result.meta?.last_row_id || 1
+    }), { 
+      headers: { 'Content-Type': 'application/json' }
+    });
 
   } catch (error) {
     console.error('Create task error:', error);
-    return jsonResponse({ success: false, message: 'خطا: ' + error.message }, 500);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      message: 'خطا در ایجاد تکلیف: ' + error.message 
+    }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-}
+        }
